@@ -25,7 +25,7 @@ export default function PortfolioScreen() {
           ))}
         </View>
       </LargeHeader>
-      <RoundAddButton onPress={() => router.push('/(tabs)/(portfolio)/add-modal')} />
+      {/* <RoundAddButton onPress={() => router.push('/(tabs)/(portfolio)/add-modal')} /> */}
     </View>
   );
 }
