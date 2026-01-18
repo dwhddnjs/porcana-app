@@ -19,7 +19,7 @@ export default function AddModal() {
   };
 
   return (
-    <View className="flex-1 items-center justify-center">
+    <View className="flex-1 items-center justify-center bg-background">
       <Text>Modal screen</Text>
       {isPresented && <Link href="../">Dismiss modal</Link>}
       <Button onPress={handleCreatePortfolio}>

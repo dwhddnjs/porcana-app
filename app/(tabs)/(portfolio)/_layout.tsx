@@ -1,19 +1,20 @@
-import { Stack } from 'expo-router';
+import { Drawer } from 'expo-router/drawer';
 import { Platform } from 'react-native';
+import { PortfolioDrawerContent } from '@/components/portfolio/drawer-content';
 
 export default function PortfolioLayout() {
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="index" />
-      <Stack.Screen
-        name="add-modal"
-        options={{
-          presentation: 'formSheet',
-          sheetGrabberVisible: true,
-          sheetAllowedDetents: Platform.OS === 'android' ? [0.96] : undefined,
-          sheetCornerRadius: Platform.OS === 'android' ? 30 : undefined,
-        }}
-      />
-    </Stack>
+    <Drawer
+      screenOptions={{
+        headerShown: false,
+        drawerPosition: 'right',
+        swipeEnabled: false,
+        drawerStyle: {
+          width: '75%',
+        },
+      }}
+      drawerContent={(props) => <PortfolioDrawerContent {...props} />}>
+      <Drawer.Screen name="index" />
+    </Drawer>
   );
 }
