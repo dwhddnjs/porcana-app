@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { z } from "zod";
 import { useRouter } from "expo-router";
-import { useSignupStore } from "@/lib/hooks/use-signup-store";
+import { useSignupStore } from "@/lib/hooks/zustand/use-signup-store";
 import Container from "@/components/container";
 import { Header } from "@/components/ui/header";
 import { Spacer } from "@/components/spacer";

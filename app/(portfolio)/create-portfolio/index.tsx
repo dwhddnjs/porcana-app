@@ -11,7 +11,7 @@ import * as ScreenOrientation from "expo-screen-orientation";
 import { router, useFocusEffect } from "expo-router";
 import { Button } from "@/components/ui/button";
 import { useNavigation, DrawerActions } from "@react-navigation/native";
-import { useSelectedCardsStore } from "@/lib/hooks/use-selected-cards-store";
+import { useSelectedCardsStore } from "@/lib/hooks/zustand/use-selected-cards-store";
 
 const MAX_SELECTIONS = 20;
 

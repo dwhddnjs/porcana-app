@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { signup } from '@/lib/api/auth';
-import { useSignupStore } from '../use-signup-store';
-import { useUserStore } from '../use-user-store';
+import { useSignupStore } from '@/lib/hooks/zustand/use-signup-store';
+import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 
 export const useSignupMutation = () => {
   const resetSignup = useSignupStore((state) => state.reset);

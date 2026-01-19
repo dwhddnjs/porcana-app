@@ -1,5 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
-import { useUserStore } from "../hooks/use-user-store";
+import { useUserStore } from "@/lib/hooks/zustand/use-user-store";
 
 export interface ApiResponse<T> {
   result_code: number;

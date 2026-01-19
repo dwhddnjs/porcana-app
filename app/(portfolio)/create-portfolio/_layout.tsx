@@ -1,7 +1,7 @@
 import { Drawer } from "expo-router/drawer";
 import { View, ScrollView } from "react-native";
 import { Text } from "@/components/ui/text";
-import { useSelectedCardsStore } from "@/lib/hooks/use-selected-cards-store";
+import { useSelectedCardsStore } from "@/lib/hooks/zustand/use-selected-cards-store";
 import Animated, { FadeIn } from "react-native-reanimated";
 
 function CustomDrawerContent() {
