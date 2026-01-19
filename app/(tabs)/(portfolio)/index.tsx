@@ -11,6 +11,7 @@ import { LineChart } from 'react-native-gifted-charts';
 import { useUniwind } from 'uniwind';
 import { THEME } from '@/lib/theme';
 import { Spacer } from '@/components/spacer';
+import { useUserStore } from '@/lib/hooks/use-user-store';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -35,7 +36,8 @@ export default function PortfolioScreen() {
   const router = useRouter();
   const navigation = useNavigation();
   const { theme } = useUniwind();
-
+  const { accessToken } = useUserStore()
+  
   const openDrawer = () => {
     navigation.dispatch(DrawerActions.openDrawer());
   };

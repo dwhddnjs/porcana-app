@@ -8,6 +8,7 @@ alwaysApply: true
 - 파일과 폴더는 케밥케이스로 네이밍 할 것
 - 공용 컴포넌트 생성시 컴포넌트 폴더 아래 생성하고 feature 컴포넌트 생성시 폴더 생성후 그 아래 생성할 것
 - 컴포넌트 생성시 export 함수 표현식으로 작성하고 app내에 스크린 생성시 export default 함수 선언식으로 작성할 것
+- 내부 함수(핸들러, 유틸리티 등)는 함수 표현식(화살표 함수)으로 작성할 것
 - 서버쪽 상태관리는 tanstack query 사용할고 클라이언트 상태관리는 zustand 사용할 것
 - get은 useQuery 훅 사용하고 post put patch delete 는 useMutation 훅 사용해서 커스텀 훅을 만들덧
 
