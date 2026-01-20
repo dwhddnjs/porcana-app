@@ -11,7 +11,7 @@ import { LineChart } from 'react-native-gifted-charts';
 import { useUniwind } from 'uniwind';
 import { THEME } from '@/lib/theme';
 import { Spacer } from '@/components/spacer';
-import { useUserStore } from '@/lib/hooks/use-user-store';
+import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 

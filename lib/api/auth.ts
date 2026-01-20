@@ -35,3 +35,30 @@ export const signup = async ({ nickname, email, password }: SignupRequestTypes):
         throw error;
     }
 }
+
+export type ProviderTypes = "EMAIL" | "GOOGLE" | "APPLE";
+
+type LoginRequestTypes = {
+    email: string;
+    password: string;
+    provider: ProviderTypes;
+}
+
+type LoginResponseTypes = {
+    accessToken: string;
+    refreshToken: string;
+}
+
+export const login = async ({ email, password, provider = "EMAIL" }: LoginRequestTypes): Promise<LoginResponseTypes> => {
+    try {
+        const response = await api.post('/auth/login', {
+            provider,
+            email,
+            password,
+        });
+        return response.data;
+    } catch (error: any) {
+        console.error("Login Error:", error);
+        throw error;
+    }
+}

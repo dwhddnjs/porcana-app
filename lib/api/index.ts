@@ -31,21 +31,12 @@ const processQueue = (error: any, token: string | null = null) => {
   failedQueue = [];
 };
 
-const getBaseUrl = () => {
-  const envUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
-  
-  if (!envUrl) {
-    console.warn("EXPO_PUBLIC_API_BASE_URL is not defined");
-    return "http://localhost:3000/app/v1/";
-  }
-  
-  // 끝에 슬래시가 없으면 추가
-  const normalizedUrl = envUrl.endsWith("/") ? envUrl : `${envUrl}/`;
-  return `${normalizedUrl}api/v1/`;
-};
+const envUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+
+
 
 export const api = axios.create({
-  baseURL: getBaseUrl(),
+  baseURL: envUrl ? `${envUrl}/api/v1/` : "http://localhost:3000/app/v1/",
 });
 
 // 디버깅용 - 문제 해결 후 삭제

@@ -52,7 +52,7 @@ export default function EnterPasswordScreen() {
     }
     
     signup(requestBody);
-    router.replace('/(tabs)');
+    router.replace('/login');
   };
 
   return (

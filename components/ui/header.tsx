@@ -53,7 +53,7 @@ export const Header = ({
       {/* 중앙 영역 - 타이틀 */}
       <View className="flex-1 items-center">
         {title && (
-          <Text className="text-base font-semibold text-foreground">{title}</Text>
+          <Text className="text-lg font-semibold text-foreground">{title}</Text>
         )}
       </View>
 
