@@ -51,7 +51,7 @@ export default function EnterPasswordScreen() {
       password: data.password,
     }
     
-    signup(requestBody);
+    signup(requestBody); 
     router.replace('/login');
   };
 
