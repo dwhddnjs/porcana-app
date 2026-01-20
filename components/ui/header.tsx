@@ -12,6 +12,7 @@ type HeaderProps = {
   onBackPress?: () => void;
   rightContent?: React.ReactNode;
   className?: string;
+
 };
 
 export const Header = ({
@@ -20,6 +21,7 @@ export const Header = ({
   onBackPress,
   rightContent,
   className,
+  
 }: HeaderProps) => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
