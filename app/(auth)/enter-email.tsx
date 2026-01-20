@@ -12,15 +12,8 @@ import { useSignupStore } from "@/lib/hooks/zustand/use-signup-store";
 import Container from "@/components/container";
 import { Header } from "@/components/ui/header";
 import { Spacer } from "@/components/spacer";
+import { EmailFormData, emailSchema } from "@/lib/validations/auth";
 
-const emailSchema = z.object({
-  email: z
-    .string()
-    .min(1, '이메일을 입력해주세요')
-    .email('올바른 이메일 형식이 아닙니다'),
-});
-
-type EmailFormData = z.infer<typeof emailSchema>;
 
 export default function EnterEmailScreen() {
   const router = useRouter();

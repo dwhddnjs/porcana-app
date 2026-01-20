@@ -13,16 +13,8 @@ import { useSignupStore } from "@/lib/hooks/zustand/use-signup-store";
 import Container from "@/components/container";
 import { Header } from "@/components/ui/header";
 import { Spacer } from "@/components/spacer";
+import { NicknameFormData, nicknameSchema } from "@/lib/validations/auth";
 
-const nicknameSchema = z.object({
-  nickname: z
-    .string()
-    .min(1, '닉네임을 입력해주세요')
-    .min(2, '닉네임은 2자 이상이어야 합니다')
-    .max(20, '닉네임은 20자 이하여야 합니다'),
-});
-
-type NicknameFormData = z.infer<typeof nicknameSchema>;
 
 export default function EnterNicknameScreen() {
   const router = useRouter();
