@@ -47,7 +47,7 @@ api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const { accessToken } = useUserStore.getState();
     if (accessToken) {
-      config.headers["X-Access-Token"] = accessToken;
+      config.headers["Authorization"] = `Bearer ${accessToken}`;
     }
     return config;
   },
@@ -95,7 +95,7 @@ api.interceptors.response.use(
           failedQueue.push({ resolve, reject });
         })
           .then((token) => {
-            originalRequest.headers["X-Access-Token"] = token;
+            originalRequest.headers["Authorization"] = `Bearer ${token}`;
             return api(originalRequest);
           })
           .catch((queueErr) => Promise.reject(queueErr));
@@ -127,7 +127,7 @@ api.interceptors.response.use(
           processQueue(null, newAccessToken);
 
           // 원래 요청에 새 토큰 설정 후 재시도
-          originalRequest.headers["X-Access-Token"] = newAccessToken;
+          originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
           return api(originalRequest);
         } else {
           // 갱신 실패 - 로그아웃 처리
