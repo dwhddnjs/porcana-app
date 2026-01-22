@@ -1,5 +1,5 @@
-import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
-import { useUserStore } from "@/lib/hooks/zustand/use-user-store";
+import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 
 export interface ApiResponse<T> {
   result_code: number;
@@ -33,21 +33,19 @@ const processQueue = (error: any, token: string | null = null) => {
 
 const envUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
 
-
-
 export const api = axios.create({
-  baseURL: envUrl ? `${envUrl}/api/v1/` : "http://localhost:3000/app/v1/",
+  baseURL: envUrl ? `${envUrl}/api/v1/` : 'http://localhost:3000/app/v1/',
 });
 
 // 디버깅용 - 문제 해결 후 삭제
-console.log("API Base URL:", api.defaults.baseURL);
+console.log('API Base URL:', api.defaults.baseURL);
 
 // 요청 인터셉터 - 매 요청마다 토큰 자동 주입
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const { accessToken } = useUserStore.getState();
     if (accessToken) {
-      config.headers["Authorization"] = `Bearer ${accessToken}`;
+      config.headers['Authorization'] = `Bearer ${accessToken}`;
     }
     return config;
   },
@@ -58,20 +56,8 @@ api.interceptors.request.use(
 
 // 응답 인터셉터 - 토큰 만료 처리 및 갱신
 api.interceptors.response.use(
-  (response) => {
-    // result_code -1, -2는 토큰 만료
-    if (
-      response.data &&
-      (response.data.result_code === -2 || response.data.result_code === -1)
-    ) {
-      const error: any = new Error("Token expired");
-      error.config = response.config;
-      error.response = response;
-      return Promise.reject(error);
-    }
-    return response;
-  },
-  async (err: AxiosError<ApiResponse<any>>) => {
+  (response) => response,
+  async (err: AxiosError) => {
     const originalRequest = err.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
     };
@@ -80,13 +66,13 @@ api.interceptors.response.use(
       return Promise.reject(err);
     }
 
-    const resultCode = err.response?.data?.result_code;
+    const httpStatus = err.response?.status;
 
-    // 토큰 만료 에러이고 아직 재시도하지 않은 경우
-    if (
-      (resultCode === -1 || resultCode === -2) &&
-      !originalRequest._retry
-    ) {
+    // refresh 요청은 토큰 갱신 로직에서 제외 (무한 루프 방지)
+    const isRefreshRequest = originalRequest.url?.includes('auth/refresh');
+
+    // HTTP 401 토큰 만료 에러이고 아직 재시도하지 않은 경우
+    if (httpStatus === 401 && !originalRequest._retry && !isRefreshRequest) {
       originalRequest._retry = true;
 
       // 이미 갱신 중이면 큐에 넣고 대기
@@ -95,7 +81,7 @@ api.interceptors.response.use(
           failedQueue.push({ resolve, reject });
         })
           .then((token) => {
-            originalRequest.headers["Authorization"] = `Bearer ${token}`;
+            originalRequest.headers['Authorization'] = `Bearer ${token}`;
             return api(originalRequest);
           })
           .catch((queueErr) => Promise.reject(queueErr));
@@ -107,34 +93,26 @@ api.interceptors.response.use(
       if (!refreshToken) {
         clearTokens();
         isRefreshing = false;
-        return Promise.reject(new Error("No refresh token available"));
+        return Promise.reject(new Error('No refresh token available'));
       }
 
       try {
-        const res = await api.post<ApiResponse<{ accessToken: string; refreshToken: string }>>(
-          "auth/refresh",
-          { refreshToken }
-        );
+        const res = await api.post<{ accessToken: string; refreshToken: string }>('auth/refresh', {
+          refreshToken,
+        });
 
-        if (res.data.result_code === 0) {
-          const newAccessToken = res.data.result_data.accessToken;
-          const newRefreshToken = res.data.result_data.refreshToken;
+        const newAccessToken = res.data.accessToken;
+        const newRefreshToken = res.data.refreshToken;
 
-          // 새 토큰 저장
-          setTokens(newAccessToken, newRefreshToken);
+        // 새 토큰 저장
+        setTokens(newAccessToken, newRefreshToken);
 
-          // 대기 중인 요청들에 새 토큰 전달
-          processQueue(null, newAccessToken);
+        // 대기 중인 요청들에 새 토큰 전달
+        processQueue(null, newAccessToken);
 
-          // 원래 요청에 새 토큰 설정 후 재시도
-          originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
-          return api(originalRequest);
-        } else {
-          // 갱신 실패 - 로그아웃 처리
-          clearTokens();
-          processQueue(new Error("Token refresh failed"), null);
-          return Promise.reject(new Error("Token refresh failed"));
-        }
+        // 원래 요청에 새 토큰 설정 후 재시도
+        originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+        return api(originalRequest);
       } catch (refreshErr) {
         clearTokens();
         processQueue(refreshErr, null);
@@ -145,7 +123,7 @@ api.interceptors.response.use(
     }
 
     // 디버깅용 - 실제 에러 정보 출력
-    console.log("Axios Error Debug:", {
+    console.log('Axios Error Debug:', {
       status: err.response?.status,
       statusText: err.response?.statusText,
       data: err.response?.data,
@@ -154,22 +132,19 @@ api.interceptors.response.use(
     });
 
     // 기타 에러 처리
-    const errorObj: { message: string; status?: number } = { message: "Unknown error" };
+    const errorObj: { message: string; status?: number } = { message: 'Unknown error' };
 
     if (err.response) {
       errorObj.status = err.response.status;
-      if (err.response.data) {
-        // result_msg가 있으면 사용, 없으면 JSON 문자열로 변환
-        errorObj.message =
-          err.response.data.result_msg || 
-          (typeof err.response.data === 'string' 
-            ? err.response.data 
-            : JSON.stringify(err.response.data));
+      const data = err.response.data as any;
+      if (data) {
+        // message 필드가 있으면 사용, 없으면 JSON 문자열로 변환
+        errorObj.message = data.message || (typeof data === 'string' ? data : JSON.stringify(data));
       } else {
         errorObj.message = err.response.statusText;
       }
     } else {
-      errorObj.message = err.message || "Network error";
+      errorObj.message = err.message || 'Network error';
     }
 
     return Promise.reject(errorObj);

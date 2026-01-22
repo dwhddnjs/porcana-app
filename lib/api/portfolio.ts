@@ -4,11 +4,8 @@ import { api } from '.';
 
 export const createPortfolio = async ({ name, userId }: { name: string; userId: string }) => {
   try {
-    const response = await api.post('/api/portfolio', {
-      request: {
-        name,
-      },
-      userId,
+    const response = await api.post('/portfolios', {
+      name,
     });
     return response.data;
   } catch (error) {

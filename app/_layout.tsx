@@ -42,6 +42,15 @@ export default function RootLayout() {
                 }}
               />
               <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="login-sheet"
+                options={{
+                  presentation: 'formSheet',
+                  headerShown: false,
+                  sheetAllowedDetents: [0.3],
+                  sheetGrabberVisible: false,
+                }}
+              />
             </Stack>
             <PortalHost />
           </ThemeProvider>

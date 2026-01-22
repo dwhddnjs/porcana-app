@@ -1,4 +1,4 @@
-import { Pressable, View } from "react-native";
+import { Pressable, View, Image } from "react-native";
 import Animated, {
   interpolate,
   useAnimatedStyle,
@@ -9,13 +9,16 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 import { Text } from "@/components/ui/text";
+import { Icon } from "@/components/ui/icon";
 import { useEffect, useState } from "react";
+import { Asset } from "@/lib/hooks/zustand/use-arena-store";
+import { Building2 } from "lucide-react-native";
 
 interface FlipCardProps {
   index: number;
   onSelect: () => void;
   isFlipped: boolean;
-  cardNumber: number;
+  asset: Asset;
   disabled?: boolean;
   isSelected?: boolean;
   /** 카드 너비 (기본값: 128) */
@@ -26,11 +29,33 @@ interface FlipCardProps {
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
+// 섹터 한글 매핑
+const sectorLabels: Record<string, string> = {
+  INFORMATION_TECHNOLOGY: "IT",
+  HEALTH_CARE: "헬스케어",
+  FINANCIALS: "금융",
+  CONSUMER_DISCRETIONARY: "경기소비재",
+  COMMUNICATION_SERVICES: "커뮤니케이션",
+  INDUSTRIALS: "산업재",
+  CONSUMER_STAPLES: "필수소비재",
+  ENERGY: "에너지",
+  UTILITIES: "유틸리티",
+  REAL_ESTATE: "부동산",
+  MATERIALS: "소재",
+};
+
+// 리스크 레벨 색상
+const getRiskColor = (level: number) => {
+  if (level <= 2) return "text-green-500";
+  if (level <= 4) return "text-yellow-500";
+  return "text-red-500";
+};
+
 export function FlipCard({
   index,
   onSelect,
   isFlipped,
-  cardNumber,
+  asset,
   disabled = false,
   isSelected = false,
   width = 128,
@@ -127,14 +152,56 @@ export function FlipCard({
       {/* 카드 앞면 (뒤집히면 보이는 면) */}
       <Animated.View
         style={backAnimatedStyle}
-        className="absolute h-full w-full items-center justify-center rounded-xl bg-primary shadow-lg"
+        className="absolute h-full w-full rounded-xl bg-card shadow-lg"
       >
-        <View className="h-full w-full items-center justify-center rounded-xl border-2 border-primary p-2">
-          <Text className="text-4xl font-bold text-background">
-            {cardNumber}
+        <View className="h-full w-full rounded-xl border-2 border-primary p-2">
+          {/* 상단: 이미지 + 티커 */}
+          <View className="flex-row items-center gap-2">
+            {asset.imageUrl ? (
+              <Image
+                source={{ uri: asset.imageUrl }}
+                className="h-8 w-8 rounded-full bg-background"
+                resizeMode="contain"
+              />
+            ) : (
+              <View className="h-8 w-8 items-center justify-center rounded-full bg-muted">
+                <Icon as={Building2} className="size-4 text-muted-foreground" />
+              </View>
+            )}
+            <Text className="text-xl font-bold text-primary">{asset.ticker}</Text>
+          </View>
+
+          {/* 이름 */}
+          <Text className="mt-1 text-xs text-muted-foreground" numberOfLines={2}>
+            {asset.name}
           </Text>
-          <Text className="mt-2 text-sm text-background">선택하세요</Text>
-          <View className="absolute bottom-2 left-2 right-2 top-2 rounded-lg border border-background opacity-50" />
+
+          {/* 중앙: 섹터 + 마켓 */}
+          <View className="mt-2 flex-row flex-wrap gap-1">
+            <View className="rounded bg-primary/10 px-1.5 py-0.5">
+              <Text className="text-xs text-primary">
+                {sectorLabels[asset.sector] || asset.sector}
+              </Text>
+            </View>
+            <View className="rounded bg-muted px-1.5 py-0.5">
+              <Text className="text-xs text-muted-foreground">{asset.market}</Text>
+            </View>
+          </View>
+
+          {/* 리스크 레벨 */}
+          <View className="mt-2 flex-row items-center gap-1">
+            <Text className="text-xs text-muted-foreground">리스크</Text>
+            <Text className={`text-sm font-bold ${getRiskColor(asset.currentRiskLevel)}`}>
+              {asset.currentRiskLevel}
+            </Text>
+          </View>
+
+          {/* 하단: 영향 힌트 */}
+          <View className="mt-auto">
+            <Text className="text-center text-xs text-primary" numberOfLines={1}>
+              {asset.impactHint}
+            </Text>
+          </View>
         </View>
       </Animated.View>
     </AnimatedPressable>

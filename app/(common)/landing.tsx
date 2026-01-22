@@ -20,7 +20,8 @@ export default function LandingScreen() {
   const { accessToken } = useUserStore();
   const [open, setOpen] = useState(false);
   const { mutate } = useCreatePortfolioMutation();
-  const { user } = useUserStore();
+
+  console.log('accessToken@@@@@@@@@@@@@@@@', accessToken);
 
   const handleSubmit = (portfolioName: string) => {
     setOpen(false);

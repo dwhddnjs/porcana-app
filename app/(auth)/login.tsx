@@ -1,30 +1,36 @@
-import Container from "@/components/container";
-import { SignInForm } from "@/components/sign-in-form";
-import { Spacer } from "@/components/spacer";
-import { Header } from "@/components/ui/header";
-import { Input } from "@/components/ui/input";
-import { KeyboardStickyButton } from "@/components/ui/keyboard-sticky-button";
-import { Label } from "@/components/ui/label";
-import { Text } from "@/components/ui/text";
-import { ProviderTypes } from "@/lib/api/auth";
-import { useLoginMutation } from "@/lib/hooks/mutation/auth";
-import { LoginFormData, loginSchema } from "@/lib/validations/auth";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "expo-router";
-import { useRef } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { TextInput, View } from "react-native";
-import { KeyboardAvoidingView } from "react-native-keyboard-controller";
-
+import Container from '@/components/container';
+import { SignInForm } from '@/components/sign-in-form';
+import { Spacer } from '@/components/spacer';
+import { Header } from '@/components/ui/header';
+import { Input } from '@/components/ui/input';
+import { KeyboardStickyButton } from '@/components/ui/keyboard-sticky-button';
+import { Label } from '@/components/ui/label';
+import { Text } from '@/components/ui/text';
+import { ProviderTypes } from '@/lib/api/auth';
+import { useLoginMutation } from '@/lib/hooks/mutation/auth';
+import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
+import { LoginFormData, loginSchema } from '@/lib/validations/auth';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'expo-router';
+import { useEffect, useRef } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { TextInput, View } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 
 export default function LoginScreen() {
-
   const router = useRouter();
   const emailInputRef = useRef<TextInput>(null);
   const passwordInputRef = useRef<TextInput>(null);
   const { mutate: login } = useLoginMutation();
 
-  const { control, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm<LoginFormData>({
+  const { accessToken, reset } = useUserStore();
+
+  const {
+    control,
+    handleSubmit,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
@@ -39,22 +45,21 @@ export default function LoginScreen() {
     const requestBody = {
       email: data.email,
       password: data.password,
-      provider: "EMAIL" as ProviderTypes,
-    }
+      provider: 'EMAIL' as ProviderTypes,
+    };
     login(requestBody);
   };
 
   return (
     <Container>
       <Header title="이메일 로그인" />
-      <KeyboardAvoidingView
-        behavior="padding"
-        style={{ flex: 1 }}
-      >
+      <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
         <Spacer height={48} />
-        <View className="flex-1 px-[20px] gap-y-[48px]">
-        <View className="gap-y-[18px]">
-            <Label htmlFor="email" className="text-lg font-bold">이메일</Label>
+        <View className="flex-1 gap-y-[48px] px-[20px]">
+          <View className="gap-y-[18px]">
+            <Label htmlFor="email" className="text-lg font-bold">
+              이메일
+            </Label>
             <View className="gap-y-[12px]">
               <Controller
                 control={control}
@@ -81,7 +86,9 @@ export default function LoginScreen() {
             </View>
           </View>
           <View className="gap-y-[18px]">
-            <Label htmlFor="password" className="text-lg font-bold">비밀번호</Label>
+            <Label htmlFor="password" className="text-lg font-bold">
+              비밀번호
+            </Label>
             <View className="gap-y-[12px]">
               <Controller
                 control={control}
@@ -108,7 +115,10 @@ export default function LoginScreen() {
           </View>
         </View>
       </KeyboardAvoidingView>
-      <KeyboardStickyButton onPress={handleSubmit(onSubmit)} size="lg" disabled={!emailValue.trim() || !passwordValue.trim()}>
+      <KeyboardStickyButton
+        onPress={handleSubmit(onSubmit)}
+        size="lg"
+        disabled={!emailValue.trim() || !passwordValue.trim()}>
         <Text>로그인</Text>
       </KeyboardStickyButton>
     </Container>

@@ -16,6 +16,7 @@ export interface UserState {
   setTokens: (accessToken: string, refreshToken: string) => void;
   clearTokens: () => void;
   isAuthenticated: () => boolean;
+  reset: () => void;
 }
 
 export const useUserStore = create<UserState>()(
@@ -29,6 +30,7 @@ export const useUserStore = create<UserState>()(
       setTokens: (accessToken, refreshToken) => set({ accessToken, refreshToken }),
       clearTokens: () => set({ accessToken: null, refreshToken: null }),
       isAuthenticated: () => !!get().accessToken,
+      reset: () => set({ user: null, accessToken: null, refreshToken: null, provider: null }),
     }),
     {
       name: 'user-storage',
