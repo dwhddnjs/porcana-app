@@ -36,16 +36,12 @@ export default function AddModal() {
     if (!selectedRiskProfile || selectedSector.length === 0) {
       return;
     }
-    await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+    router.dismiss();
+
     pickArenaSessionPreference({
       riskProfile: selectedRiskProfile.toUpperCase(),
       sectors: selectedSector,
     });
-    // 먼저 가로모드로 전환
-
-    // 방향 전환 후 네비게이션
-
-    router.dismiss();
   };
 
   return (
