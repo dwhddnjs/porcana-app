@@ -1,17 +1,19 @@
-import { View, Image } from 'react-native';
+import { View, Image, ActivityIndicator } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { router } from 'expo-router';
 import { Mail } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useGoogleAuth } from '@/lib/hooks/mutation/google-auth';
 
 export default function LoginSheet() {
   const insets = useSafeAreaInsets();
+  const { handleGoogleLogin, isLoading: isGoogleLoading } = useGoogleAuth();
 
-  const handleSocialLogin = (provider: string) => {
-    // TODO: 소셜 로그인 구현
-    console.log(`${provider} 로그인`);
+  const handleAppleLogin = () => {
+    // TODO: 애플 로그인 구현
+    console.log('애플 로그인');
     router.back();
   };
 
@@ -31,20 +33,27 @@ export default function LoginSheet() {
         {/* 구글 로그인 */}
         <Button
           size="lg"
-          className="border-primary w-full flex-row items-center justify-center gap-3 border-[0.5px] border-black"
-          onPress={() => handleSocialLogin('google')}>
-          <Image
-            source={{ uri: 'https://img.clerk.com/static/google.png?width=160' }}
-            className="size-5"
-          />
-          <Text className="font-semibold text-black">구글로 로그인</Text>
+          className="border-primary w-full flex-row items-center justify-center gap-3 border-[0.5px] border-black bg-white"
+          onPress={handleGoogleLogin}
+          disabled={isGoogleLoading}>
+          {isGoogleLoading ? (
+            <ActivityIndicator size="small" color="#000" />
+          ) : (
+            <>
+              <Image
+                source={{ uri: 'https://img.clerk.com/static/google.png?width=160' }}
+                className="size-5"
+              />
+              <Text className="font-semibold text-black">구글로 로그인</Text>
+            </>
+          )}
         </Button>
 
         {/* 애플 로그인 */}
         <Button
           size="lg"
           className="border-primary w-full flex-row items-center justify-center gap-3 border-[0.5px] bg-black"
-          onPress={() => handleSocialLogin('apple')}>
+          onPress={handleAppleLogin}>
           <Image
             source={{ uri: 'https://img.clerk.com/static/apple.png?width=160' }}
             className="size-5"

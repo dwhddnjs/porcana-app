@@ -17,11 +17,9 @@ const CAROUSEL_IMAGES = [
 
 export default function LandingScreen() {
   const router = useRouter();
-  const { accessToken } = useUserStore();
+  const { accessToken, refreshToken } = useUserStore();
   const [open, setOpen] = useState(false);
   const { mutate } = useCreatePortfolioMutation();
-
-  console.log('accessToken@@@@@@@@@@@@@@@@', accessToken);
 
   const handleSubmit = (portfolioName: string) => {
     setOpen(false);

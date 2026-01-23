@@ -39,4 +39,6 @@ yarn-error.*
 
 expo-env.d.ts
 .env
+ios
+android
 # @end expo-cli

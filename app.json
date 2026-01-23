@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "minimal",
-    "slug": "minimal",
+    "name": "porcana",
+    "slug": "porcana-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -17,9 +17,11 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.porcana"
     },
     "android": {
+      "package": "com.porcana",
       "edgeToEdgeEnabled": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
@@ -32,10 +34,18 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "30a3c2c0-3d6f-4a36-ab42-31dab54ab6e5"
+      }
+    },
+    "owner": "dwhddnjs"
   }
 }
