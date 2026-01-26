@@ -70,3 +70,34 @@ export const login = async ({
     throw error;
   }
 };
+
+type AppleLoginRequestTypes = {
+  identityToken: string;
+  user: string;
+  email?: string | null;
+  fullName?: {
+    givenName?: string | null;
+    familyName?: string | null;
+  } | null;
+};
+
+export const appleLogin = async ({
+  identityToken,
+  user,
+  email,
+  fullName,
+}: AppleLoginRequestTypes): Promise<LoginResponseTypes> => {
+  try {
+    const response = await api.post('auth/login', {
+      provider: 'APPLE' as ProviderTypes,
+      identityToken,
+      user,
+      email,
+      fullName,
+    });
+    return response.data;
+  } catch (error: any) {
+    console.error('Apple Login Error:', error);
+    throw error;
+  }
+};

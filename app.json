@@ -18,7 +18,8 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.porcana"
+      "bundleIdentifier": "com.porcana",
+      "usesAppleSignIn": true
     },
     "android": {
       "package": "com.porcana",
@@ -35,7 +36,8 @@
     },
     "plugins": [
       "expo-router",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-apple-authentication"
     ],
     "experiments": {
       "typedRoutes": true

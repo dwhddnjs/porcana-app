@@ -6,16 +6,12 @@ import { router } from 'expo-router';
 import { Mail } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useGoogleAuth } from '@/lib/hooks/mutation/google-auth';
+import { useAppleAuth } from '@/lib/hooks/mutation/apple-auth';
 
 export default function LoginSheet() {
   const insets = useSafeAreaInsets();
   const { handleGoogleLogin, isLoading: isGoogleLoading } = useGoogleAuth();
-
-  const handleAppleLogin = () => {
-    // TODO: 애플 로그인 구현
-    console.log('애플 로그인');
-    router.back();
-  };
+  const { handleAppleLogin, isLoading: isAppleLoading } = useAppleAuth();
 
   const handleEmailLogin = () => {
     router.replace('/login');
@@ -53,13 +49,20 @@ export default function LoginSheet() {
         <Button
           size="lg"
           className="border-primary w-full flex-row items-center justify-center gap-3 border-[0.5px] bg-black"
-          onPress={handleAppleLogin}>
-          <Image
-            source={{ uri: 'https://img.clerk.com/static/apple.png?width=160' }}
-            className="size-5"
-            tintColor="white"
-          />
-          <Text className="font-semibold text-white">애플로 로그인</Text>
+          onPress={handleAppleLogin}
+          disabled={isAppleLoading}>
+          {isAppleLoading ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <>
+              <Image
+                source={{ uri: 'https://img.clerk.com/static/apple.png?width=160' }}
+                className="size-5"
+                tintColor="white"
+              />
+              <Text className="font-semibold text-white">애플로 로그인</Text>
+            </>
+          )}
         </Button>
 
         {/* 이메일 로그인 */}
