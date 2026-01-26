@@ -18,8 +18,6 @@ import { Building2 } from 'lucide-react-native';
 import { cn } from '@/lib/utils';
 import { Image } from '@/components/ui/image';
 
-// 샘플 주식 데이터 (나중에 실제 데이터로 교체)
-
 export default function PortfolioScreen() {
   const router = useRouter();
   const navigation = useNavigation();
@@ -34,8 +32,6 @@ export default function PortfolioScreen() {
   const openDrawer = () => {
     navigation.dispatch(DrawerActions.openDrawer());
   };
-
-  console.log('data', data);
 
   return (
     <View className="flex-1">
@@ -52,9 +48,11 @@ export default function PortfolioScreen() {
 
           <Spacer height={24} />
           {/* 스크롤 테스트용 카드들 */}
+
           <View className="px-[12px]">
+            <Text className="text-muted-foreground text-md mb-[12px] font-bold">주요 자산</Text>
             {data?.positions.map((item, index) => (
-              <View
+              <Pressable
                 key={item.assetId}
                 className={cn(
                   'border-primary/10 flex-row items-center justify-between gap-4 rounded-md border-b px-[4px] py-[8px]',
@@ -79,12 +77,11 @@ export default function PortfolioScreen() {
                 <View>
                   <Text className="text-link font-semibold">{item.returnPct}%</Text>
                 </View>
-              </View>
+              </Pressable>
             ))}
           </View>
         </View>
       </LargeHeader>
-      {/* <RoundAddButton onPress={() => router.push('/(tabs)/(portfolio)/add-modal')} /> */}
     </View>
   );
 }
