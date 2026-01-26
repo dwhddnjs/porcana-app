@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { useCallback, useRef } from "react";
-import { Dimensions, FlatList, Image, View, type ImageSourcePropType, type ViewToken } from "react-native";
+import { Dimensions, FlatList, View, type ImageSourcePropType, type ViewToken } from "react-native";
 import Animated, {
   Extrapolation,
   interpolate,
@@ -9,6 +9,7 @@ import Animated, {
   withSpring,
   type SharedValue,
 } from "react-native-reanimated";
+import { Image } from "@/components/ui/image";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -52,7 +53,7 @@ const CarouselItem = ({ item, index, scrollX, width, height, imageClassName }: C
       <Image
         source={item}
         className={cn("h-full w-full", imageClassName)}
-        resizeMode="contain"
+        contentFit="contain"
       />
     </Animated.View>
   );

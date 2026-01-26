@@ -18,6 +18,7 @@ const CAROUSEL_IMAGES = [
 export default function LandingScreen() {
   const router = useRouter();
   const { accessToken, refreshToken } = useUserStore();
+  console.log('accessToken@@@@@@@@@@@@@@@@', accessToken);
   const [open, setOpen] = useState(false);
   const { mutate } = useCreatePortfolioMutation();
 

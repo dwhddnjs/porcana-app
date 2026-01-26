@@ -1,4 +1,4 @@
-import { View, ScrollView, Image } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
@@ -7,6 +7,7 @@ import { useArenaStore } from '@/lib/hooks/zustand/use-arena-store';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { Building2, CheckCircle, TrendingUp } from 'lucide-react-native';
 import Container from '@/components/container';
+import { Image } from '@/components/ui/image';
 
 export default function ArenaComplete() {
   const { name, selectedCards, resetArena } = useArenaStore();
@@ -56,17 +57,11 @@ export default function ArenaComplete() {
                 entering={FadeInDown.duration(300).delay(300 + index * 50)}
                 className="bg-card border-border flex-row items-center gap-3 rounded-xl border p-4">
                 {/* 이미지 */}
-                {card.imageUrl ? (
-                  <Image
-                    source={{ uri: card.imageUrl }}
-                    className="bg-background h-10 w-10 rounded-full"
-                    resizeMode="contain"
-                  />
-                ) : (
-                  <View className="bg-muted h-10 w-10 items-center justify-center rounded-full">
-                    <Icon as={Building2} className="text-muted-foreground size-5" />
-                  </View>
-                )}
+                <Image
+                  source={card.imageUrl}
+                  className="bg-background h-10 w-10 rounded-full"
+                  contentFit="contain"
+                />
 
                 {/* 정보 */}
                 <View className="flex-1">

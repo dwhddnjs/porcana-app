@@ -37,9 +37,6 @@ export const api = axios.create({
   baseURL: envUrl ? `${envUrl}/api/v1/` : 'http://localhost:3000/app/v1/',
 });
 
-// 디버깅용 - 문제 해결 후 삭제
-console.log('API Base URL:', api.defaults.baseURL);
-
 // 요청 인터셉터 - 매 요청마다 토큰 자동 주입
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {

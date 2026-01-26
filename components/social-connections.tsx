@@ -1,7 +1,8 @@
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useColorScheme } from 'nativewind';
-import { Image, Platform, View } from 'react-native';
+import { Platform, View } from 'react-native';
+import { Image } from '@/components/ui/image';
 
 const SOCIAL_CONNECTION_STRATEGIES = [
   {
@@ -42,6 +43,7 @@ export function SocialConnections() {
                 native: strategy.useTint ? (colorScheme === 'dark' ? 'white' : 'black') : undefined,
               })}
               source={strategy.source}
+              contentFit="contain"
             />
           </Button>
         );

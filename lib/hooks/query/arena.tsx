@@ -4,7 +4,6 @@ import { getArenaSessionRounds } from '@/lib/api/arena';
 
 export const useGetArenaSessionRoundsQuery = () => {
   const { sessionId } = useArenaStore();
-  console.log('sessionId@@@@@@@@@@@@@@@@', sessionId);
   return useQuery({
     queryKey: ['arena-session-rounds'],
     queryFn: () => getArenaSessionRounds({ sessionId }),

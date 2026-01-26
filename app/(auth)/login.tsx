@@ -50,10 +50,6 @@ export default function LoginScreen() {
     login(requestBody);
   };
 
-  // useEffect(() => {
-  //   reset();
-  // }, [accessToken]);
-
   return (
     <Container>
       <Header title="이메일 로그인" />
