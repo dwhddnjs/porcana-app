@@ -88,3 +88,12 @@ export const parseEmailFromIdentityToken = (identityToken: string | null): strin
   const payload = parseJwtPayload<{ email?: string }>(identityToken);
   return payload?.email || null;
 };
+
+/**
+ * 소수점 두 번째 자리에서 반올림하는 함수
+ * @param num 반올림할 숫자
+ * @returns 소수점 두 번째 자리에서 반올림된 숫자
+ */
+export const roundToTwoDecimals = (num: number): number => {
+  return Number(num.toFixed(2));
+};

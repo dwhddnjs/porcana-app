@@ -4,12 +4,8 @@ import { Dimensions, Pressable, View } from 'react-native';
 import { PressableScale } from 'pressto';
 import { ArrowRight, MenuIcon } from 'lucide-react-native';
 import { Icon } from '@/components/ui/icon';
-import { RoundAddButton } from '@/components/portfolio/round-add-button';
 import { useRouter } from 'expo-router';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
-import { LineChart } from 'react-native-gifted-charts';
-import { useUniwind } from 'uniwind';
-import { THEME } from '@/lib/theme';
 import { Spacer } from '@/components/spacer';
 import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { useGetHomeQuery } from '@/lib/hooks/query/home';
@@ -17,6 +13,7 @@ import HomePortfolioChart from '@/components/portfolio/home-portfolio-chart';
 import { Building2 } from 'lucide-react-native';
 import { cn } from '@/lib/utils';
 import { Image } from '@/components/ui/image';
+import { roundToTwoDecimals } from '@/lib/constant/function';
 
 export default function PortfolioScreen() {
   const router = useRouter();
@@ -75,7 +72,13 @@ export default function PortfolioScreen() {
                   </View>
                 </View>
                 <View>
-                  <Text className="text-link font-semibold">{item.returnPct}%</Text>
+                  <Text
+                    className={cn(
+                      'text-destructive font-semibold',
+                      item.returnPct > 0 ? 'text-link' : 'text-destructive'
+                    )}>
+                    {roundToTwoDecimals(item.returnPct)}%
+                  </Text>
                 </View>
               </Pressable>
             ))}

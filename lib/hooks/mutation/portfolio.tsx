@@ -1,6 +1,6 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useUserStore } from '../zustand/use-user-store';
-import { createPortfolio } from '@/lib/api/portfolio';
+import { createPortfolio, getPortfolios } from '@/lib/api/portfolio';
 import { useArenaStore } from '../zustand/use-arena-store';
 import { useRouter } from 'expo-router';
 import { createArenaSessions, pickArenaSessionPreference } from '@/lib/api/arena';

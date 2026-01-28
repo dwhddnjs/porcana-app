@@ -1,5 +1,3 @@
-//포트폴리오 생성
-
 import { api } from '.';
 
 export const createPortfolio = async ({ name, userId }: { name: string; userId: string }) => {
@@ -7,6 +5,16 @@ export const createPortfolio = async ({ name, userId }: { name: string; userId: 
     const response = await api.post('/portfolios', {
       name,
     });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const getPortfolios = async () => {
+  try {
+    const response = await api.get(`/portfolios`);
     return response.data;
   } catch (error) {
     console.error(error);
