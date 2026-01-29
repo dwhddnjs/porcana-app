@@ -6,5 +6,5 @@ export default function Index() {
 
   // if (user) return <Redirect href="/(tabs)" />;
 
-  return <Redirect href="/landing" />;
+  return <Redirect href="/enter-password" />;
 }

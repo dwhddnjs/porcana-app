@@ -130,3 +130,17 @@ export const getRefreshToken = async ({ refreshToken }: { refreshToken: string }
     throw error;
   }
 };
+
+type CheckEmailResponseTypes = {
+  available: boolean;
+};
+
+export const checkEmail = async ({ email }: { email: string }) => {
+  try {
+    const response = await api.get<CheckEmailResponseTypes>(`auth/check-email?email=${email}`);
+    return response.data;
+  } catch (error: any) {
+    console.error('Check Email Error:', error);
+    throw error;
+  }
+};
