@@ -1,6 +1,6 @@
 import { api } from '.';
 
-export const createPortfolio = async ({ name, userId }: { name: string; userId: string }) => {
+export const createPortfolio = async ({ name }: { name: string }) => {
   try {
     const response = await api.post('/portfolios', {
       name,

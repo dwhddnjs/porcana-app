@@ -14,7 +14,7 @@ export default function LoginSheet() {
   const { handleAppleLogin, isLoading: isAppleLoading } = useAppleAuth();
 
   const handleEmailLogin = () => {
-    router.replace('/login');
+    router.replace('/enter-nickname');
   };
 
   return (

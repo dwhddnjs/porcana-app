@@ -1,20 +1,19 @@
-import { View } from "react-native";
-import { Text } from "@/components/ui/text";
-import { Label } from "@/components/ui/label";
-import { Controller, useForm } from "react-hook-form";
-import { Input } from "@/components/ui/input";
-import { KeyboardStickyButton } from "@/components/ui/keyboard-sticky-button";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { KeyboardAvoidingView } from "react-native-keyboard-controller";
-import { z } from "zod";
-import { useRouter } from "expo-router";
-import { useSignupStore } from "@/lib/hooks/zustand/use-signup-store";
-import Container from "@/components/container";
-import { Header } from "@/components/ui/header";
-import { Spacer } from "@/components/spacer";
-import { useSignupMutation } from "@/lib/hooks/mutation/auth";
-import { PasswordFormData, passwordSchema } from "@/lib/validations/auth";
-
+import { View } from 'react-native';
+import { Text } from '@/components/ui/text';
+import { Label } from '@/components/ui/label';
+import { Controller, useForm } from 'react-hook-form';
+import { Input } from '@/components/ui/input';
+import { KeyboardStickyButton } from '@/components/ui/keyboard-sticky-button';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import { z } from 'zod';
+import { useRouter } from 'expo-router';
+import { useSignupStore } from '@/lib/hooks/zustand/use-signup-store';
+import Container from '@/components/container';
+import { Header } from '@/components/ui/header';
+import { Spacer } from '@/components/spacer';
+import { useSignupMutation } from '@/lib/hooks/mutation/auth';
+import { PasswordFormData, passwordSchema } from '@/lib/validations/auth';
 
 export default function EnterPasswordScreen() {
   const router = useRouter();
@@ -37,27 +36,26 @@ export default function EnterPasswordScreen() {
   const { mutate: signup } = useSignupMutation();
 
   const onSubmit = async (data: PasswordFormData) => {
+    setPassword(data.password);
     const requestBody = {
       nickname,
       email,
       password: data.password,
-    }
-    
-    signup(requestBody); 
-    router.replace('/login');
+    };
+
+    signup(requestBody);
   };
 
   return (
     <Container>
       <Header title="" />
-      <KeyboardAvoidingView
-        behavior="padding"
-        style={{ flex: 1 }}
-      >
+      <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
         <View className="flex-1 px-[20px]">
           <Spacer height={24} />
           <View className="gap-y-[24px]">
-            <Label htmlFor="password" className="text-xl font-bold">비밀번호를 입력해주세요</Label>
+            <Label htmlFor="password" className="text-xl font-bold">
+              비밀번호를 입력해주세요
+            </Label>
             <View className="gap-y-[12px]">
               <Controller
                 control={control}
@@ -84,7 +82,10 @@ export default function EnterPasswordScreen() {
           </View>
         </View>
       </KeyboardAvoidingView>
-      <KeyboardStickyButton onPress={handleSubmit(onSubmit)} size="lg" disabled={!passwordValue.trim()}>
+      <KeyboardStickyButton
+        onPress={handleSubmit(onSubmit)}
+        size="lg"
+        disabled={!passwordValue.trim()}>
         <Text>회원가입</Text>
       </KeyboardStickyButton>
     </Container>

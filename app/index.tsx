@@ -1,8 +1,10 @@
+import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { Redirect } from 'expo-router';
 
 export default function Index() {
-  // TODO: 로그인 상태 확인 후 분기 처리
-  // if (isLoggedIn) return <Redirect href="/(tabs)" />;
+  const { user, accessToken, refreshToken } = useUserStore();
 
-  return <Redirect href="/(tabs)/(portfolio)" />;
+  // if (user) return <Redirect href="/(tabs)" />;
+
+  return <Redirect href="/landing" />;
 }

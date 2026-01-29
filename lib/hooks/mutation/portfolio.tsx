@@ -4,18 +4,22 @@ import { createPortfolio, getPortfolios } from '@/lib/api/portfolio';
 import { useArenaStore } from '../zustand/use-arena-store';
 import { useRouter } from 'expo-router';
 import { createArenaSessions, pickArenaSessionPreference } from '@/lib/api/arena';
+import { createGuestSession } from '@/lib/api/auth';
+import { setGuestSessionId } from '@/lib/api';
 
 export const useCreatePortfolioMutation = () => {
-  const { user, accessToken } = useUserStore((state) => state);
+  const { user } = useUserStore((state) => state);
   const { setPortfolio } = useArenaStore((state) => state);
   const router = useRouter();
 
   return useMutation({
-    mutationFn: (name: string) => {
-      if (!user?.userId) {
-        return Promise.reject(new Error('User not found'));
+    mutationFn: async (name: string) => {
+      if (user?.userId) {
+        return createPortfolio({ name });
       }
-      return createPortfolio({ name, userId: user.userId });
+      const { guestSessionId } = await createGuestSession();
+      setGuestSessionId(guestSessionId);
+      return createPortfolio({ name });
     },
     onSuccess: async (data) => {
       if (!data) {
@@ -23,6 +27,7 @@ export const useCreatePortfolioMutation = () => {
         return;
       }
       const response = await createArenaSessions({ portfolioId: data.portfolioId });
+      console.log('response', response);
 
       if (!response) {
         console.log('response is null');

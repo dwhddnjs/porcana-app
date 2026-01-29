@@ -1,4 +1,4 @@
-import { api } from '.';
+import { api } from './client';
 
 type SignupRequestTypes = {
   nickname: string;
@@ -43,9 +43,10 @@ export const signup = async ({
 export type ProviderTypes = 'EMAIL' | 'GOOGLE' | 'APPLE';
 
 type LoginRequestTypes = {
-  email: string;
-  password: string;
-  provider: ProviderTypes;
+  email?: string;
+  password?: string;
+  provider?: ProviderTypes;
+  code?: string;
 };
 
 type LoginResponseTypes = {
@@ -57,12 +58,14 @@ export const login = async ({
   email,
   password,
   provider = 'EMAIL',
+  code,
 }: LoginRequestTypes): Promise<LoginResponseTypes> => {
   try {
     const response = await api.post('auth/login', {
       provider,
       email,
       password,
+      code,
     });
     return response.data;
   } catch (error: any) {
@@ -98,6 +101,32 @@ export const appleLogin = async ({
     return response.data;
   } catch (error: any) {
     console.error('Apple Login Error:', error);
+    throw error;
+  }
+};
+
+export type GuestSessionResponseTypes = {
+  guestSessionId: string;
+};
+
+export const createGuestSession = async (): Promise<GuestSessionResponseTypes> => {
+  try {
+    const response = await api.post('guest-sessions');
+    return response.data;
+  } catch (error: any) {
+    console.error('Create Guest Session Error:', error);
+    throw error;
+  }
+};
+
+export const getRefreshToken = async ({ refreshToken }: { refreshToken: string }) => {
+  try {
+    const response = await api.post('auth/refresh', {
+      refreshToken,
+    });
+    return response.data;
+  } catch (error: any) {
+    console.error('Get Refresh Token Error:', error);
     throw error;
   }
 };

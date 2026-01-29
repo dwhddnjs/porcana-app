@@ -1,32 +1,13 @@
 import { useMutation } from '@tanstack/react-query';
+import { setGuestSessionId } from '@/lib/api';
 import { login, signup } from '@/lib/api/auth';
 import { useSignupStore } from '@/lib/hooks/zustand/use-signup-store';
 import { UserState, useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { router } from 'expo-router';
 
-export const useSignupMutation = () => {
-  const resetSignup = useSignupStore((state) => state.reset);
-  const { setTokens, setUser } = useUserStore((state) => state);
-
-  return useMutation({
-    mutationFn: signup,
-    onSuccess: (data) => {
-      // 토큰이 응답에 포함되어 있다면 저장
-      if (data?.accessToken && data?.refreshToken) {
-        setTokens(data.accessToken, data.refreshToken);
-        setUser(data as UserState);
-      }
-      // 회원가입 스토어 초기화
-      resetSignup();
-    },
-    onError: (error) => {
-      console.error('Signup failed:', error);
-    },
-  });
-};
-
 export const useLoginMutation = () => {
-  const { setTokens, setUser } = useUserStore((state) => state);
+  const { setUser } = useUserStore((state) => state);
+  const resetSignup = useSignupStore((state) => state.reset);
 
   return useMutation({
     mutationFn: login,
@@ -36,6 +17,26 @@ export const useLoginMutation = () => {
     },
     onError: (error) => {
       console.error('Login failed:', error);
+    },
+  });
+};
+
+export const useSignupMutation = () => {
+  const { email, password, reset } = useSignupStore();
+  const { mutate: loginMutate } = useLoginMutation();
+
+  return useMutation({
+    mutationFn: signup,
+    onSuccess: async (data) => {
+      setGuestSessionId(null);
+      loginMutate({
+        email,
+        password,
+      });
+      reset();
+    },
+    onError: (error) => {
+      console.error('Signup failed:', error);
     },
   });
 };

@@ -1,5 +1,7 @@
-import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
+import { api } from './client';
+import { createGuestSession, getRefreshToken } from './auth';
 
 export interface ApiResponse<T> {
   result_code: number;
@@ -20,6 +22,11 @@ interface QueueItem {
 let isRefreshing = false;
 let failedQueue: QueueItem[] = [];
 
+let guestSessionId: string | null = null;
+export const setGuestSessionId = (id: string | null) => {
+  guestSessionId = id;
+};
+
 const processQueue = (error: any, token: string | null = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
@@ -31,18 +38,15 @@ const processQueue = (error: any, token: string | null = null) => {
   failedQueue = [];
 };
 
-const envUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
-
-export const api = axios.create({
-  baseURL: envUrl ? `${envUrl}/api/v1/` : 'http://localhost:3000/app/v1/',
-});
-
 // 요청 인터셉터 - 매 요청마다 토큰 자동 주입
 api.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
+  async (config: InternalAxiosRequestConfig) => {
     const { accessToken } = useUserStore.getState();
     if (accessToken) {
       config.headers['Authorization'] = `Bearer ${accessToken}`;
+    }
+    if (guestSessionId) {
+      config.headers['X-Guest-Session-Id'] = guestSessionId;
     }
     return config;
   },
@@ -87,23 +91,17 @@ api.interceptors.response.use(
       isRefreshing = true;
       const { refreshToken, setTokens, clearTokens } = useUserStore.getState();
 
-      if (!refreshToken) {
-        clearTokens();
-        isRefreshing = false;
-        return Promise.reject(new Error('No refresh token available'));
-      }
-
       try {
-        const res = await api.post<{ accessToken: string; refreshToken: string }>('auth/refresh', {
-          refreshToken,
-        });
+        if (!refreshToken) {
+          return Promise.reject(new Error('No refresh token available'));
+        }
+        const res = await getRefreshToken({ refreshToken });
 
-        const newAccessToken = res.data.accessToken;
-        const newRefreshToken = res.data.refreshToken;
+        const newAccessToken = res.accessToken;
+        const newRefreshToken = res.refreshToken;
 
         // 새 토큰 저장
         setTokens(newAccessToken, newRefreshToken);
-
         // 대기 중인 요청들에 새 토큰 전달
         processQueue(null, newAccessToken);
 
@@ -111,7 +109,6 @@ api.interceptors.response.use(
         originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
         return api(originalRequest);
       } catch (refreshErr) {
-        clearTokens();
         processQueue(refreshErr, null);
         return Promise.reject(refreshErr);
       } finally {
@@ -147,3 +144,5 @@ api.interceptors.response.use(
     return Promise.reject(errorObj);
   }
 );
+
+export { api };

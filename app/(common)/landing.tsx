@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import Container from '@/components/container';
@@ -16,9 +16,11 @@ const CAROUSEL_IMAGES = [
 ];
 
 export default function LandingScreen() {
-  const router = useRouter();
-  const { accessToken, refreshToken } = useUserStore();
-  console.log('accessToken@@@@@@@@@@@@@@@@', accessToken);
+  const { accessToken, refreshToken, user, reset } = useUserStore();
+  // console.log('accessToken', accessToken);
+  // console.log('refreshToken', refreshToken);
+  // console.log('user', user);
+
   const [open, setOpen] = useState(false);
   const { mutate } = useCreatePortfolioMutation();
 
@@ -26,6 +28,10 @@ export default function LandingScreen() {
     setOpen(false);
     mutate?.(portfolioName);
   };
+
+  // useEffect(() => {
+  //   reset();
+  // }, [accessToken, refreshToken, user]);
 
   return (
     <Container>

@@ -11,7 +11,7 @@ import { useState } from 'react';
 import { useArenaStore } from '@/lib/hooks/zustand/use-arena-store';
 import { usePickArenaSessionPreferenceMutation } from '@/lib/hooks/mutation/portfolio';
 
-export type RiskProfileTypes = 'aggressive' | 'defensive' | 'neutral' | null;
+export type RiskProfileTypes = 'AGGRESSIVE' | 'BALANCED' | 'SAFE' | null;
 
 export default function AddModal() {
   const isPresented = router.canGoBack();
@@ -52,39 +52,39 @@ export default function AddModal() {
             <Text className="text-center text-2xl font-bold">당신은 리스크 프로필은 ?</Text>
             <View className="flex-row justify-center gap-x-[24px]">
               <Pressable
-                onPress={() => handleRiskProfileSelect('aggressive')}
-                className={`border-primary h-[72px] w-[72px] items-center justify-center gap-y-[2px] rounded-full border-2 ${selectedRiskProfile === 'aggressive' ? 'bg-primary' : ''}`}>
+                onPress={() => handleRiskProfileSelect('AGGRESSIVE')}
+                className={`border-primary h-[72px] w-[72px] items-center justify-center gap-y-[2px] rounded-full border-2 ${selectedRiskProfile === 'AGGRESSIVE' ? 'bg-primary' : ''}`}>
                 <Icon
                   as={HandFistIcon}
-                  className={`size-8 ${selectedRiskProfile === 'aggressive' ? 'text-primary-foreground' : 'text-primary'}`}
+                  className={`size-8 ${selectedRiskProfile === 'AGGRESSIVE' ? 'text-primary-foreground' : 'text-primary'}`}
                 />
                 <Text
-                  className={`text-xs font-semibold ${selectedRiskProfile === 'aggressive' ? 'text-primary-foreground' : ''}`}>
+                  className={`text-xs font-semibold ${selectedRiskProfile === 'AGGRESSIVE' ? 'text-primary-foreground' : ''}`}>
                   공격형
                 </Text>
               </Pressable>
               <Pressable
-                onPress={() => handleRiskProfileSelect('defensive')}
-                className={`border-primary h-[72px] w-[72px] items-center justify-center gap-y-[2px] rounded-full border-2 ${selectedRiskProfile === 'defensive' ? 'bg-primary' : ''}`}>
+                onPress={() => handleRiskProfileSelect('BALANCED')}
+                className={`border-primary h-[72px] w-[72px] items-center justify-center gap-y-[2px] rounded-full border-2 ${selectedRiskProfile === 'BALANCED' ? 'bg-primary' : ''}`}>
                 <Icon
-                  as={ShieldIcon}
-                  className={`size-8 ${selectedRiskProfile === 'defensive' ? 'text-primary-foreground' : 'text-primary'}`}
+                  as={ScaleIcon}
+                  className={`size-8 ${selectedRiskProfile === 'BALANCED' ? 'text-primary-foreground' : 'text-primary'}`}
                 />
                 <Text
-                  className={`text-xs font-semibold ${selectedRiskProfile === 'defensive' ? 'text-primary-foreground' : ''}`}>
-                  수비형
+                  className={`text-xs font-semibold ${selectedRiskProfile === 'BALANCED' ? 'text-primary-foreground' : ''}`}>
+                  중립형
                 </Text>
               </Pressable>
               <Pressable
-                onPress={() => handleRiskProfileSelect('neutral')}
-                className={`border-primary h-[72px] w-[72px] items-center justify-center gap-y-[2px] rounded-full border-2 ${selectedRiskProfile === 'neutral' ? 'bg-primary' : ''}`}>
+                onPress={() => handleRiskProfileSelect('SAFE')}
+                className={`border-primary h-[72px] w-[72px] items-center justify-center gap-y-[2px] rounded-full border-2 ${selectedRiskProfile === 'SAFE' ? 'bg-primary' : ''}`}>
                 <Icon
-                  as={ScaleIcon}
-                  className={`size-8 ${selectedRiskProfile === 'neutral' ? 'text-primary-foreground' : 'text-primary'}`}
+                  as={ShieldIcon}
+                  className={`size-8 ${selectedRiskProfile === 'SAFE' ? 'text-primary-foreground' : 'text-primary'}`}
                 />
                 <Text
-                  className={`text-xs font-semibold ${selectedRiskProfile === 'neutral' ? 'text-primary-foreground' : ''}`}>
-                  중립형
+                  className={`text-xs font-semibold ${selectedRiskProfile === 'SAFE' ? 'text-primary-foreground' : ''}`}>
+                  수비형
                 </Text>
               </Pressable>
             </View>

@@ -5,6 +5,7 @@ import { UserState, useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { router } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
+import { useLoginMutation, useSignupMutation } from './auth';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -28,6 +29,9 @@ const getClientId = () => {
 
 export const useGoogleAuth = () => {
   const { setTokens, setUser } = useUserStore((state) => state);
+  const { mutate: login } = useLoginMutation();
+  const { mutate: signup } = useSignupMutation();
+
   const isProcessingRef = useRef(false);
 
   const [request, response, promptAsync] = Google.useAuthRequest({
@@ -50,8 +54,22 @@ export const useGoogleAuth = () => {
       isProcessingRef.current = true;
       const result = await promptAsync();
 
+      console.log('result', result);
+      console.log('response', response);
+
       // 사용자가 취소한 경우
       if (result.type === 'dismiss' || result.type === 'error') {
+        isProcessingRef.current = false;
+        return;
+      }
+
+      // 성공한 경우에만 params에 접근
+      if (result.type === 'success' && result.params?.code) {
+        login({
+          provider: 'GOOGLE',
+          code: result.params.code,
+        });
+      } else {
         isProcessingRef.current = false;
       }
     } catch (error) {
