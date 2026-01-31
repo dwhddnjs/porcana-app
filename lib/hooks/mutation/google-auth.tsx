@@ -2,6 +2,7 @@ import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 import { useMutation } from '@tanstack/react-query';
 import { UserState, useUserStore } from '@/lib/hooks/zustand/use-user-store';
+import { useLoadingStore } from '@/lib/hooks/zustand/use-loading-store';
 import { router } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
@@ -29,6 +30,7 @@ const getClientId = () => {
 
 export const useGoogleAuth = () => {
   const { setTokens, setUser } = useUserStore((state) => state);
+  const { show, hide } = useLoadingStore();
   const { mutate: login } = useLoginMutation();
   const { mutate: signup } = useSignupMutation();
 
@@ -52,14 +54,13 @@ export const useGoogleAuth = () => {
 
     try {
       isProcessingRef.current = true;
+      show('로그인 중...');
       const result = await promptAsync();
-
-      console.log('result', result);
-      console.log('response', response);
 
       // 사용자가 취소한 경우
       if (result.type === 'dismiss' || result.type === 'error') {
         isProcessingRef.current = false;
+        hide();
         return;
       }
 
@@ -71,10 +72,12 @@ export const useGoogleAuth = () => {
         });
       } else {
         isProcessingRef.current = false;
+        hide();
       }
     } catch (error) {
       console.error('Google Auth Error:', error);
       isProcessingRef.current = false;
+      hide();
     }
   };
 

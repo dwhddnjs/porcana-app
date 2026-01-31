@@ -25,6 +25,12 @@ export default function LoginScreen() {
 
   const { accessToken, reset } = useUserStore();
 
+  // useEffect(() => {
+  //   if (accessToken) {
+  //     reset();
+  //   }
+  // }, [accessToken]);
+
   const {
     control,
     handleSubmit,

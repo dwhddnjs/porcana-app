@@ -8,22 +8,22 @@ import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { Building2, CheckCircle, TrendingUp } from 'lucide-react-native';
 import Container from '@/components/container';
 import { Image } from '@/components/ui/image';
+import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function ArenaComplete() {
   const { name, selectedCards, resetArena } = useArenaStore();
-
-  const handleGoToPortfolio = () => {
-    resetArena();
-    router.replace('/(tabs)/(portfolio)');
-  };
-
-  const handleGoToHome = () => {
-    resetArena();
-    router.replace('/(tabs)');
-  };
+  const { user } = useUserStore();
+  const queryClient = useQueryClient();
 
   const handleOpenLoginSheet = () => {
-    router.push('/login-sheet');
+    if (!user) {
+      router.push('/login-sheet');
+      return;
+    }
+    resetArena();
+    queryClient.invalidateQueries({ queryKey: ['portfolios'] });
+    router.replace('/(tabs)/(portfolio)');
   };
 
   return (
@@ -99,7 +99,7 @@ export default function ArenaComplete() {
       {/* 하단 버튼 */}
       <Animated.View entering={FadeInDown.duration(500).delay(500)} className="gap-3 px-4 pt-4">
         <Button onPress={handleOpenLoginSheet} className="w-full" size="lg">
-          <Text className="font-semibold">로그인 하러가기</Text>
+          <Text className="font-semibold">{user ? '포트폴리오 보러가기' : '로그인 하러가기'}</Text>
         </Button>
       </Animated.View>
     </Container>

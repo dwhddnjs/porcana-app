@@ -1,6 +1,7 @@
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { useMutation } from '@tanstack/react-query';
 import { UserState, useUserStore } from '@/lib/hooks/zustand/use-user-store';
+import { useLoadingStore } from '@/lib/hooks/zustand/use-loading-store';
 import { router } from 'expo-router';
 import { useRef } from 'react';
 import { Platform } from 'react-native';
@@ -9,10 +10,14 @@ import { parseEmailFromIdentityToken } from '@/lib/constant/function';
 
 export const useAppleAuth = () => {
   const { setTokens, setUser } = useUserStore((state) => state);
+  const { show, hide } = useLoadingStore();
   const isProcessingRef = useRef(false);
 
   const appleLoginMutation = useMutation({
     mutationFn: appleLogin,
+    onMutate: () => {
+      show('로그인 중...');
+    },
     onSuccess: (data) => {
       if (data?.accessToken && data?.refreshToken) {
         setTokens(data.accessToken, data.refreshToken);
@@ -24,6 +29,9 @@ export const useAppleAuth = () => {
     onError: (error) => {
       console.error('Apple Login Error:', error);
       isProcessingRef.current = false;
+    },
+    onSettled: () => {
+      hide();
     },
   });
 

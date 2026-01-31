@@ -1,29 +1,36 @@
 import { LargeHeader } from '@/components/large-header';
 import { Text } from '@/components/ui/text';
-import { Dimensions, Pressable, View } from 'react-native';
-import { PressableScale } from 'pressto';
-import { ArrowRight, MenuIcon } from 'lucide-react-native';
+import { Pressable, View } from 'react-native';
+import { MenuIcon } from 'lucide-react-native';
 import { Icon } from '@/components/ui/icon';
-import { useRouter } from 'expo-router';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
 import { Spacer } from '@/components/spacer';
-import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { useGetHomeQuery } from '@/lib/hooks/query/home';
+import { useLoadingStore } from '@/lib/hooks/zustand/use-loading-store';
 import HomePortfolioChart from '@/components/portfolio/home-portfolio-chart';
-import { Building2 } from 'lucide-react-native';
 import { cn } from '@/lib/utils';
 import { Image } from '@/components/ui/image';
 import { roundToTwoDecimals } from '@/lib/constant/function';
+import { useEffect } from 'react';
+import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 
 export default function PortfolioScreen() {
-  const router = useRouter();
   const navigation = useNavigation();
-  const { accessToken, refreshToken } = useUserStore();
+  const { show, hide } = useLoadingStore();
+  const { user } = useUserStore();
 
   const { data, isLoading } = useGetHomeQuery();
 
-  if (isLoading) {
-    return <Text>Loading...</Text>;
+  useEffect(() => {
+    if (isLoading) {
+      show('데이터 불러오는 중...');
+    } else {
+      hide();
+    }
+  }, [isLoading]);
+
+  if (isLoading || !data) {
+    return null;
   }
 
   const openDrawer = () => {
@@ -41,9 +48,12 @@ export default function PortfolioScreen() {
         }>
         <View className="relative">
           {/* 주식 스타일 라인 차트 */}
-          <HomePortfolioChart />
+          <HomePortfolioChart
+            data={data?.chart ?? []}
+            totalReturnPct={data?.mainPortfolio?.totalReturnPct}
+          />
 
-          <Spacer height={24} />
+          <Spacer height={12} />
           {/* 스크롤 테스트용 카드들 */}
 
           <View className="px-[12px]">

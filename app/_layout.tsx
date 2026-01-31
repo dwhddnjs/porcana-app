@@ -1,5 +1,6 @@
 import '@/global.css';
 
+import { LoadingOverlay } from '@/components/ui/loading-overlay';
 import { queryClient, useAppState } from '@/lib/react-query';
 import { NAV_THEME } from '@/lib/theme';
 import { ThemeProvider } from '@react-navigation/native';
@@ -53,6 +54,7 @@ export default function RootLayout() {
               />
             </Stack>
             <PortalHost />
+            <LoadingOverlay />
           </ThemeProvider>
         </GestureHandlerRootView>
       </KeyboardProvider>

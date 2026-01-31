@@ -9,10 +9,8 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { Text } from '@/components/ui/text';
-import { Icon } from '@/components/ui/icon';
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { Asset } from '@/lib/hooks/zustand/use-arena-store';
-import { Building2 } from 'lucide-react-native';
 import { Image } from '@/components/ui/image';
 
 interface FlipCardProps {
@@ -52,7 +50,7 @@ const getRiskColor = (level: number) => {
   return 'text-red-500';
 };
 
-export function FlipCard({
+export const FlipCard = memo(function FlipCard({
   index,
   onSelect,
   isFlipped,
@@ -192,4 +190,4 @@ export function FlipCard({
       </Animated.View>
     </AnimatedPressable>
   );
-}
+});

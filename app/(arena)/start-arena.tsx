@@ -1,7 +1,7 @@
 import { View, useWindowDimensions } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { FlipCard } from '@/components/portfolio/flip-card';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import Animated, { FadeIn, FadeOut, Layout } from 'react-native-reanimated';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { router, useFocusEffect } from 'expo-router';
@@ -16,7 +16,7 @@ const MAX_ROUNDS = 10;
 export default function CreatePortfolio() {
   const { height: screenHeight } = useWindowDimensions();
   const navigation = useNavigation();
-  const { sessionId, selectedCards, addCard, clearCards } = useArenaStore();
+  const { selectedCards, addCard, clearCards } = useArenaStore();
 
   const [round, setRound] = useState(1);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -25,11 +25,28 @@ export default function CreatePortfolio() {
   const [showCards, setShowCards] = useState(true);
   const [hasInitialFlip, setHasInitialFlip] = useState(false);
 
+  // 타이머 정리를 위한 ref (React Native에서는 setTimeout이 number 반환)
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
   const { data: arenaSessionRounds, refetch, isLoading } = useGetArenaSessionRoundsQuery();
   const { mutate: pickAsset } = usePickArenaSessionAssetMutation();
 
-  // 서버에서 받아온 assets (3장)
-  const currentAssets: Asset[] = arenaSessionRounds?.assets || [];
+  // 서버에서 받아온 assets (3장) - useMemo로 불필요한 재생성 방지
+  const currentAssets: Asset[] = useMemo(
+    () => arenaSessionRounds?.assets || [],
+    [arenaSessionRounds?.assets]
+  );
+
+  // 타이머 정리 함수
+  const clearAllTimers = useCallback(() => {
+    timersRef.current.forEach(clearTimeout);
+    timersRef.current = [];
+  }, []);
+
+  // 컴포넌트 언마운트 시 타이머 정리
+  useEffect(() => {
+    return () => clearAllTimers();
+  }, [clearAllTimers]);
 
   const openDrawer = useCallback(() => {
     navigation.dispatch(DrawerActions.openDrawer());
@@ -56,11 +73,15 @@ export default function CreatePortfolio() {
 
   // 화면 진입 시 초기화
   useEffect(() => {
+    clearAllTimers();
     clearCards();
     setHasInitialFlip(false);
     setRound(1);
     setIsFlipped(false);
-  }, []);
+    setShowCards(true);
+    setIsTransitioning(false);
+    setSelectedCardIndex(null);
+  }, [clearAllTimers, clearCards]);
 
   // 첫 로드 시에만 카드 뒤집기 (이후 라운드는 handleCardSelect에서 처리)
   useEffect(() => {
@@ -69,6 +90,7 @@ export default function CreatePortfolio() {
         setIsFlipped(true);
         setHasInitialFlip(true);
       }, 500);
+      timersRef.current.push(timer);
       return () => clearTimeout(timer);
     }
   }, [currentAssets.length, hasInitialFlip]);
@@ -85,11 +107,11 @@ export default function CreatePortfolio() {
 
       // 서버에 선택 전송
       pickAsset(
-        { sessionId, pickedAssetId: selectedAsset.assetId },
+        { pickedAssetId: selectedAsset.assetId },
         {
           onSuccess: async () => {
             // 1초 동안 선택된 카드가 커진 상태 유지
-            setTimeout(async () => {
+            const timer1 = setTimeout(async () => {
               setShowCards(false);
               setSelectedCardIndex(null);
 
@@ -98,23 +120,27 @@ export default function CreatePortfolio() {
                 await refetch();
 
                 // 데이터 로드 후 카드 표시
-                setTimeout(() => {
+                const timer2 = setTimeout(() => {
                   setRound((prev) => prev + 1);
                   setIsFlipped(false);
                   setShowCards(true);
 
                   // 새 카드가 나타난 후 뒤집기
-                  setTimeout(() => {
+                  const timer3 = setTimeout(() => {
                     setIsFlipped(true);
                     setIsTransitioning(false);
                   }, 300);
+                  timersRef.current.push(timer3);
                 }, 100);
+                timersRef.current.push(timer2);
               } else {
                 // 10라운드 완료 - 세로 모드로 전환 후 완료 페이지로 이동
+                clearAllTimers();
                 await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
                 router.replace('/(arena)/complete');
               }
             }, 1000);
+            timersRef.current.push(timer1);
           },
           onError: (error) => {
             console.error('Asset pick failed:', error);
@@ -124,7 +150,7 @@ export default function CreatePortfolio() {
         }
       );
     },
-    [round, currentAssets, isTransitioning, sessionId, pickAsset, addCard, refetch]
+    [round, currentAssets, isTransitioning, pickAsset, addCard, refetch, clearAllTimers]
   );
 
   return (

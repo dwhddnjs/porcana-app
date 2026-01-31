@@ -14,12 +14,14 @@ interface CreatePortfolioDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (portfolioName: string) => void;
+  showTrigger?: boolean;
 }
 
 export const CreatePortfolioDialog = ({
   open,
   onOpenChange,
   onSubmit,
+  showTrigger = true,
 }: CreatePortfolioDialogProps) => {
   const [portfolioName, setPortfolioName] = useState('');
 
@@ -32,11 +34,13 @@ export const CreatePortfolioDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
-        <Button size={'lg'}>
-          <Text>시작하기</Text>
-        </Button>
-      </DialogTrigger>
+      {showTrigger && (
+        <DialogTrigger asChild>
+          <Button size={'lg'}>
+            <Text>시작하기</Text>
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="w-[320px]">
         <DialogHeader>
           <DialogTitle className="text-lg">새 포트폴리오 이름을 적어주세요</DialogTitle>
