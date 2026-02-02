@@ -1,3 +1,23 @@
+import type { DiversityLevel } from '@/lib/api/portfolio';
+
+/**
+ * DiversityLevel 한글 라벨
+ */
+export const DIVERSITY_LEVEL_LABELS: Record<DiversityLevel, string> = {
+  LOW: '낮음',
+  MEDIUM: '보통',
+  HIGH: '높음',
+};
+
+/**
+ * DiversityLevel에 따른 텍스트 색상 클래스 반환
+ */
+export const getDiversityLevelColor = (level?: DiversityLevel): string => {
+  if (level === 'HIGH') return 'text-link';
+  if (level === 'MEDIUM') return 'text-success';
+  return 'text-destructive';
+};
+
 /**
  * Base64 URL 디코딩 함수 (React Native 호환)
  * JWT 토큰의 payload 디코딩 등에 사용됩니다.

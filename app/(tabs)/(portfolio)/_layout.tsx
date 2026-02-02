@@ -14,7 +14,7 @@ export default function PortfolioLayout() {
         },
       }}
       drawerContent={(props) => <PortfolioDrawerContent {...props} />}>
-      <Drawer.Screen name="index" />
+      <Drawer.Screen name="(main)" options={{ drawerItemStyle: { display: 'none' } }} />
     </Drawer>
   );
 }

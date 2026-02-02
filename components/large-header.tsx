@@ -15,10 +15,11 @@ const LARGE_HEADER_HEIGHT = 52;
 interface LargeHeaderProps {
   title: string;
   children: ReactNode;
+  headerLeft?: ReactNode;
   headerRight?: ReactNode;
 }
 
-export function LargeHeader({ title, children, headerRight }: LargeHeaderProps) {
+export function LargeHeader({ title, children, headerLeft, headerRight }: LargeHeaderProps) {
   const insets = useSafeAreaInsets();
   const scrollY = useSharedValue(0);
 
@@ -53,6 +54,7 @@ export function LargeHeader({ title, children, headerRight }: LargeHeaderProps) 
         style={{ paddingTop: insets.top }}
         className="bg-background absolute top-0 right-0 left-0 z-10">
         <View style={{ height: HEADER_HEIGHT }} className="flex-row items-center justify-center">
+          {headerLeft && <View className="absolute left-4 z-10">{headerLeft}</View>}
           <Animated.View style={headerAnimatedStyle}>
             <Text className="text-base font-semibold">{title}</Text>
           </Animated.View>

@@ -41,9 +41,13 @@ const processQueue = (error: any, token: string | null = null) => {
 // 요청 인터셉터 - 매 요청마다 토큰 자동 주입
 api.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    const { accessToken } = useUserStore.getState();
-    if (accessToken) {
-      config.headers['Authorization'] = `Bearer ${accessToken}`;
+    const isRefreshRequest = config.url?.includes('auth/refresh') === true;
+    // refresh 요청에는 만료된 accessToken을 붙이지 않음 (서버가 401 반환 방지)
+    if (!isRefreshRequest) {
+      const { accessToken } = useUserStore.getState();
+      if (accessToken) {
+        config.headers['Authorization'] = `Bearer ${accessToken}`;
+      }
     }
     if (guestSessionId) {
       config.headers['X-Guest-Session-Id'] = guestSessionId;

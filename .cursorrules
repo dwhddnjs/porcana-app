@@ -12,6 +12,36 @@ alwaysApply: true
 - 서버쪽 상태관리는 tanstack query 사용할고 클라이언트 상태관리는 zustand 사용할 것
 - get은 useQuery 훅 사용하고 post put patch delete 는 useMutation 훅 사용해서 커스텀 훅을 만들덧
 
+## Import 및 경로
+
+- 루트에서 import 시 `@/` 경로 별칭 사용 (예: `@/components/ui/button`, `@/lib/hooks/zustand/use-user-store`)
+
+## API 및 훅 네이밍
+
+- 쿼리 훅: `useGet[Resource]Query()` (예: useGetPortfoliosQuery)
+- 뮤테이션 훅: `use[Action]Mutation()` (예: useCreatePortfolioMutation)
+- API 함수/엔드포인트는 `lib/api/` 에 리소스별 파일로 정의 (`lib/api/portfolio.ts` 등)
+
+## 파일 네이밍
+
+- 컴포넌트: `kebab-case.tsx`
+- 훅: `use-[name].tsx`
+- API 파일: `[resource].ts`
+
+## 프로젝트 구조 참고
+
+- app: Expo Router 파일 기반 라우팅. (auth)=인증, (tabs)=메인 탭, (arena)=투자 아레나, (common)=랜딩/공통
+- components: ui/=공용 UI, feature별 하위 폴더(예: portfolio/)
+- lib: api/=API 레이어, hooks/query·mutation·zustand, validations, constant, theme.ts, utils.ts
+- API Base: https://api.porcana.co.kr/api/v1/ , Swagger: https://api.porcana.co.kr/swagger-ui/index.html
+- Axios: Bearer 자동 주입, 401 시 토큰 리프레시, X-Guest-Session-Id 게스트 세션 지원
+
+## Zustand 스토어
+
+- useUserStore: 인증(토큰, 유저), AsyncStorage 영속화
+- useSignupStore: 회원가입 플로우
+- useArenaStore: 투자 아레나 게임 상태
+- useLoadingStore: 전역 로딩. `show('메시지')` / `hide()` — mutation 시 로딩 표시 권장
 
 ## 스타일링 규칙
 
@@ -19,3 +49,11 @@ alwaysApply: true
 - 인라인 스타일링 지향하고 스타일링 문법 질문시 uniwind 문서를 참고 할 것 https://docs.uniwind.dev/
 - 커스텀 animation 기능 생성시 react-native-reanimated 문서를 참조해서 만들 것 https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/getting-started
 - 스타일시 색상 넣을때 global.css 파일에 있는 색상 변수를 사용할 것
+- 컴포넌트 variant는 CVA 사용. 클래스 병합 시 `lib/utils.ts`의 `cn()` 사용
+
+## 기타
+
+- 유효성 검사: Zod 스키마(`lib/validations/`), React Hook Form + @hookform/resolvers
+- 앱 전체 한국어, 다크 모드 지원, 모든 화면 Safe Area 처리
+- React Query: staleTime 5분, gcTime 10분
+- 날짜 포맷팅: date-fns 사용

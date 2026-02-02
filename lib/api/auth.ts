@@ -124,6 +124,7 @@ export const getRefreshToken = async ({ refreshToken }: { refreshToken: string }
     const response = await api.post('auth/refresh', {
       refreshToken,
     });
+
     return response.data;
   } catch (error: any) {
     console.error('Get Refresh Token Error:', error);
