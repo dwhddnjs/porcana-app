@@ -20,6 +20,7 @@ import { THEME } from '@/lib/theme';
 import { Image } from '@/components/ui/image';
 import RiskDistributionChart from '@/components/portfolio/risk-distribution-chart';
 import { Spacer } from '@/components/spacer';
+import { AssetItem } from '@/components/portfolio/asset-item';
 
 export default function PortfolioDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -163,38 +164,14 @@ export default function PortfolioDetailScreen() {
           <View>
             <Text className="text-muted-foreground text-md mb-[12px] font-bold">주요 자산</Text>
             {data?.positions?.map((item, index) => (
-              <Pressable
+              <AssetItem
                 key={item.assetId}
-                className={cn(
-                  'border-primary/10 flex-row items-center justify-between gap-4 rounded-md border-b px-[4px] py-[8px]',
-                  index === 0 && 'border-t'
-                )}>
-                <View className="flex-row items-center gap-4">
-                  <Image
-                    source={item.imageUrl}
-                    className="bg-background border-primary/10 h-10 w-10 rounded-full border"
-                    contentFit="contain"
-                  />
-                  <View>
-                    <View className="g flex-row items-center gap-[4px]">
-                      <Text className="text-lg font-semibold">{item.ticker}</Text>
-                      <Text className="text-success text-sm font-semibold"> {item.weightPct}%</Text>
-                    </View>
-                    <Text className="text-muted-foreground line-clamp-1 max-w-[200px] text-ellipsis">
-                      {item.name}
-                    </Text>
-                  </View>
-                </View>
-                <View>
-                  <Text
-                    className={cn(
-                      'text-destructive font-semibold',
-                      item.returnPct > 0 ? 'text-link' : 'text-destructive'
-                    )}>
-                    {roundToTwoDecimals(item.returnPct)}%
-                  </Text>
-                </View>
-              </Pressable>
+                item={item}
+                showTopBorder={index === 0}
+                onPress={() => {
+                  router.push(`/(tabs)/(portfolio)/(main)/asset/${item.assetId}`);
+                }}
+              />
             ))}
           </View>
         </View>

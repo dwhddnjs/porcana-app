@@ -7,7 +7,17 @@ export default function PortfolioMainLayout() {
         headerShown: false,
         animation: 'slide_from_right',
         gestureEnabled: true,
-      }}
-    />
+      }}>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="[id]" />
+      <Stack.Screen
+        name="asset/[assetId]"
+        options={{
+          presentation: 'modal',
+          gestureEnabled: true,
+          sheetGrabberVisible: false,
+        }}
+      />
+    </Stack>
   );
 }

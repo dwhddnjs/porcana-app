@@ -7,6 +7,7 @@ import { PieChartIcon, PlusIcon, UserIcon } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { useUniwind } from 'uniwind';
+import { PressableScale } from 'pressto';
 
 export default function TabLayout() {
   const { theme } = useUniwind();
@@ -54,16 +55,15 @@ export default function TabLayout() {
           options={{
             title: '',
             tabBarButton: () => (
-              <Pressable
+              <PressableScale
                 onPress={handleAddButtonPress}
-                className="items-center justify-center"
-                style={{ flex: 1 }}>
+                style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <View
                   className="bg-primary items-center justify-center rounded-full"
                   style={{ width: 48, height: 48, marginTop: -12 }}>
                   <Icon as={PlusIcon} size={32} className="text-primary-foreground" />
                 </View>
-              </Pressable>
+              </PressableScale>
             ),
           }}
         />
