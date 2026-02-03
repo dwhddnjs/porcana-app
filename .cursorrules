@@ -21,6 +21,7 @@ alwaysApply: true
 - 쿼리 훅: `useGet[Resource]Query()` (예: useGetPortfoliosQuery)
 - 뮤테이션 훅: `use[Action]Mutation()` (예: useCreatePortfolioMutation)
 - API 함수/엔드포인트는 `lib/api/` 에 리소스별 파일로 정의 (`lib/api/portfolio.ts` 등)
+- 데이터 확인 후 request, response 타입을 항상 정의할 것
 
 ## 파일 네이밍
 
@@ -33,7 +34,8 @@ alwaysApply: true
 - app: Expo Router 파일 기반 라우팅. (auth)=인증, (tabs)=메인 탭, (arena)=투자 아레나, (common)=랜딩/공통
 - components: ui/=공용 UI, feature별 하위 폴더(예: portfolio/)
 - lib: api/=API 레이어, hooks/query·mutation·zustand, validations, constant, theme.ts, utils.ts
-- API Base: https://api.porcana.co.kr/api/v1/ , Swagger: https://api.porcana.co.kr/swagger-ui/index.html
+- API Base: https://api.porcana.co.kr/api/v1/ , Swagger UI: https://api.porcana.co.kr/swagger-ui/index.html
+- API 스펙 조회 시 Swagger UI HTML 대신 OpenAPI JSON 엔드포인트 사용: https://api.porcana.co.kr/v3/api-docs (fetch로 바로 조회 가능, HTML+JS 렌더링 불필요)
 - Axios: Bearer 자동 주입, 401 시 토큰 리프레시, X-Guest-Session-Id 게스트 세션 지원
 
 ## Zustand 스토어
