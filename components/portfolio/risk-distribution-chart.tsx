@@ -4,6 +4,8 @@ import { Dimensions, View } from 'react-native';
 import { BarChart } from 'react-native-gifted-charts';
 import { useUniwind } from 'uniwind';
 import { Text } from '../ui/text';
+import { ChartNoAxesColumn } from 'lucide-react-native';
+import { Icon } from '../ui/icon';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -35,11 +37,11 @@ const RiskDistributionChart = ({ data }: RiskDistributionChartProps) => {
         { value: emptyValue, color: bgColor },
       ],
       label: String(level),
-      // labelComponents: () => (
-      //   <View className="border-2">
-      //     <Text>{level}</Text>
-      //   </View>
-      // ),
+      labelComponent: () => (
+        <View className="border-success h-8 w-8 items-center justify-center rounded-full border">
+          <Text className="text-success font-semibold">{level}</Text>
+        </View>
+      ),
     };
   });
 
@@ -54,22 +56,29 @@ const RiskDistributionChart = ({ data }: RiskDistributionChartProps) => {
   }
 
   const chartWidth = Math.min(SCREEN_WIDTH - 48, 320);
-  const barWidth = 28;
-  const spacing = (chartWidth - barWidth * 5) / 6;
+  const barWidth = 32;
+  const barGap = 24;
+  const spacing = barGap;
+  const totalBarsWidth = barWidth * 5 + spacing * 4;
+  const initialSpacing = 0;
+  const endSpacing = Math.max(0, chartWidth - totalBarsWidth - initialSpacing);
   const segmentWidth = spacing + barWidth;
   const labelColor = isDark ? THEME.dark.foreground : THEME.light.foreground;
 
   return (
     <View className="gap-[8px]">
-      <Text className="text-foreground">위험 분포</Text>
-      <View>
-        <View style={{ width: chartWidth, height: 180 }}>
+      <View className="flex-row items-center gap-2">
+        <Icon as={ChartNoAxesColumn} size={16} className="text-primary" />
+        <Text className="text-foreground font-semibold">위험 분포</Text>
+      </View>
+      <View className="items-start">
+        <View style={{ width: chartWidth, height: 220 }}>
           <BarChart
             stackData={stackData}
             barWidth={barWidth}
             spacing={spacing}
-            initialSpacing={spacing}
-            endSpacing={spacing}
+            initialSpacing={initialSpacing}
+            endSpacing={endSpacing}
             width={chartWidth}
             height={160}
             noOfSections={5}
@@ -83,9 +92,13 @@ const RiskDistributionChart = ({ data }: RiskDistributionChartProps) => {
             isAnimated
             disableScroll
             stackBorderRadius={40}
+            xAxisLabelsHeight={32}
+            labelWidth={segmentWidth}
+            xAxisLabelTextStyle={{ color: labelColor, fontSize: 12 }}
+            labelsExtraHeight={24}
+            labelsDistanceFromXaxis={16}
           />
         </View>
-        {/* x축 라벨: 라이브러리 기본 라벨이 잘려서 직접 렌더링 */}
       </View>
     </View>
   );

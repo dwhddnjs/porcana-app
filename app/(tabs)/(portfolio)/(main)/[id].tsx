@@ -7,11 +7,10 @@ import { useGetPortfolioQuery } from '@/lib/hooks/query/portfolio';
 import { useLoadingStore } from '@/lib/hooks/zustand/use-loading-store';
 import { cn } from '@/lib/utils';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ChevronLeft } from 'lucide-react-native';
 import { useEffect } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 import { Icon } from '@/components/ui/icon';
-import { Star, StarHalf } from 'lucide-react-native';
+import { Star, StarHalf, TrendingUp, ChevronLeft, TriangleAlert, Split } from 'lucide-react-native';
 import {
   DIVERSITY_LEVEL_LABELS,
   getDiversityLevelColor,
@@ -107,7 +106,10 @@ export default function PortfolioDetailScreen() {
           <Card className="py-[18px]">
             <CardContent className="gap-y-[24px] px-[24px]">
               <View>
-                <Text className="text-lg font-semibold">수익률</Text>
+                <View className="flex-row items-center gap-2">
+                  <Icon as={TrendingUp} size={20} className="text-primary" />
+                  <Text className="text-lg font-semibold">수익률</Text>
+                </View>
                 <Text
                   className={cn(
                     'text-3xl font-bold',
@@ -119,7 +121,10 @@ export default function PortfolioDetailScreen() {
               </View>
               <View className="flex-row justify-between">
                 <View className="flex-1 justify-between">
-                  <Text className="">평균 위험도</Text>
+                  <View className="flex-row items-center gap-2">
+                    <Icon as={TriangleAlert} size={16} className="text-primary" />
+                    <Text className="font-semibold">평균 위험도</Text>
+                  </View>
                   <View className="flex-row items-center gap-1">
                     {Array.from({ length: fullStars }).map((_, index) => (
                       <Icon
@@ -142,7 +147,10 @@ export default function PortfolioDetailScreen() {
                   </View>
                 </View>
                 <View className="flex-1 justify-between">
-                  <Text>분산도</Text>
+                  <View className="flex-row items-center gap-2">
+                    <Icon as={Split} size={16} className="text-primary" />
+                    <Text className="font-semibold">분산도</Text>
+                  </View>
                   <Text className={getDiversityLevelColor(data?.diversityLevel)}>
                     {DIVERSITY_LEVEL_LABELS[data?.diversityLevel ?? 'LOW']}
                   </Text>
