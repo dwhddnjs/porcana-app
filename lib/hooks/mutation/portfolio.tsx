@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUserStore } from '../zustand/use-user-store';
 import { useLoadingStore } from '../zustand/use-loading-store';
-import { createPortfolio, setMainPortfolio } from '@/lib/api/portfolio';
+import { createPortfolio, setMainPortfolio, type Portfolio } from '@/lib/api/portfolio';
 import { useArenaStore } from '../zustand/use-arena-store';
 import { useRouter } from 'expo-router';
 import { createArenaSessions, pickArenaSessionPreference } from '@/lib/api/arena';
@@ -91,14 +91,57 @@ export const usePickArenaSessionPreferenceMutation = () => {
   });
 };
 
+type PreviousPortfolioData = {
+  previousEntries: Array<{ queryKey: readonly unknown[]; data: unknown }>;
+};
+
 export const useSetMainPortfolioMutation = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (portfolioId: string) => setMainPortfolio({ portfolioId }),
-    onSuccess: (data) => {
-      console.log('Main portfolio set:', data.mainPortfolioId);
+    onMutate: async (portfolioId: string) => {
+      await queryClient.cancelQueries({ queryKey: ['portfolios'] });
+
+      const previousEntries = queryClient
+        .getQueriesData({ queryKey: ['portfolios'] })
+        .map(([queryKey, data]) => ({
+          queryKey,
+          data,
+        }));
+
+      queryClient.setQueryData<Portfolio[]>(['portfolios'], (old) =>
+        old
+          ? old.map((p) => ({
+              ...p,
+              isMain: p.portfolioId === portfolioId,
+            }))
+          : old
+      );
+
+      queryClient
+        .getQueriesData<Portfolio>({ queryKey: ['portfolios'] })
+        .forEach(([queryKey, data]) => {
+          if (queryKey.length === 2 && typeof queryKey[1] === 'string' && data) {
+            queryClient.setQueryData<Portfolio>(queryKey, {
+              ...data,
+              isMain: data.portfolioId === portfolioId,
+            });
+          }
+        });
+
+      return { previousEntries };
     },
-    onError: (error) => {
+    onError: (error, _portfolioId, context: PreviousPortfolioData | undefined) => {
       console.error('Set main portfolio failed:', error);
+      context?.previousEntries.forEach(({ queryKey, data }) => {
+        queryClient.setQueryData(queryKey, data);
+      });
+    },
+    onSettled: (_data, _error, portfolioId) => {
+      queryClient.invalidateQueries({ queryKey: ['portfolios', portfolioId] });
+      queryClient.invalidateQueries({ queryKey: ['portfolios'] });
+      queryClient.invalidateQueries({ queryKey: ['home'] });
     },
   });
 };

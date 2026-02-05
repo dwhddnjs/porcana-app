@@ -21,12 +21,14 @@ import { Image } from '@/components/ui/image';
 import RiskDistributionChart from '@/components/portfolio/risk-distribution-chart';
 import { Spacer } from '@/components/spacer';
 import { AssetItem } from '@/components/portfolio/asset-item';
+import { useSetMainPortfolioMutation } from '@/lib/hooks/mutation/portfolio';
 
 export default function PortfolioDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { show, hide } = useLoadingStore();
   const { data, isLoading, isError, error } = useGetPortfolioQuery(id);
+  const { mutate: setMainPortfolio } = useSetMainPortfolioMutation();
 
   console.log(data);
 
@@ -94,12 +96,20 @@ export default function PortfolioDetailScreen() {
           </Pressable>
         }
         headerRight={
-          <Icon
-            as={Star}
-            size={24}
-            className={data.isMain ? 'text-yellow-500' : 'text-muted-foreground'}
-            fill={data.isMain ? '#eab308' : 'transparent'}
-          />
+          <Pressable
+            onPress={() => {
+              if (data.isMain) {
+                return;
+              }
+              setMainPortfolio(data.portfolioId);
+            }}>
+            <Icon
+              as={Star}
+              size={24}
+              className={data.isMain ? 'text-yellow-500' : 'text-muted-foreground'}
+              fill={data.isMain ? '#eab308' : 'transparent'}
+            />
+          </Pressable>
         }>
         <View className="px-[12px]">
           {/* 수익률 요약 카드 */}
@@ -125,6 +135,7 @@ export default function PortfolioDetailScreen() {
                   <View className="flex-row items-center gap-2">
                     <Icon as={TriangleAlert} size={16} className="text-primary" />
                     <Text className="font-semibold">평균 위험도</Text>
+                    <Text className="text-muted-foreground text-md">{riskLevel}</Text>
                   </View>
                   <View className="flex-row items-center gap-1">
                     {Array.from({ length: fullStars }).map((_, index) => (

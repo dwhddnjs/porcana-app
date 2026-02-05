@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "minimal",
+    "scheme": "com.porcana",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -19,7 +19,16 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.porcana",
-      "usesAppleSignIn": true
+      "usesAppleSignIn": true,
+      "infoPlist": {
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.265152231870-3c6ep7jleluv9eubu2k9nufr3hfv2nt6"
+            ]
+          }
+        ]
+      }
     },
     "android": {
       "package": "com.porcana",

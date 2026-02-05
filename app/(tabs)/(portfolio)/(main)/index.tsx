@@ -48,13 +48,12 @@ export default function PortfolioScreen() {
         }>
         <View className="relative">
           {/* 주식 스타일 라인 차트 */}
+
           <HomePortfolioChart
             data={data?.chart ?? []}
             totalReturnPct={data?.mainPortfolio?.totalReturnPct}
           />
-
           <Spacer height={12} />
-          {/* 스크롤 테스트용 카드들 */}
 
           <View className="px-[12px]">
             <Text className="text-muted-foreground text-md mb-[12px] font-bold">주요 자산</Text>

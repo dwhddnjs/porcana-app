@@ -9,26 +9,17 @@ import { Text } from '../ui/text';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-const formatDateKorean = (dateStr: string | undefined): string => {
-  if (!dateStr) return '';
-  return format(new Date(dateStr), 'M월d일', { locale: ko });
-};
-
 type HomePortfolioChartProps = {
   data: HomeChartData[];
   totalReturnPct?: number;
 };
 
-const HomePortfolioChart = ({ data, totalReturnPct = 0 }: HomePortfolioChartProps) => {
+export const HomePortfolioChart = ({ data, totalReturnPct = 0 }: HomePortfolioChartProps) => {
   const { theme } = useUniwind();
 
-  // 라벨 표시 간격 (양 끝 제외, 데이터가 많으면 일부만 표시)
-  const labelInterval = data.length <= 5 ? 1 : Math.ceil(data.length / 4);
-  const isEdge = (i: number) => i === 0 || i === data.length - 1;
-
-  const chartData = data.map((item, i) => ({
+  const chartData = data.map((item) => ({
     value: item.value ?? 0,
-    label: !isEdge(i) && i % labelInterval === 0 ? formatDateKorean(item.date) : '',
+    date: item.date,
   }));
 
   const values = chartData.map((d) => d.value);
@@ -40,6 +31,11 @@ const HomePortfolioChart = ({ data, totalReturnPct = 0 }: HomePortfolioChartProp
   const lineColor = isPositive ? colors.success : colors.destructive;
   const gradientColor = isPositive ? colors.successMuted : colors.destructiveMuted;
   const rulesColor = colors.borderMuted;
+
+  const formatDateKorean = (dateStr: string | undefined): string => {
+    if (!dateStr) return '';
+    return format(new Date(dateStr), 'M월d일', { locale: ko });
+  };
 
   if (chartData.length === 0) {
     return (
@@ -53,7 +49,7 @@ const HomePortfolioChart = ({ data, totalReturnPct = 0 }: HomePortfolioChartProp
   const spacing = chartData.length > 1 ? SCREEN_WIDTH / (chartData.length - 1) : SCREEN_WIDTH;
 
   return (
-    <View className="pb-5">
+    <View className="">
       <LineChart
         data={chartData}
         width={SCREEN_WIDTH}
@@ -68,10 +64,6 @@ const HomePortfolioChart = ({ data, totalReturnPct = 0 }: HomePortfolioChartProp
         hideYAxisText
         yAxisLabelWidth={0}
         hideRules
-        xAxisLabelTextStyle={{
-          color: colors.mutedForeground,
-          fontSize: 10,
-        }}
         backgroundColor="transparent"
         noOfSections={4}
         yAxisOffset={minValue - 10}
@@ -86,22 +78,40 @@ const HomePortfolioChart = ({ data, totalReturnPct = 0 }: HomePortfolioChartProp
           pointerColor: lineColor,
           radius: 5,
           pointerLabelWidth: 80,
-          pointerLabelHeight: 30,
+          pointerLabelHeight: 60,
           autoAdjustPointerLabelPosition: true,
-          pointerLabelComponent: (items: { value: number }[]) => {
+          pointerLabelComponent: (
+            items: { value: number; date: string }[],
+            _secondaryDataItem: unknown,
+            pointerIndex: number
+          ) => {
             if (!items || items.length === 0) return null;
+
+            const isLastPoint = pointerIndex === chartData.length - 1;
+            const isFirstPoint = pointerIndex === 0;
+
             return (
               <View
                 style={{
                   backgroundColor: colors.primary,
-                  paddingHorizontal: 8,
-                  paddingVertical: 4,
-                  borderRadius: 6,
+                  // paddingHorizontal: 8,
+                  paddingVertical: 2,
+                  borderRadius: 8,
+                  alignItems: 'center',
+                  transform: [{ translateX: isLastPoint ? -60 : isFirstPoint ? 10 : 0 }],
                 }}>
                 <Text
                   style={{
                     color: colors.primaryForeground,
-                    fontSize: 12,
+                    fontSize: 11,
+                    opacity: 0.8,
+                  }}>
+                  {formatDateKorean(items[0].date)}
+                </Text>
+                <Text
+                  style={{
+                    color: colors.primaryForeground,
+                    fontSize: 14,
                     fontWeight: '600',
                   }}>
                   ${items[0].value.toFixed(2)}

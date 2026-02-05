@@ -11,6 +11,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Portfolio } from '@/lib/api/portfolio';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
+import { TrendingUp } from 'lucide-react-native';
 
 export function PortfolioDrawerContent(props: DrawerContentComponentProps) {
   const insets = useSafeAreaInsets();
@@ -88,8 +89,12 @@ export function PortfolioDrawerContent(props: DrawerContentComponentProps) {
                 <Pressable
                   className="flex-1"
                   onPress={() => handleSelectPortfolio(portfolio.portfolioId)}>
-                  <View className="flex-1">
-                    <Text className="font-semibold">{portfolio.name}</Text>
+                  <View className="flex-1 gap-y-[4px]">
+                    <View className="flex-row items-center gap-2">
+                      <Icon as={TrendingUp} size={18} className="text-primary" />
+                      <Text className="font-semibold">{portfolio.name}</Text>
+                    </View>
+
                     <Text
                       className={cn(
                         'text-sm',

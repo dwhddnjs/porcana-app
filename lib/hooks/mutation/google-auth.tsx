@@ -7,6 +7,7 @@ import { router } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
 import { useLoginMutation, useSignupMutation } from './auth';
+import * as AuthSession from 'expo-auth-session';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -46,6 +47,10 @@ export const useGoogleAuth = () => {
     scopes: ['openid', 'profile', 'email'],
   });
 
+  const redirectUri = AuthSession.makeRedirectUri({
+    scheme: 'com.porcana',
+  });
+
   const handleGoogleLogin = async () => {
     // 이미 처리 중이거나 request가 준비되지 않았으면 무시
     if (isProcessingRef.current || !request) {
@@ -68,7 +73,7 @@ export const useGoogleAuth = () => {
       if (result.type === 'success' && result.params?.code) {
         login({
           provider: 'GOOGLE',
-          code: result.params.code,
+          code: result.params.id_token,
         });
       } else {
         isProcessingRef.current = false;

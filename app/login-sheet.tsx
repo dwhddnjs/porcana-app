@@ -29,7 +29,7 @@ export default function LoginSheet() {
         {/* 구글 로그인 */}
         <Button
           size="lg"
-          className="border-primary w-full flex-row items-center justify-center gap-3 border-[0.5px] border-black bg-white"
+          className="w-full flex-row items-center justify-center gap-3 border-[0.5px] border-black bg-white"
           onPress={handleGoogleLogin}
           disabled={isGoogleLoading}>
           {isGoogleLoading ? (
