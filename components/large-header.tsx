@@ -1,6 +1,7 @@
 import { Text } from '@/components/ui/text';
+import { BlurView } from 'expo-blur';
 import { ReactNode } from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View, useColorScheme } from 'react-native';
 import Animated, {
   interpolate,
   useAnimatedScrollHandler,
@@ -22,6 +23,7 @@ interface LargeHeaderProps {
 export function LargeHeader({ title, children, headerLeft, headerRight }: LargeHeaderProps) {
   const insets = useSafeAreaInsets();
   const scrollY = useSharedValue(0);
+  const colorScheme = useColorScheme();
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
@@ -29,7 +31,15 @@ export function LargeHeader({ title, children, headerLeft, headerRight }: LargeH
     },
   });
 
-  const headerAnimatedStyle = useAnimatedStyle(() => {
+  const headerTitleAnimatedStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(scrollY.value, [0, LARGE_HEADER_HEIGHT], [0, 1], 'clamp');
+
+    return {
+      opacity,
+    };
+  });
+
+  const blurAnimatedStyle = useAnimatedStyle(() => {
     const opacity = interpolate(scrollY.value, [0, LARGE_HEADER_HEIGHT], [0, 1], 'clamp');
 
     return {
@@ -52,10 +62,19 @@ export function LargeHeader({ title, children, headerLeft, headerRight }: LargeH
       {/* Fixed Header */}
       <View
         style={{ paddingTop: insets.top }}
-        className="bg-background absolute top-0 right-0 left-0 z-10">
+        className="absolute top-0 right-0 left-0 z-10">
+        {/* Blur Background */}
+        <Animated.View style={[StyleSheet.absoluteFill, blurAnimatedStyle]}>
+          <BlurView
+            intensity={80}
+            tint={colorScheme === 'dark' ? 'dark' : 'light'}
+            style={StyleSheet.absoluteFill}
+          />
+        </Animated.View>
+
         <View style={{ height: HEADER_HEIGHT }} className="flex-row items-center justify-center">
           {headerLeft && <View className="absolute left-4 z-10">{headerLeft}</View>}
-          <Animated.View style={headerAnimatedStyle}>
+          <Animated.View style={headerTitleAnimatedStyle}>
             <Text className="text-base font-semibold">{title}</Text>
           </Animated.View>
           {headerRight && <View className="absolute right-4">{headerRight}</View>}

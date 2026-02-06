@@ -6,6 +6,7 @@ import * as ScreenOrientation from 'expo-screen-orientation';
 import Container from '@/components/container';
 import { Icon } from '@/components/ui/icon';
 import { HandFistIcon, ShieldIcon, ScaleIcon } from 'lucide-react-native';
+import { SectorTag } from '@/components/portfolio/sector-tag';
 import { SECTOR_OPTIONS, SECTOR_OPTIONS_KO } from '@/lib/constant/variables';
 import { useState } from 'react';
 import { useArenaStore } from '@/lib/hooks/zustand/use-arena-store';
@@ -94,17 +95,14 @@ export default function AddModal() {
             <View className="flex-row flex-wrap justify-center gap-[8px]">
               {SECTOR_OPTIONS_KO.map((sectorKo, index) => {
                 const sectorType = SECTOR_OPTIONS[index];
-                const isSelected = selectedSector.includes(sectorType);
                 return (
-                  <Pressable
+                  <SectorTag
                     key={sectorType}
+                    sectorType={sectorType}
+                    label={sectorKo}
+                    isSelected={selectedSector.includes(sectorType)}
                     onPress={() => handleSectorSelect(sectorType)}
-                    className={`border-primary items-center justify-center rounded-full border-2 px-[12px] py-[4px] ${isSelected ? 'bg-primary' : ''}`}>
-                    <Text
-                      className={`text-sm ${isSelected ? 'text-primary-foreground font-bold' : ''}`}>
-                      {sectorKo}
-                    </Text>
-                  </Pressable>
+                  />
                 );
               })}
             </View>

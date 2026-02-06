@@ -50,12 +50,12 @@ export default function ArenaComplete() {
           className="flex-1"
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 20 }}>
-          <View className="gap-3">
+          <View className="gap-y-2">
             {selectedCards.map((card, index) => (
               <Animated.View
                 key={card.assetId}
                 entering={FadeInDown.duration(300).delay(300 + index * 50)}
-                className="bg-card border-border flex-row items-center gap-3 rounded-xl border p-4">
+                className="bg-card border-border flex-row items-center gap-3 rounded-lg border px-4 py-3">
                 {/* 이미지 */}
                 <Image
                   source={card.imageUrl}
@@ -66,18 +66,23 @@ export default function ArenaComplete() {
                 {/* 정보 */}
                 <View className="flex-1">
                   <View className="flex-row items-center gap-2">
-                    <Text className="text-foreground font-bold">{card.ticker}</Text>
+                    <Text
+                      numberOfLines={1}
+                      ellipsizeMode="tail"
+                      className="text-foreground max-w-[150px] min-w-[150px] font-semibold text-ellipsis">
+                      {card.name}
+                    </Text>
                     <View className="bg-muted rounded px-1.5 py-0.5">
                       <Text className="text-muted-foreground text-xs">{card.market}</Text>
                     </View>
                   </View>
                   <Text className="text-muted-foreground text-xs" numberOfLines={1}>
-                    {card.name}
+                    {card.ticker}
                   </Text>
                 </View>
 
                 {/* 리스크 */}
-                <View className="items-end">
+                <View className="items-center">
                   <Text className="text-muted-foreground text-xs">리스크</Text>
                   <Text
                     className={`font-bold ${

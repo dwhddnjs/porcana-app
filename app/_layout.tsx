@@ -42,6 +42,18 @@ export default function RootLayout() {
                   headerShown: false,
                 }}
               />
+              <Stack.Screen name="portfolio/[id]" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="asset/[assetId]"
+                options={{
+                  presentation: 'modal',
+                  headerShown: false,
+                  gestureEnabled: true,
+                  sheetGrabberVisible: false,
+                }}
+              />
+              <Stack.Screen name="color-mode" options={{ headerShown: false }} />
+              <Stack.Screen name="edit-profile" options={{ headerShown: false }} />
               <Stack.Screen name="(auth)" options={{ headerShown: false }} />
               <Stack.Screen
                 name="login-sheet"

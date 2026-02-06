@@ -26,7 +26,7 @@ export function PortfolioDrawerContent(props: DrawerContentComponentProps) {
     // 드로어 닫힌 뒤 이동해 전환 시 버벅임 방지
     const DRAWER_CLOSE_DELAY_MS = 600;
     setTimeout(() => {
-      router.push(`/(tabs)/(portfolio)/${portfolioId}`);
+      router.push(`/portfolio/${portfolioId}`);
     }, DRAWER_CLOSE_DELAY_MS);
   };
 

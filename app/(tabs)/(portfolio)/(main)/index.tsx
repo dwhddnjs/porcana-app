@@ -63,7 +63,7 @@ export default function PortfolioScreen() {
                 item={item}
                 showTopBorder={index === 0}
                 onPress={() => {
-                  router.push(`/(tabs)/(portfolio)/(main)/asset/${item.assetId}`);
+                  router.push(`/asset/${item.assetId}`);
                 }}
               />
             ))}

@@ -3,6 +3,8 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { zustandStorage } from '@/lib/storage';
 import { ProviderTypes } from '@/lib/api/auth';
 
+export type ThemeMode = 'light' | 'dark' | 'system';
+
 export interface UserState {
   user: {
     userId: string;
@@ -12,10 +14,12 @@ export interface UserState {
   accessToken: string | null;
   refreshToken: string | null;
   provider: ProviderTypes | null;
+  themeMode: ThemeMode;
   setUser: (data: UserState) => void;
   setTokens: (accessToken: string, refreshToken: string) => void;
   clearTokens: () => void;
   isAuthenticated: () => boolean;
+  setThemeMode: (mode: ThemeMode) => void;
   reset: () => void;
 }
 
@@ -26,11 +30,14 @@ export const useUserStore = create<UserState>()(
       accessToken: null,
       refreshToken: null,
       provider: null,
+      themeMode: 'system',
       setUser: (data: UserState) => set(data),
       setTokens: (accessToken, refreshToken) => set({ accessToken, refreshToken }),
       clearTokens: () => set({ accessToken: null, refreshToken: null }),
       isAuthenticated: () => !!get().accessToken,
-      reset: () => set({ user: null, accessToken: null, refreshToken: null, provider: null }),
+      setThemeMode: (mode) => set({ themeMode: mode }),
+      reset: () =>
+        set({ user: null, accessToken: null, refreshToken: null, provider: null }),
     }),
     {
       name: 'user-storage',

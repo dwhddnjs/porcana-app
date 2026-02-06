@@ -131,7 +131,7 @@ export const FlipCard = memo(function FlipCard({
       {/* 카드 뒷면 (처음 보이는 면) */}
       <Animated.View
         style={frontAnimatedStyle}
-        className="bg-card absolute h-full w-full items-center justify-center rounded-xl shadow-lg">
+        className="bg-card absolute h-full w-full items-center justify-center rounded-xl shadow-lg shadow-black/25">
         <View className="border-primary h-full w-full items-center justify-center rounded-xl border-4 p-2">
           <Text className="text-primary text-2xl font-bold">?</Text>
           <View className="border-primary absolute top-2 right-2 bottom-2 left-2 rounded-lg border opacity-30" />
@@ -141,7 +141,7 @@ export const FlipCard = memo(function FlipCard({
       {/* 카드 앞면 (뒤집히면 보이는 면) */}
       <Animated.View
         style={backAnimatedStyle}
-        className="bg-card absolute h-full w-full rounded-xl shadow-lg">
+        className="bg-card absolute h-full w-full rounded-xl shadow-lg shadow-black/25">
         <View className="border-primary h-full w-full rounded-xl border-2 p-2">
           {/* 상단: 이미지 + 티커 */}
           <View className="flex-row items-center gap-2">

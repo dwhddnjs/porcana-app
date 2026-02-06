@@ -156,7 +156,7 @@ export default function CreatePortfolio() {
   return (
     <View className="bg-background flex-1">
       <View className="items-center justify-center pt-[20px]">
-        <Text className="text-primary text-2xl font-bold">포트폴리오 생성</Text>
+        <Text className="text-primary text-xl font-bold">포트폴리오 생성</Text>
       </View>
 
       {/* 카드 영역 */}

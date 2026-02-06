@@ -11,17 +11,19 @@ function CustomDrawerContent() {
 
   return (
     <View className="bg-background flex-1 px-4 pt-12">
-      <Text className="text-primary mb-4 text-xl font-bold">선택된 카드 덱</Text>
-      <Text className="text-muted-foreground mb-4 text-sm">
-        {selectedCards.length}개의 카드가 선택됨
-      </Text>
+      <View className="gap-y-2">
+        <Text className="text-primary text-xl font-bold">선택된 카드 덱</Text>
+        <Text className="text-muted-foreground mb-4 text-sm">
+          {selectedCards.length}개의 카드가 선택됨
+        </Text>
+      </View>
 
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 20 }}>
         {selectedCards.length === 0 ? (
-          <Text className="text-muted-foreground mt-8 text-center">
+          <Text className="text-muted-foreground text-md mt-10 text-center">
             아직 선택된 카드가 없습니다
           </Text>
         ) : (

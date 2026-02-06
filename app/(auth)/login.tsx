@@ -58,7 +58,7 @@ export default function LoginScreen() {
 
   return (
     <Container>
-      <Header title="이메일 로그인" />
+      <Header title="이메일 로그인" showBackButton={false} />
       <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
         <Spacer height={48} />
         <View className="flex-1 gap-y-[48px] px-[20px]">
