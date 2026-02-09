@@ -66,9 +66,14 @@ export const Image = ({
       <View
         className={cn(
           'bg-muted border-primary/10 h-10 w-10 items-center justify-center rounded-full border',
-          emptyImageClassName
+          emptyImageClassName,
+          className
         )}>
-        <Icon as={Building2} className={cn('text-muted-foreground size-5', emptyIconClassName)} />
+        <Icon
+          as={Building2}
+          size={Math.round(((resolvedStyle?.height as number) || 40) * 0.5)}
+          className={cn('text-muted-foreground', emptyIconClassName)}
+        />
       </View>
     );
   }

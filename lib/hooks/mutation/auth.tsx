@@ -16,6 +16,7 @@ export const useLoginMutation = () => {
       show('로그인 중...');
     },
     onSuccess: (data) => {
+      console.log('login success', data);
       setUser(data as UserState);
       router.replace('/(tabs)');
     },

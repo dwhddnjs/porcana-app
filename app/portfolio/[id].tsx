@@ -1,36 +1,109 @@
 import { LargeHeader } from '@/components/large-header';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Text } from '@/components/ui/text';
 import { format, isValid } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { useGetPortfolioQuery } from '@/lib/hooks/query/portfolio';
 import { cn } from '@/lib/utils';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ActivityIndicator, Pressable, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  View,
+} from 'react-native';
 import { Icon } from '@/components/ui/icon';
-import { Star, StarHalf, TrendingUp, ChevronLeft, TriangleAlert, Split } from 'lucide-react-native';
+import {
+  Check,
+  ChevronLeft,
+  Split,
+  Star,
+  StarHalf,
+  TriangleAlert,
+  TrendingUp,
+  X,
+} from 'lucide-react-native';
 import {
   DIVERSITY_LEVEL_LABELS,
   getDiversityLevelColor,
   roundToTwoDecimals,
 } from '@/lib/constant/function';
 import { THEME } from '@/lib/theme';
-import { Image } from '@/components/ui/image';
 import RiskDistributionChart from '@/components/portfolio/risk-distribution-chart';
 import { Spacer } from '@/components/spacer';
 import { AssetItem } from '@/components/portfolio/asset-item';
-import { useSetMainPortfolioMutation } from '@/lib/hooks/mutation/portfolio';
-import Container from '@/components/container';
+import {
+  useSetMainPortfolioMutation,
+  useUpdatePortfolioWeightsMutation,
+} from '@/lib/hooks/mutation/portfolio';
+import { useCallback, useState } from 'react';
 
 export default function PortfolioDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { data, isLoading, isError, error } = useGetPortfolioQuery(id);
   const { mutate: setMainPortfolio } = useSetMainPortfolioMutation();
+  const { mutate: updateWeights } = useUpdatePortfolioWeightsMutation();
+
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [weightValues, setWeightValues] = useState<Record<string, string>>({});
+
+  const enterEditMode = useCallback(() => {
+    if (!data?.positions) return;
+    const initial: Record<string, string> = {};
+    data.positions.forEach((p) => {
+      initial[p.assetId] = String(p.weightPct);
+    });
+    setWeightValues(initial);
+    setIsEditMode(true);
+  }, [data?.positions]);
+
+  const cancelEditMode = useCallback(() => {
+    Keyboard.dismiss();
+    setIsEditMode(false);
+    setWeightValues({});
+  }, []);
+
+  const handleSave = useCallback(() => {
+    if (!id) return;
+    Keyboard.dismiss();
+    const weights = Object.entries(weightValues).map(([assetId, value]) => ({
+      assetId,
+      weightPct: Math.round(parseFloat(value || '0') * 100) / 100,
+    }));
+    const total = weights.reduce((sum, w) => sum + w.weightPct, 0);
+    const roundedTotal = Math.round(total * 100) / 100;
+    if (roundedTotal !== 100) {
+      Alert.alert('비중 합계 오류', `합계가 100%여야 합니다. (현재: ${roundedTotal}%)`);
+      return;
+    }
+
+    console.log(weights);
+
+    updateWeights(
+      { portfolioId: id, weights },
+      {
+        onSuccess: () => {
+          setIsEditMode(false);
+          setWeightValues({});
+        },
+      }
+    );
+  }, [id, weightValues, updateWeights]);
+
+  const handleWeightChange = useCallback((assetId: string, value: string) => {
+    setWeightValues((prev) => ({ ...prev, [assetId]: value }));
+  }, []);
 
   const goBack = () => {
+    if (isEditMode) return;
     router.back();
   };
+
+  const totalWeight = Object.values(weightValues).reduce((sum, v) => sum + (parseFloat(v) || 0), 0);
 
   if (!id) {
     return (
@@ -75,101 +148,148 @@ export default function PortfolioDetailScreen() {
   const hasHalfStar = riskLevel % 1 >= 0.5;
 
   return (
-    <LargeHeader
-      title={data.name}
-      headerLeft={
-        <Pressable onPress={goBack} hitSlop={8}>
-          <Icon as={ChevronLeft} size={24} className="text-foreground" />
-        </Pressable>
-      }
-      headerRight={
-        <Pressable
-          onPress={() => {
-            if (data.isMain) {
-              return;
-            }
-            setMainPortfolio(data.portfolioId);
-          }}>
-          <Icon
-            as={Star}
-            size={24}
-            className={data.isMain ? 'text-yellow-500' : 'text-muted-foreground'}
-            fill={data.isMain ? '#eab308' : 'transparent'}
-          />
-        </Pressable>
-      }>
-      <View className="px-[12px]">
-        {/* 수익률 요약 카드 */}
-        <Spacer height={12} />
-        <Card className="py-[18px]">
-          <CardContent className="gap-y-[24px] px-[24px]">
-            <View>
-              <View className="flex-row items-center gap-2">
-                <Icon as={TrendingUp} size={20} className="text-primary" />
-                <Text className="text-lg font-semibold">수익률</Text>
-              </View>
-              <Text
-                className={cn('text-3xl font-bold', isPositive ? 'text-link' : 'text-destructive')}>
-                {isPositive ? '+' : ''}
-                {data.totalReturnPct.toFixed(2)}%
-              </Text>
-            </View>
-            <View className="flex-row justify-between">
-              <View className="flex-1 justify-between">
+    <KeyboardAvoidingView
+      className="flex-1"
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={0}>
+      <LargeHeader
+        title={data.name}
+        headerLeft={
+          isEditMode ? (
+            <Pressable onPress={cancelEditMode} hitSlop={8}>
+              <Icon as={X} size={24} className="text-foreground" />
+            </Pressable>
+          ) : (
+            <Pressable onPress={goBack} hitSlop={8}>
+              <Icon as={ChevronLeft} size={24} className="text-foreground" />
+            </Pressable>
+          )
+        }
+        headerRight={
+          isEditMode ? (
+            <Pressable onPress={handleSave} hitSlop={8}>
+              <Icon as={Check} size={24} className="text-primary" />
+            </Pressable>
+          ) : (
+            <Pressable
+              onPress={() => {
+                if (data.isMain) {
+                  return;
+                }
+                setMainPortfolio(data.portfolioId);
+              }}>
+              <Icon
+                as={Star}
+                size={24}
+                className={data.isMain ? 'text-yellow-500' : 'text-muted-foreground'}
+                fill={data.isMain ? '#eab308' : 'transparent'}
+              />
+            </Pressable>
+          )
+        }>
+        <View className="px-[12px]">
+          {/* 수익률 요약 카드 */}
+          <Spacer height={12} />
+          <Card className="py-[18px]">
+            <CardContent className="gap-y-[24px] px-[24px]">
+              <View>
                 <View className="flex-row items-center gap-2">
-                  <Icon as={TriangleAlert} size={16} className="text-primary" />
-                  <Text className="font-semibold">평균 위험도</Text>
-                  <Text className="text-muted-foreground text-md">{riskLevel}</Text>
+                  <Icon as={TrendingUp} size={20} className="text-primary" />
+                  <Text className="text-lg font-semibold">수익률</Text>
                 </View>
-                <View className="flex-row items-center gap-1">
-                  {Array.from({ length: fullStars }).map((_, index) => (
-                    <Icon
-                      key={`full-${index}`}
-                      as={Star}
-                      size={16}
-                      className="text-success"
-                      fill={THEME.light.success}
-                    />
-                  ))}
-                  {hasHalfStar && (
-                    <Icon
-                      key="half"
-                      as={StarHalf}
-                      size={16}
-                      className="text-success"
-                      fill={THEME.light.success}
-                    />
-                  )}
-                </View>
-              </View>
-              <View className="flex-1 justify-between">
-                <View className="flex-row items-center gap-2">
-                  <Icon as={Split} size={16} className="text-primary" />
-                  <Text className="font-semibold">분산도</Text>
-                </View>
-                <Text className={getDiversityLevelColor(data?.diversityLevel)}>
-                  {DIVERSITY_LEVEL_LABELS[data?.diversityLevel ?? 'LOW']}
+                <Text
+                  className={cn(
+                    'text-3xl font-bold',
+                    isPositive ? 'text-link' : 'text-destructive'
+                  )}>
+                  {isPositive ? '+' : ''}
+                  {data.totalReturnPct.toFixed(2)}%
                 </Text>
               </View>
+              <View className="flex-row justify-between">
+                <View className="flex-1 justify-between">
+                  <View className="flex-row items-center gap-2">
+                    <Icon as={TriangleAlert} size={16} className="text-primary" />
+                    <Text className="font-semibold">평균 위험도</Text>
+                    <Text className="text-muted-foreground text-md">{riskLevel}</Text>
+                  </View>
+                  <View className="flex-row items-center gap-1">
+                    {Array.from({ length: fullStars }).map((_, index) => (
+                      <Icon
+                        key={`full-${index}`}
+                        as={Star}
+                        size={16}
+                        className="text-success"
+                        fill={THEME.light.success}
+                      />
+                    ))}
+                    {hasHalfStar && (
+                      <Icon
+                        key="half"
+                        as={StarHalf}
+                        size={16}
+                        className="text-success"
+                        fill={THEME.light.success}
+                      />
+                    )}
+                  </View>
+                </View>
+                <View className="flex-1 justify-between">
+                  <View className="flex-row items-center gap-2">
+                    <Icon as={Split} size={16} className="text-primary" />
+                    <Text className="font-semibold">분산도</Text>
+                  </View>
+                  <Text className={getDiversityLevelColor(data?.diversityLevel)}>
+                    {DIVERSITY_LEVEL_LABELS[data?.diversityLevel ?? 'LOW']}
+                  </Text>
+                </View>
+              </View>
+              <RiskDistributionChart data={data.riskDistribution} />
+            </CardContent>
+          </Card>
+          <Spacer height={36} />
+          <View>
+            <View className="flex-row items-center justify-between pb-[12px]">
+              <Text className="text-muted-foreground text-md font-bold">주요 자산</Text>
+              {isEditMode ? (
+                <Text
+                  className={cn(
+                    'text-sm font-semibold',
+                    Math.round(totalWeight * 100) / 100 === 100
+                      ? 'text-success'
+                      : 'text-destructive'
+                  )}>
+                  합계: {totalWeight.toFixed(2)}%
+                </Text>
+              ) : (
+                <Pressable
+                  onPress={enterEditMode}
+                  style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
+                  className="border-primary rounded-lg border px-[10px] py-[4px]">
+                  <Text className="text-sm">자산 비중 수정</Text>
+                </Pressable>
+              )}
             </View>
-            <RiskDistributionChart data={data.riskDistribution} />
-          </CardContent>
-        </Card>
-        <Spacer height={36} />
-        <View>
-          <Text className="text-muted-foreground text-md mb-[12px] font-bold">주요 자산</Text>
-          {data?.positions?.map((item, index) => (
-            <AssetItem
-              key={item.assetId}
-              item={item}
-              showTopBorder={index === 0}
-              onPress={() => {
-                router.push(`/asset/${item.assetId}`);
-              }}
-            />
-          ))}
+            {data?.positions?.map((item, index) => (
+              <AssetItem
+                key={item.assetId}
+                item={item}
+                showTopBorder={index === 0}
+                isEditMode={isEditMode}
+                weightValue={weightValues[item.assetId]}
+                onWeightChange={(value) => handleWeightChange(item.assetId, value)}
+                onPress={
+                  isEditMode
+                    ? undefined
+                    : () => {
+                        router.push(`/asset/${item.assetId}`);
+                      }
+                }
+              />
+            ))}
+          </View>
         </View>
-      </View>
-    </LargeHeader>
+      </LargeHeader>
+    </KeyboardAvoidingView>
   );
 }

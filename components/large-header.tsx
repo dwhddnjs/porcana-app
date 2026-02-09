@@ -85,6 +85,8 @@ export function LargeHeader({ title, children, headerLeft, headerRight }: LargeH
       <Animated.ScrollView
         onScroll={scrollHandler}
         scrollEventThrottle={16}
+        keyboardShouldPersistTaps="handled"
+        automaticallyAdjustKeyboardInsets
         contentContainerStyle={{
           paddingTop: insets.top + HEADER_HEIGHT,
           paddingBottom: insets.bottom,

@@ -1,7 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUserStore } from '../zustand/use-user-store';
 import { useLoadingStore } from '../zustand/use-loading-store';
-import { createPortfolio, setMainPortfolio, type Portfolio } from '@/lib/api/portfolio';
+import {
+  createPortfolio,
+  setMainPortfolio,
+  updatePortfolioWeights,
+  type Portfolio,
+  type UpdateWeightItem,
+} from '@/lib/api/portfolio';
 import { useArenaStore } from '../zustand/use-arena-store';
 import { useRouter } from 'expo-router';
 import { createArenaSessions, pickArenaSessionPreference } from '@/lib/api/arena';
@@ -84,6 +90,30 @@ export const usePickArenaSessionPreferenceMutation = () => {
     },
     onError: (error) => {
       console.error('Arena session preference picking failed:', error);
+    },
+    onSettled: () => {
+      hide();
+    },
+  });
+};
+
+export const useUpdatePortfolioWeightsMutation = () => {
+  const queryClient = useQueryClient();
+  const { show, hide } = useLoadingStore();
+
+  return useMutation({
+    mutationFn: ({ portfolioId, weights }: { portfolioId: string; weights: UpdateWeightItem[] }) =>
+      updatePortfolioWeights({ portfolioId, weights }),
+    onMutate: () => {
+      show('비중 수정 중...');
+    },
+    onSuccess: (_data, { portfolioId }) => {
+      queryClient.invalidateQueries({ queryKey: ['portfolios', portfolioId] });
+      queryClient.invalidateQueries({ queryKey: ['portfolios'] });
+      queryClient.invalidateQueries({ queryKey: ['home'] });
+    },
+    onError: (error) => {
+      console.error('Update portfolio weights failed:', error);
     },
     onSettled: () => {
       hide();

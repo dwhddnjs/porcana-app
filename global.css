@@ -16,7 +16,7 @@
 @layer theme {
   :root {
     @variant light {
-      --color-background: oklch(1 0 0);
+      --color-background: oklch(0.98 0 0);
       --color-foreground: oklch(0.145 0 0);
       --color-card: oklch(1 0 0);
       --color-card-foreground: oklch(0.145 0 0);

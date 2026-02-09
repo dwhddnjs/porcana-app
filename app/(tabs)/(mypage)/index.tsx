@@ -9,10 +9,10 @@ import { Pressable, View } from 'react-native';
 
 export default function MypageScreen() {
   const router = useRouter();
-  const reset = useUserStore((s) => s.reset);
+  const logout = useUserStore((s) => s.logout);
 
   const handleLogout = () => {
-    reset();
+    logout();
     router.replace('/(auth)/login');
   };
 
@@ -20,7 +20,11 @@ export default function MypageScreen() {
     <LargeHeader title="마이페이지">
       <View className="px-4 pt-[12px]">
         <View className="bg-card rounded-lg">
-          <MenuItem icon={UserPenIcon} label="내정보 변경" onPress={() => router.push('/edit-profile')} />
+          <MenuItem
+            icon={UserPenIcon}
+            label="내정보 변경"
+            onPress={() => router.push('/edit-profile')}
+          />
           <Spacer isDivider className="mx-4" />
           <MenuItem
             icon={PaletteIcon}

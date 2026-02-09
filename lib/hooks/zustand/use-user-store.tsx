@@ -21,6 +21,7 @@ export interface UserState {
   isAuthenticated: () => boolean;
   setThemeMode: (mode: ThemeMode) => void;
   reset: () => void;
+  logout: () => void;
 }
 
 export const useUserStore = create<UserState>()(
@@ -36,8 +37,8 @@ export const useUserStore = create<UserState>()(
       clearTokens: () => set({ accessToken: null, refreshToken: null }),
       isAuthenticated: () => !!get().accessToken,
       setThemeMode: (mode) => set({ themeMode: mode }),
-      reset: () =>
-        set({ user: null, accessToken: null, refreshToken: null, provider: null }),
+      reset: () => set({ user: null, accessToken: null, refreshToken: null, provider: null }),
+      logout: () => set({ accessToken: null, refreshToken: null, provider: null }),
     }),
     {
       name: 'user-storage',

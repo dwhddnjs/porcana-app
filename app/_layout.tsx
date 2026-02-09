@@ -1,13 +1,16 @@
 import '@/global.css';
 
 import { LoadingOverlay } from '@/components/ui/loading-overlay';
+import { SplashScreen as CustomSplashScreen } from '@/components/splash-screen';
 import { queryClient, useAppState } from '@/lib/react-query';
 import { NAV_THEME } from '@/lib/theme';
 import { ThemeProvider } from '@react-navigation/native';
 import { PortalHost } from '@rn-primitives/portal';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
+import { useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useUniwind } from 'uniwind';
@@ -17,12 +20,11 @@ export {
   ErrorBoundary,
 } from 'expo-router';
 
-// export const unstable_settings = {
-//   initialRouteName: '(tabs)',
-// };
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const { theme } = useUniwind();
+  const [showSplash, setShowSplash] = useState(true);
 
   // React Query - 앱 포커스시 refetch 활성화
   useAppState();
@@ -67,6 +69,14 @@ export default function RootLayout() {
             </Stack>
             <PortalHost />
             <LoadingOverlay />
+            {showSplash && (
+              <CustomSplashScreen
+                onFinish={() => {
+                  setShowSplash(false);
+                  SplashScreen.hideAsync();
+                }}
+              />
+            )}
           </ThemeProvider>
         </GestureHandlerRootView>
       </KeyboardProvider>

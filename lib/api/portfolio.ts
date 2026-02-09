@@ -14,6 +14,14 @@ export type RiskDistribution = Record<string, number>;
 
 export type DiversityLevel = 'LOW' | 'MEDIUM' | 'HIGH';
 
+export type TopAssetTypes = {
+  assetId: string;
+  imageUrl: string | null;
+  symbol: string;
+  name: string;
+  weight: number;
+};
+
 export type Portfolio = {
   portfolioId: string;
   name: string;
@@ -26,6 +34,7 @@ export type Portfolio = {
   positions?: Position[];
   riskDistribution?: RiskDistribution;
   startedAt?: string;
+  topAssets?: TopAssetTypes[];
 };
 
 export const createPortfolio = async ({ name }: { name: string }) => {
@@ -57,6 +66,30 @@ export const getPortfolio = async ({
 }): Promise<Portfolio> => {
   try {
     const response = await api.get<Portfolio>(`/portfolios/${portfolioId}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export type UpdateWeightItem = {
+  assetId: string;
+  weightPct: number;
+};
+
+export const updatePortfolioWeights = async ({
+  portfolioId,
+  weights,
+}: {
+  portfolioId: string;
+  weights: UpdateWeightItem[];
+}): Promise<Portfolio> => {
+  try {
+    console.log(portfolioId);
+    console.log(weights);
+    const response = await api.put<Portfolio>(`/portfolios/${portfolioId}/weights`, { weights });
+
     return response.data;
   } catch (error) {
     console.error(error);

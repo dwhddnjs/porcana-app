@@ -60,6 +60,7 @@ export const login = async ({
   provider = 'EMAIL',
   code,
 }: LoginRequestTypes): Promise<LoginResponseTypes> => {
+  console.log('login', { email, password, provider, code });
   try {
     const response = await api.post('auth/login', {
       provider,
@@ -67,6 +68,7 @@ export const login = async ({
       password,
       code,
     });
+    console.log('login response', response.data);
     return response.data;
   } catch (error: any) {
     console.error('Login Error:', error);

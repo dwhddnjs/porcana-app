@@ -1,8 +1,9 @@
-import { Pressable, View } from 'react-native';
+import { Pressable, TextInput, View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Image } from '@/components/ui/image';
 import { cn } from '@/lib/utils';
 import { roundToTwoDecimals } from '@/lib/constant/function';
+import { useRef } from 'react';
 
 export type AssetItemData = {
   assetId: string;
@@ -19,6 +20,9 @@ type AssetItemProps = {
   showBottomBorder?: boolean;
   onPress?: () => void;
   className?: string;
+  isEditMode?: boolean;
+  weightValue?: string;
+  onWeightChange?: (value: string) => void;
 };
 
 export const AssetItem = ({
@@ -27,25 +31,30 @@ export const AssetItem = ({
   showBottomBorder = true,
   onPress,
   className,
+  isEditMode = false,
+  weightValue,
+  onWeightChange,
 }: AssetItemProps) => {
+  const inputRef = useRef<TextInput>(null);
+
   return (
     <Pressable
-      onPress={onPress}
-      disabled={!onPress}
+      onPress={isEditMode ? undefined : onPress}
+      disabled={isEditMode || !onPress}
       className={cn(
         'flex-row items-center justify-between gap-4 rounded-md px-[4px] py-[8px]',
         showTopBorder && 'border-primary/10 border-t',
         showBottomBorder && 'border-primary/10 border-b',
         className
       )}
-      style={({ pressed }) => (onPress && pressed ? { opacity: 0.8 } : undefined)}>
-      <View className="flex-row items-center gap-4">
+      style={({ pressed }) => (onPress && !isEditMode && pressed ? { opacity: 0.8 } : undefined)}>
+      <View className="flex-1 flex-row items-center gap-4">
         <Image
           source={item.imageUrl}
           className="bg-background border-primary/10 h-10 w-10 rounded-full border"
           contentFit="contain"
         />
-        <View className="gap-[4px]">
+        <View className="flex-1 gap-[4px]">
           <View className="flex-row items-center gap-[4px]">
             <Text
               className="max-w-[130px] min-w-[130px] text-base font-semibold text-ellipsis"
@@ -53,7 +62,28 @@ export const AssetItem = ({
               ellipsizeMode="tail">
               {item.name}
             </Text>
-            <Text className="text-success text-sm font-semibold"> {item.weightPct}%</Text>
+            {isEditMode ? (
+              <Pressable
+                className="flex-row items-center"
+                onPress={() => inputRef.current?.focus()}>
+                <TextInput
+                  ref={inputRef}
+                  value={weightValue}
+                  onChangeText={(text) => {
+                    const cleaned = text.replace(/[^0-9.]/g, '');
+                    const parts = cleaned.split('.');
+                    const formatted =
+                      parts.length > 2 ? parts[0] + '.' + parts.slice(1).join('') : cleaned;
+                    onWeightChange?.(formatted);
+                  }}
+                  keyboardType="decimal-pad"
+                  className="text-success border-b-primary/40 min-w-[40px] border-b px-2 pb-1 text-center text-sm font-semibold"
+                  selectTextOnFocus
+                />
+              </Pressable>
+            ) : (
+              <Text className="text-success text-sm font-semibold"> {item.weightPct}%</Text>
+            )}
           </View>
           <Text className="text-muted-foreground text-md line-clamp-1 max-w-[200px] text-ellipsis">
             {item.ticker}

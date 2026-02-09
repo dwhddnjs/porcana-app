@@ -1,4 +1,4 @@
-import { Pressable, View } from 'react-native';
+import { Pressable, View, useColorScheme } from 'react-native';
 import Animated, {
   interpolate,
   useAnimatedStyle,
@@ -12,6 +12,9 @@ import { Text } from '@/components/ui/text';
 import { memo, useEffect, useState } from 'react';
 import { Asset } from '@/lib/hooks/zustand/use-arena-store';
 import { Image } from '@/components/ui/image';
+
+const logoBlack = require('@/assets/images/logo-black.png');
+const logoWhite = require('@/assets/images/logo_white.png');
 
 interface FlipCardProps {
   index: number;
@@ -60,6 +63,7 @@ export const FlipCard = memo(function FlipCard({
   width = 128,
   height = 192,
 }: FlipCardProps) {
+  const colorScheme = useColorScheme();
   const rotation = useSharedValue(0);
   const scale = useSharedValue(1);
   const [isPressed, setIsPressed] = useState(false);
@@ -133,7 +137,11 @@ export const FlipCard = memo(function FlipCard({
         style={frontAnimatedStyle}
         className="bg-card absolute h-full w-full items-center justify-center rounded-xl shadow-lg shadow-black/25">
         <View className="border-primary h-full w-full items-center justify-center rounded-xl border-4 p-2">
-          <Text className="text-primary text-2xl font-bold">?</Text>
+          <Image
+            source={colorScheme === 'dark' ? logoWhite : logoBlack}
+            className="h-12 w-12"
+            contentFit="contain"
+          />
           <View className="border-primary absolute top-2 right-2 bottom-2 left-2 rounded-lg border opacity-30" />
         </View>
       </Animated.View>

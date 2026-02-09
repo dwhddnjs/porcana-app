@@ -10,10 +10,11 @@ import Container from '@/components/container';
 import { Image } from '@/components/ui/image';
 import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 
 export default function ArenaComplete() {
   const { name, selectedCards, resetArena } = useArenaStore();
-  const { user } = useUserStore();
+  const { user, accessToken, refreshToken, reset } = useUserStore();
   const queryClient = useQueryClient();
 
   const handleOpenLoginSheet = () => {
@@ -23,7 +24,7 @@ export default function ArenaComplete() {
     }
     resetArena();
     queryClient.invalidateQueries({ queryKey: ['portfolios'] });
-    router.replace('/(tabs)/(portfolio)');
+    router.replace('/(tabs)/(portfolio)/(main)');
   };
 
   return (
