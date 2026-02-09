@@ -12,7 +12,7 @@ const LEGEND_PADDING = 80;
 const CHART_HEIGHT = CONTAINER_HEIGHT - LEGEND_PADDING;
 
 // 캔들스틱 데이터 타입
-type CandleData = {
+type CandleDataTypes = {
   timestamp: number;
   open: number;
   high: number;
@@ -21,8 +21,8 @@ type CandleData = {
 };
 
 // 목업 데이터 생성
-const generateMockCandleData = (): CandleData[] => {
-  const data: CandleData[] = [];
+const generateMockCandleData = (): CandleDataTypes[] => {
+  const data: CandleDataTypes[] = [];
   let basePrice = 150;
   const now = Date.now();
   const dayMs = 24 * 60 * 60 * 1000;
@@ -49,7 +49,7 @@ const generateMockCandleData = (): CandleData[] => {
 };
 
 type AssetCandlestickChartProps = {
-  data?: CandleData[];
+  data?: CandleDataTypes[];
 };
 
 export const AssetCandlestickChart = ({ data }: AssetCandlestickChartProps) => {

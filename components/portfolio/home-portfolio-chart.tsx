@@ -1,4 +1,4 @@
-import { HomeChartData } from '@/lib/api/home';
+import { HomeChartDataTypes } from '@/lib/api/home';
 import { THEME } from '@/lib/theme';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
@@ -10,7 +10,7 @@ import { Text } from '../ui/text';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 type HomePortfolioChartProps = {
-  data: HomeChartData[];
+  data: HomeChartDataTypes[];
   totalReturnPct?: number;
 };
 

@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Text } from '@/components/ui/text';
-import { signUpSchema, type SignUpFormData } from '@/lib/validations/auth';
+import { signUpSchema, type SignUpFormDataTypes } from '@/lib/validations/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
 import * as React from 'react';
@@ -27,7 +27,7 @@ export function SignUpForm() {
     control,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<SignUpFormData>({
+  } = useForm<SignUpFormDataTypes>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
       email: '',
@@ -44,7 +44,7 @@ export function SignUpForm() {
     confirmPasswordInputRef.current?.focus();
   }
 
-  async function onSubmit(data: SignUpFormData) {
+  async function onSubmit(data: SignUpFormDataTypes) {
     // TODO: API 호출
     console.log('회원가입 데이터:', data);
   }

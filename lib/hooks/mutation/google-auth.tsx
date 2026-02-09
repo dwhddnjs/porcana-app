@@ -1,7 +1,7 @@
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 import { useMutation } from '@tanstack/react-query';
-import { UserState, useUserStore } from '@/lib/hooks/zustand/use-user-store';
+import { UserStateTypes, useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { useLoadingStore } from '@/lib/hooks/zustand/use-loading-store';
 import { router } from 'expo-router';
 import { useEffect, useRef } from 'react';

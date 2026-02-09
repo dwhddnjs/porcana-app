@@ -13,7 +13,7 @@ import { useSignupStore } from "@/lib/hooks/zustand/use-signup-store";
 import Container from "@/components/container";
 import { Header } from "@/components/ui/header";
 import { Spacer } from "@/components/spacer";
-import { NicknameFormData, nicknameSchema } from "@/lib/validations/auth";
+import { NicknameFormDataTypes, nicknameSchema } from "@/lib/validations/auth";
 
 
 export default function EnterNicknameScreen() {
@@ -25,7 +25,7 @@ export default function EnterNicknameScreen() {
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm<NicknameFormData>({
+  } = useForm<NicknameFormDataTypes>({
     resolver: zodResolver(nicknameSchema),
     defaultValues: {
       nickname: '',
@@ -34,7 +34,7 @@ export default function EnterNicknameScreen() {
 
   const nicknameValue = watch('nickname');
 
-  const onSubmit = async (data: NicknameFormData) => {
+  const onSubmit = async (data: NicknameFormDataTypes) => {
     setNickname(data.nickname);
     router.push('/(auth)/enter-email');
   };

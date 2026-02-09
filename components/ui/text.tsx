@@ -44,9 +44,9 @@ const textVariants = cva(
 
 type TextVariantProps = VariantProps<typeof textVariants>;
 
-type TextVariant = NonNullable<TextVariantProps['variant']>;
+type TextVariantTypes = NonNullable<TextVariantProps['variant']>;
 
-const ROLE: Partial<Record<TextVariant, Role>> = {
+const ROLE: Partial<Record<TextVariantTypes, Role>> = {
   h1: 'heading',
   h2: 'heading',
   h3: 'heading',
@@ -55,7 +55,7 @@ const ROLE: Partial<Record<TextVariant, Role>> = {
   code: Platform.select({ web: 'code' as Role }),
 };
 
-const ARIA_LEVEL: Partial<Record<TextVariant, string>> = {
+const ARIA_LEVEL: Partial<Record<TextVariantTypes, string>> = {
   h1: '1',
   h2: '2',
   h3: '3',

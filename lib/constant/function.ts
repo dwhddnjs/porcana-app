@@ -1,18 +1,18 @@
-import type { DiversityLevel } from '@/lib/api/portfolio';
+import type { DiversityLevelTypes } from '@/lib/api/portfolio';
 
 /**
- * DiversityLevel 한글 라벨
+ * DiversityLevelTypes 한글 라벨
  */
-export const DIVERSITY_LEVEL_LABELS: Record<DiversityLevel, string> = {
+export const DIVERSITY_LEVEL_LABELS: Record<DiversityLevelTypes, string> = {
   LOW: '낮음',
   MEDIUM: '보통',
   HIGH: '높음',
 };
 
 /**
- * DiversityLevel에 따른 텍스트 색상 클래스 반환
+ * DiversityLevelTypes에 따른 텍스트 색상 클래스 반환
  */
-export const getDiversityLevelColor = (level?: DiversityLevel): string => {
+export const getDiversityLevelColor = (level?: DiversityLevelTypes): string => {
   if (level === 'HIGH') return 'text-link';
   if (level === 'MEDIUM') return 'text-success';
   return 'text-destructive';

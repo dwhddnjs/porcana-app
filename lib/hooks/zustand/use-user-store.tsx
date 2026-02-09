@@ -3,9 +3,9 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { zustandStorage } from '@/lib/storage';
 import { ProviderTypes } from '@/lib/api/auth';
 
-export type ThemeMode = 'light' | 'dark' | 'system';
+export type ThemeModeTypes = 'light' | 'dark' | 'system';
 
-export interface UserState {
+export interface UserStateTypes {
   user: {
     userId: string;
     nickname: string;
@@ -14,17 +14,17 @@ export interface UserState {
   accessToken: string | null;
   refreshToken: string | null;
   provider: ProviderTypes | null;
-  themeMode: ThemeMode;
-  setUser: (data: UserState) => void;
+  themeMode: ThemeModeTypes;
+  setUser: (data: UserStateTypes) => void;
   setTokens: (accessToken: string, refreshToken: string) => void;
   clearTokens: () => void;
   isAuthenticated: () => boolean;
-  setThemeMode: (mode: ThemeMode) => void;
+  setThemeMode: (mode: ThemeModeTypes) => void;
   reset: () => void;
   logout: () => void;
 }
 
-export const useUserStore = create<UserState>()(
+export const useUserStore = create<UserStateTypes>()(
   persist(
     (set, get) => ({
       user: null,
@@ -32,7 +32,7 @@ export const useUserStore = create<UserState>()(
       refreshToken: null,
       provider: null,
       themeMode: 'system',
-      setUser: (data: UserState) => set(data),
+      setUser: (data: UserStateTypes) => set(data),
       setTokens: (accessToken, refreshToken) => set({ accessToken, refreshToken }),
       clearTokens: () => set({ accessToken: null, refreshToken: null }),
       isAuthenticated: () => !!get().accessToken,

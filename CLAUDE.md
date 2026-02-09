@@ -66,7 +66,7 @@ npm run clean        # .expo, node_modules 삭제
 - `useUserStore`: 사용자 정보 + 토큰 (AsyncStorage 영속화)
 - `useSignupStore`: 회원가입 플로우 임시 상태
 - `useArenaStore`: 아레나 세션 상태
-- `useLoadingStore`: 글로벌 로딩 오버레이
+- `useLoadingStore`: 글로벌 로딩 오버레이. `show('메시지')` / `hide()` — mutation 시 로딩 표시 권장
 
 ### React Query Config
 - staleTime: 5분, gcTime: 10분, retry: 2 (query) / 1 (mutation)
@@ -89,10 +89,40 @@ npm run clean        # .expo, node_modules 삭제
 
 ## Code Conventions
 
+- 기능 및 컴포넌트 생성 시 항상 Expo 문서 참조: https://docs.expo.dev/
+- 파일과 폴더는 케밥케이스로 네이밍
+- 공용 컴포넌트는 `components/ui/` 아래, feature 컴포넌트는 feature 폴더 생성 후 그 아래 생성
+- 컴포넌트 생성 시 `export` 함수 표현식, app 내 스크린은 `export default` 함수 선언식
+- 내부 함수(핸들러, 유틸리티 등)는 함수 표현식(화살표 함수)으로 작성
 - Prettier: printWidth 100, singleQuote, tabWidth 2, trailingComma es5
 - Tailwind 클래스 정렬: prettier-plugin-tailwindcss
-- 컴포넌트: 함수형 + 화살표 함수 패턴
 - 한글 UI 텍스트 사용 (한국 시장 타겟)
+- 타입/인터페이스 선언 시 이름 뒤에 반드시 `Types` 접미사 붙일 것 (예: `PortfolioTypes`, `HomeResponseTypes`)
+- 데이터 확인 후 request, response 타입을 항상 정의할 것
+
+## API 및 훅 네이밍
+
+- 쿼리 훅: `useGet[Resource]Query()` (예: `useGetPortfoliosQuery`)
+- 뮤테이션 훅: `use[Action]Mutation()` (예: `useCreatePortfolioMutation`)
+- API 함수/엔드포인트는 `lib/api/`에 리소스별 파일로 정의
+- API 스펙 조회 시 OpenAPI JSON 엔드포인트 사용: https://api.porcana.co.kr/v3/api-docs
+- Swagger UI: https://api.porcana.co.kr/swagger-ui/index.html
+
+## 파일 네이밍
+
+- 컴포넌트: `kebab-case.tsx`
+- 훅: `use-[name].tsx`
+- API 파일: `[resource].ts`
+
+## 스타일링 규칙
+
+- UI 컴포넌트 생성 시 react-native-reusable 문서 참고: https://reactnativereusables.com/docs
+- 인라인 스타일링 지향, 스타일링 문법은 uniwind 문서 참고: https://docs.uniwind.dev/
+- 커스텀 animation 생성 시 react-native-reanimated 문서 참조: https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/getting-started
+- 스타일 시 색상은 `global.css` 파일의 색상 변수 사용
+- 컴포넌트 variant는 CVA 사용, 클래스 병합 시 `lib/utils.ts`의 `cn()` 사용
+- 다크/라이트 모드 지원 (Uniwind ThemeProvider)
+- 모든 화면 Safe Area 처리
 
 ## Environment Variables
 
@@ -119,3 +149,8 @@ EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID # Google OAuth Android 클라이언트 ID
 | Asset     | GET    | /assets/:id                                       | 에셋 상세          |
 | Asset     | GET    | /assets/:id/chart?range=1M\|3M\|1Y               | 에셋 차트 데이터   |
 | Home      | GET    | /home                                             | 홈 대시보드        |
+
+## 기타
+
+- 유효성 검사: Zod 스키마(`lib/validations/`), React Hook Form + @hookform/resolvers
+- 날짜 포맷팅: date-fns 사용

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-interface SignupState {
+interface SignupStateTypes {
   nickname: string;
   email: string;
   password: string;
@@ -16,7 +16,7 @@ const initialState = {
   password: '',
 };
 
-export const useSignupStore = create<SignupState>((set) => ({
+export const useSignupStore = create<SignupStateTypes>((set) => ({
   ...initialState,
   setNickname: (nickname) => set({ nickname }),
   setEmail: (email) => set({ email }),

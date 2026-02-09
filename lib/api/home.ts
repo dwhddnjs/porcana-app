@@ -1,19 +1,19 @@
 import { api } from '.';
 
-export type HomeChartData = {
+export type HomeChartDataTypes = {
   date?: string;
   value?: number;
   [key: string]: any;
 };
 
-export type HomeMainPortfolio = {
+export type HomeMainPortfolioTypes = {
   name: string;
   portfolioId: string;
   startedAt: string;
   totalReturnPct: number;
 };
 
-export type HomePosition = {
+export type HomePositionTypes = {
   assetId: string;
   imageUrl: string | null;
   name: string;
@@ -22,16 +22,16 @@ export type HomePosition = {
   weightPct: number;
 };
 
-export type HomeResponse = {
-  chart: HomeChartData[];
+export type HomeResponseTypes = {
+  chart: HomeChartDataTypes[];
   hasMainPortfolio: boolean;
-  mainPortfolio: HomeMainPortfolio | null;
-  positions: HomePosition[];
+  mainPortfolio: HomeMainPortfolioTypes | null;
+  positions: HomePositionTypes[];
 };
 
-export const getHome = async (): Promise<HomeResponse> => {
+export const getHome = async (): Promise<HomeResponseTypes> => {
   try {
-    const response = await api.get<HomeResponse>('/home');
+    const response = await api.get<HomeResponseTypes>('/home');
     return response.data;
   } catch (error) {
     console.error('Error fetching home:', error);

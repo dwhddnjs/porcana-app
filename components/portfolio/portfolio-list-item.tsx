@@ -4,11 +4,11 @@ import { Image } from '@/components/ui/image';
 import { cn } from '@/lib/utils';
 import { Star, TrendingUp } from 'lucide-react-native';
 import { Icon } from '@/components/ui/icon';
-import { Portfolio } from '@/lib/api/portfolio';
+import { PortfolioTypes } from '@/lib/api/portfolio';
 import { Spacer } from '../spacer';
 
 type PortfolioListItemProps = {
-  portfolio: Portfolio;
+  portfolio: PortfolioTypes;
   onSelect: (portfolioId: string) => void;
   onSetMain: (portfolioId: string, isMain: boolean) => void;
 };

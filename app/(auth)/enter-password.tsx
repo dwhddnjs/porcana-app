@@ -13,7 +13,7 @@ import Container from '@/components/container';
 import { Header } from '@/components/ui/header';
 import { Spacer } from '@/components/spacer';
 import { useSignupMutation } from '@/lib/hooks/mutation/auth';
-import { PasswordFormData, passwordSchema } from '@/lib/validations/auth';
+import { PasswordFormDataTypes, passwordSchema } from '@/lib/validations/auth';
 
 export default function EnterPasswordScreen() {
   const router = useRouter();
@@ -25,7 +25,7 @@ export default function EnterPasswordScreen() {
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm<PasswordFormData>({
+  } = useForm<PasswordFormDataTypes>({
     resolver: zodResolver(passwordSchema),
     defaultValues: {
       password: '',
@@ -37,7 +37,7 @@ export default function EnterPasswordScreen() {
   const confirmPasswordValue = watch('confirmPassword');
   const { mutate: signup } = useSignupMutation();
 
-  const onSubmit = async (data: PasswordFormData) => {
+  const onSubmit = async (data: PasswordFormDataTypes) => {
     setPassword(data.password);
     const requestBody = {
       nickname,

@@ -7,7 +7,7 @@ import { useSetMainPortfolioMutation } from '@/lib/hooks/mutation/portfolio';
 import { Search } from 'lucide-react-native';
 import { Icon } from '@/components/ui/icon';
 import { useQueryClient } from '@tanstack/react-query';
-import { Portfolio } from '@/lib/api/portfolio';
+import { PortfolioTypes } from '@/lib/api/portfolio';
 import { PortfolioListItem } from '@/components/portfolio/portfolio-list-item';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
@@ -47,10 +47,10 @@ export function PortfolioDrawerContent(props: DrawerContentComponentProps) {
     if (isMain) return;
 
     // 이전 데이터 저장 (롤백용)
-    const previousData = queryClient.getQueryData<Portfolio[]>(['portfolios']);
+    const previousData = queryClient.getQueryData<PortfolioTypes[]>(['portfolios']);
 
     // 낙관적 업데이트: 먼저 UI 업데이트
-    queryClient.setQueryData<Portfolio[]>(['portfolios'], (old) => {
+    queryClient.setQueryData<PortfolioTypes[]>(['portfolios'], (old) => {
       if (!old) return old;
       return old.map((p) => ({
         ...p,

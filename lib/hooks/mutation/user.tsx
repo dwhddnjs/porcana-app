@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { updateProfile } from '@/lib/api/user';
-import { UserState, useUserStore } from '@/lib/hooks/zustand/use-user-store';
+import { UserStateTypes, useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { useLoadingStore } from '@/lib/hooks/zustand/use-loading-store';
 import { router } from 'expo-router';
 
@@ -15,7 +15,7 @@ export const useUpdateProfileMutation = () => {
     },
     onSuccess: (data) => {
       if (user) {
-        setUser({ user: { ...user, nickname: data.nickname } } as UserState);
+        setUser({ user: { ...user, nickname: data.nickname } } as UserStateTypes);
       }
       router.back();
     },

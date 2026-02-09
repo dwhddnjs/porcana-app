@@ -1,11 +1,11 @@
 import { api } from '.';
 
-export type ChartPoint = {
+export type ChartPointTypes = {
   date: string;
   value: number;
 };
 
-export type AssetDetail = {
+export type AssetDetailTypes = {
   assetId: string;
   ticker: string;
   name: string;
@@ -17,17 +17,17 @@ export type AssetDetail = {
   description: string | null;
 };
 
-export type AssetChart = {
+export type AssetChartTypes = {
   assetId: string;
   range: string;
-  points: ChartPoint[];
+  points: ChartPointTypes[];
 };
 
-export type ChartRange = '1M' | '3M' | '1Y';
+export type ChartRangeTypes = '1M' | '3M' | '1Y';
 
-export const getAsset = async ({ assetId }: { assetId: string }): Promise<AssetDetail> => {
+export const getAsset = async ({ assetId }: { assetId: string }): Promise<AssetDetailTypes> => {
   try {
-    const response = await api.get<AssetDetail>(`/assets/${assetId}`);
+    const response = await api.get<AssetDetailTypes>(`/assets/${assetId}`);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -40,10 +40,10 @@ export const getAssetChart = async ({
   range,
 }: {
   assetId: string;
-  range: ChartRange;
-}): Promise<AssetChart> => {
+  range: ChartRangeTypes;
+}): Promise<AssetChartTypes> => {
   try {
-    const response = await api.get<AssetChart>(`/assets/${assetId}/chart`, {
+    const response = await api.get<AssetChartTypes>(`/assets/${assetId}/chart`, {
       params: { range },
     });
     return response.data;

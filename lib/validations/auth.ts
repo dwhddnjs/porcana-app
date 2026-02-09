@@ -55,9 +55,9 @@ export const passwordSchema = z
   });
 
 // 타입 추출
-export type SignInFormData = z.infer<typeof signInSchema>;
-export type SignUpFormData = z.infer<typeof signUpSchema>;
-export type LoginFormData = z.infer<typeof loginSchema>;
-export type EmailFormData = z.infer<typeof emailSchema>;
-export type NicknameFormData = z.infer<typeof nicknameSchema>;
-export type PasswordFormData = z.infer<typeof passwordSchema>;
+export type SignInFormDataTypes = z.infer<typeof signInSchema>;
+export type SignUpFormDataTypes = z.infer<typeof signUpSchema>;
+export type LoginFormDataTypes = z.infer<typeof loginSchema>;
+export type EmailFormDataTypes = z.infer<typeof emailSchema>;
+export type NicknameFormDataTypes = z.infer<typeof nicknameSchema>;
+export type PasswordFormDataTypes = z.infer<typeof passwordSchema>;

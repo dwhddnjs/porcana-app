@@ -10,7 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Text } from '@/components/ui/text';
 import { memo, useEffect, useState } from 'react';
-import { Asset } from '@/lib/hooks/zustand/use-arena-store';
+import { AssetTypes } from '@/lib/hooks/zustand/use-arena-store';
 import { Image } from '@/components/ui/image';
 
 const logoBlack = require('@/assets/images/logo-black.png');
@@ -20,7 +20,7 @@ interface FlipCardProps {
   index: number;
   onSelect: () => void;
   isFlipped: boolean;
-  asset: Asset;
+  asset: AssetTypes;
   disabled?: boolean;
   isSelected?: boolean;
   /** 카드 너비 (기본값: 128) */

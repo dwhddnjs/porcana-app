@@ -1,4 +1,4 @@
-import type { RiskDistribution } from '@/lib/api/portfolio';
+import type { RiskDistributionTypes } from '@/lib/api/portfolio';
 import { THEME } from '@/lib/theme';
 import { View } from 'react-native';
 import { useUniwind } from 'uniwind';
@@ -11,7 +11,7 @@ const BAR_WIDTH = 36;
 const BAR_RADIUS = 16;
 
 type RiskDistributionChartProps = {
-  data?: RiskDistribution;
+  data?: RiskDistributionTypes;
 };
 
 const RISK_LEVELS = [1, 2, 3, 4, 5] as const;

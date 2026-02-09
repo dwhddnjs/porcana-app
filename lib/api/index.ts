@@ -3,7 +3,7 @@ import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { api } from './client';
 import { createGuestSession, getRefreshToken } from './auth';
 
-export interface ApiResponse<T> {
+export interface ApiResponseTypes<T> {
   result_code: number;
   result_msg: string;
   result_data: T;
@@ -14,13 +14,13 @@ export type ResolverTypes<T> = {
   onFailure?: (error?: any) => void;
 } & T;
 
-interface QueueItem {
+interface QueueItemTypes {
   resolve: (token: string) => void;
   reject: (error: any) => void;
 }
 
 let isRefreshing = false;
-let failedQueue: QueueItem[] = [];
+let failedQueue: QueueItemTypes[] = [];
 
 let guestSessionId: string | null = null;
 export const setGuestSessionId = (id: string | null) => {

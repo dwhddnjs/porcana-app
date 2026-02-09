@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { roundToTwoDecimals } from '@/lib/constant/function';
 import { useRef } from 'react';
 
-export type AssetItemData = {
+export type AssetItemDataTypes = {
   assetId: string;
   imageUrl: string | null;
   name: string;
@@ -15,7 +15,7 @@ export type AssetItemData = {
 };
 
 type AssetItemProps = {
-  item: AssetItemData;
+  item: AssetItemDataTypes;
   showTopBorder?: boolean;
   showBottomBorder?: boolean;
   onPress?: () => void;

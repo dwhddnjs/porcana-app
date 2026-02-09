@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Text } from '@/components/ui/text';
-import { signInSchema, type SignInFormData } from '@/lib/validations/auth';
+import { signInSchema, type SignInFormDataTypes } from '@/lib/validations/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
 import * as React from 'react';
@@ -26,7 +26,7 @@ export function SignInForm() {
     control,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<SignInFormData>({
+  } = useForm<SignInFormDataTypes>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
       email: '',
@@ -38,7 +38,7 @@ export function SignInForm() {
     passwordInputRef.current?.focus();
   }
 
-  async function onSubmit(data: SignInFormData) {
+  async function onSubmit(data: SignInFormDataTypes) {
     // TODO: API 호출
     console.log('로그인 데이터:', data);
   }

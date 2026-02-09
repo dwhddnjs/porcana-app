@@ -1,6 +1,6 @@
 import { api } from '.';
 
-export type Position = {
+export type PositionTypes = {
   assetId: string;
   currentRiskLevel: number;
   imageUrl: string | null;
@@ -10,9 +10,9 @@ export type Position = {
   weightPct: number;
 };
 
-export type RiskDistribution = Record<string, number>;
+export type RiskDistributionTypes = Record<string, number>;
 
-export type DiversityLevel = 'LOW' | 'MEDIUM' | 'HIGH';
+export type DiversityLevelTypes = 'LOW' | 'MEDIUM' | 'HIGH';
 
 export type TopAssetTypes = {
   assetId: string;
@@ -22,7 +22,7 @@ export type TopAssetTypes = {
   weight: number;
 };
 
-export type Portfolio = {
+export type PortfolioTypes = {
   portfolioId: string;
   name: string;
   status: string;
@@ -30,9 +30,9 @@ export type Portfolio = {
   totalReturnPct: number;
   createdAt?: string;
   averageRiskLevel: number;
-  diversityLevel?: DiversityLevel;
-  positions?: Position[];
-  riskDistribution?: RiskDistribution;
+  diversityLevel?: DiversityLevelTypes;
+  positions?: PositionTypes[];
+  riskDistribution?: RiskDistributionTypes;
   startedAt?: string;
   topAssets?: TopAssetTypes[];
 };
@@ -49,9 +49,9 @@ export const createPortfolio = async ({ name }: { name: string }) => {
   }
 };
 
-export const getPortfolios = async (): Promise<Portfolio[]> => {
+export const getPortfolios = async (): Promise<PortfolioTypes[]> => {
   try {
-    const response = await api.get<Portfolio[]>(`/portfolios`);
+    const response = await api.get<PortfolioTypes[]>(`/portfolios`);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -63,9 +63,9 @@ export const getPortfolio = async ({
   portfolioId,
 }: {
   portfolioId: string;
-}): Promise<Portfolio> => {
+}): Promise<PortfolioTypes> => {
   try {
-    const response = await api.get<Portfolio>(`/portfolios/${portfolioId}`);
+    const response = await api.get<PortfolioTypes>(`/portfolios/${portfolioId}`);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -73,7 +73,7 @@ export const getPortfolio = async ({
   }
 };
 
-export type UpdateWeightItem = {
+export type UpdateWeightItemTypes = {
   assetId: string;
   weightPct: number;
 };
@@ -83,12 +83,12 @@ export const updatePortfolioWeights = async ({
   weights,
 }: {
   portfolioId: string;
-  weights: UpdateWeightItem[];
-}): Promise<Portfolio> => {
+  weights: UpdateWeightItemTypes[];
+}): Promise<PortfolioTypes> => {
   try {
     console.log(portfolioId);
     console.log(weights);
-    const response = await api.put<Portfolio>(`/portfolios/${portfolioId}/weights`, { weights });
+    const response = await api.put<PortfolioTypes>(`/portfolios/${portfolioId}/weights`, { weights });
 
     return response.data;
   } catch (error) {

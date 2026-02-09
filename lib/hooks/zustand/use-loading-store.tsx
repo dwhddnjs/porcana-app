@@ -1,13 +1,13 @@
 import { create } from 'zustand';
 
-interface LoadingState {
+interface LoadingStateTypes {
   isLoading: boolean;
   message?: string;
   show: (message?: string) => void;
   hide: () => void;
 }
 
-export const useLoadingStore = create<LoadingState>()((set) => ({
+export const useLoadingStore = create<LoadingStateTypes>()((set) => ({
   isLoading: false,
   message: undefined,
   show: (message?: string) => set({ isLoading: true, message }),

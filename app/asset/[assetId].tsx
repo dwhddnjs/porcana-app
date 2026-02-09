@@ -11,7 +11,7 @@ import { Icon } from '@/components/ui/icon';
 import { ChevronLeft } from 'lucide-react-native';
 import { Image } from '@/components/ui/image';
 import { Spacer } from '@/components/spacer';
-import { ChartRange } from '@/lib/api/asset';
+import { ChartRangeTypes } from '@/lib/api/asset';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
@@ -20,7 +20,7 @@ export default function AssetDetailScreen() {
   const router = useRouter();
   const { show, hide } = useLoadingStore();
   const { data, isLoading, isError, error } = useGetAssetQuery(assetId);
-  const [chartRange, setChartRange] = useState<ChartRange>('1M');
+  const [chartRange, setChartRange] = useState<ChartRangeTypes>('1M');
   const {
     data: chartData,
     isLoading: isChartLoading,

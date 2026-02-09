@@ -22,6 +22,7 @@ alwaysApply: true
 - 뮤테이션 훅: `use[Action]Mutation()` (예: useCreatePortfolioMutation)
 - API 함수/엔드포인트는 `lib/api/` 에 리소스별 파일로 정의 (`lib/api/portfolio.ts` 등)
 - 데이터 확인 후 request, response 타입을 항상 정의할 것
+- 타입/인터페이스 선언 시 이름 뒤에 반드시 `Types` 접미사를 붙일 것 (예: `Portfolio` ✗ → `PortfolioTypes` ✓, `HomeResponse` ✗ → `HomeResponseTypes` ✓)
 
 ## 파일 네이밍
 
@@ -45,6 +46,11 @@ alwaysApply: true
 - useArenaStore: 투자 아레나 게임 상태
 - useLoadingStore: 전역 로딩. `show('메시지')` / `hide()` — mutation 시 로딩 표시 권장
 
+## 코드 포맷팅
+
+- Prettier: printWidth 100, singleQuote, tabWidth 2, trailingComma es5
+- Tailwind 클래스 정렬: prettier-plugin-tailwindcss
+
 ## 스타일링 규칙
 
 - UI 컴포넌트 생성시 항상 react-native-reusable 문서를 참고해서 이미 있으면 그걸 추가해서 사용하고 없으면 만들 것 https://reactnativereusables.com/docs
@@ -53,9 +59,27 @@ alwaysApply: true
 - 스타일시 색상 넣을때 global.css 파일에 있는 색상 변수를 사용할 것
 - 컴포넌트 variant는 CVA 사용. 클래스 병합 시 `lib/utils.ts`의 `cn()` 사용
 
+## Auth Flow
+
+- Email 인증: enter-email → enter-password → enter-nickname → signup → auto-login
+- OAuth: Google (expo-auth-session), Apple (expo-apple-authentication)
+- 토큰 관리: Zustand persist → AsyncStorage, 자동 리프레시 인터셉터
+
+## React Query Config
+
+- staleTime: 5분, gcTime: 10분, retry: 2 (query) / 1 (mutation)
+- expo-network 기반 네트워크 상태 감지
+- 앱 포커스 시 자동 refetch
+
+## 환경 변수
+
+- `EXPO_PUBLIC_API_BASE_URL` — API 서버 URL
+- `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` — Google OAuth Web 클라이언트 ID
+- `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` — Google OAuth iOS 클라이언트 ID
+- `EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID` — Google OAuth Android 클라이언트 ID
+
 ## 기타
 
 - 유효성 검사: Zod 스키마(`lib/validations/`), React Hook Form + @hookform/resolvers
 - 앱 전체 한국어, 다크 모드 지원, 모든 화면 Safe Area 처리
-- React Query: staleTime 5분, gcTime 10분
 - 날짜 포맷팅: date-fns 사용

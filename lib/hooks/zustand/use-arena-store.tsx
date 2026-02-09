@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export interface Asset {
+export interface AssetTypes {
   assetId: string;
   ticker: string;
   name: string;
@@ -12,7 +12,7 @@ export interface Asset {
   impactHint: string;
 }
 
-interface ArenaState {
+interface ArenaStateTypes {
   name: string;
   portfolioId: string;
   sessionId: string;
@@ -22,7 +22,7 @@ interface ArenaState {
     riskProfile: string;
     sectors: string[];
   } | null;
-  selectedCards: Asset[];
+  selectedCards: AssetTypes[];
 
   setPortfolio: ({
     name,
@@ -38,12 +38,12 @@ interface ArenaState {
     currentRound: number;
   }) => void;
   setPicked: (picked: { riskProfile: string; sectors: string[] }, currentRound: number) => void;
-  addCard: (card: Asset) => void;
+  addCard: (card: AssetTypes) => void;
   clearCards: () => void;
   resetArena: () => void;
 }
 
-export const useArenaStore = create<ArenaState>((set) => ({
+export const useArenaStore = create<ArenaStateTypes>((set) => ({
   name: '',
   portfolioId: '',
   sessionId: '',

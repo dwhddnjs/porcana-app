@@ -9,7 +9,7 @@ import { Text } from '@/components/ui/text';
 import { ProviderTypes } from '@/lib/api/auth';
 import { useLoginMutation } from '@/lib/hooks/mutation/auth';
 import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
-import { LoginFormData, loginSchema } from '@/lib/validations/auth';
+import { LoginFormDataTypes, loginSchema } from '@/lib/validations/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef } from 'react';
@@ -36,7 +36,7 @@ export default function LoginScreen() {
     handleSubmit,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormData>({
+  } = useForm<LoginFormDataTypes>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
@@ -47,7 +47,7 @@ export default function LoginScreen() {
   const emailValue = watch('email');
   const passwordValue = watch('password');
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (data: LoginFormDataTypes) => {
     const requestBody = {
       email: data.email,
       password: data.password,

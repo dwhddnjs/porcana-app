@@ -12,7 +12,7 @@ import { useSignupStore } from '@/lib/hooks/zustand/use-signup-store';
 import Container from '@/components/container';
 import { Header } from '@/components/ui/header';
 import { Spacer } from '@/components/spacer';
-import { EmailFormData, emailSchema } from '@/lib/validations/auth';
+import { EmailFormDataTypes, emailSchema } from '@/lib/validations/auth';
 import { checkEmail } from '@/lib/api/auth';
 
 export default function EnterEmailScreen() {
@@ -26,7 +26,7 @@ export default function EnterEmailScreen() {
     clearErrors,
     watch,
     formState: { errors },
-  } = useForm<EmailFormData>({
+  } = useForm<EmailFormDataTypes>({
     resolver: zodResolver(emailSchema),
     defaultValues: {
       email: '',
@@ -35,7 +35,7 @@ export default function EnterEmailScreen() {
 
   const emailValue = watch('email');
 
-  const onSubmit = async (data: EmailFormData) => {
+  const onSubmit = async (data: EmailFormDataTypes) => {
     clearErrors('email');
     try {
       const { available } = await checkEmail({ email: data.email });

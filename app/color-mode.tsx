@@ -2,14 +2,14 @@ import { Spacer } from '@/components/spacer';
 import { Header } from '@/components/ui/header';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
-import { ThemeMode, useUserStore } from '@/lib/hooks/zustand/use-user-store';
+import { ThemeModeTypes, useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { CheckIcon } from 'lucide-react-native';
 import { Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Uniwind } from 'uniwind';
 import { useColorScheme } from 'react-native';
 
-const THEME_OPTIONS: { mode: ThemeMode; label: string }[] = [
+const THEME_OPTIONS: { mode: ThemeModeTypes; label: string }[] = [
   { mode: 'dark', label: '다크 모드' },
   { mode: 'light', label: '라이트 모드' },
   { mode: 'system', label: '시스템 기본 설정' },
@@ -21,7 +21,7 @@ export default function ColorModeScreen() {
   const themeMode = useUserStore((s) => s.themeMode);
   const setThemeMode = useUserStore((s) => s.setThemeMode);
 
-  const handleSelect = (mode: ThemeMode) => {
+  const handleSelect = (mode: ThemeModeTypes) => {
     if (mode === themeMode) return;
     setThemeMode(mode);
     Uniwind.setTheme(mode === 'system' ? (systemColorScheme ?? 'light') : mode);

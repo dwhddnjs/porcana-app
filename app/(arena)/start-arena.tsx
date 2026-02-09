@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { useNavigation, DrawerActions } from '@react-navigation/native';
 import { useGetArenaSessionRoundsQuery } from '@/lib/hooks/query/arena';
 import { usePickArenaSessionAssetMutation } from '@/lib/hooks/mutation/arena';
-import { useArenaStore, Asset } from '@/lib/hooks/zustand/use-arena-store';
+import { useArenaStore, AssetTypes } from '@/lib/hooks/zustand/use-arena-store';
 
 const MAX_ROUNDS = 10;
 
@@ -32,7 +32,7 @@ export default function CreatePortfolio() {
   const { mutate: pickAsset } = usePickArenaSessionAssetMutation();
 
   // 서버에서 받아온 assets (3장) - useMemo로 불필요한 재생성 방지
-  const currentAssets: Asset[] = useMemo(
+  const currentAssets: AssetTypes[] = useMemo(
     () => arenaSessionRounds?.assets || [],
     [arenaSessionRounds?.assets]
   );

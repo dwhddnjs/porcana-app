@@ -5,8 +5,8 @@ import {
   createPortfolio,
   setMainPortfolio,
   updatePortfolioWeights,
-  type Portfolio,
-  type UpdateWeightItem,
+  type PortfolioTypes,
+  type UpdateWeightItemTypes,
 } from '@/lib/api/portfolio';
 import { useArenaStore } from '../zustand/use-arena-store';
 import { useRouter } from 'expo-router';
@@ -59,7 +59,7 @@ export const useCreatePortfolioMutation = () => {
       router.push('/add-modal');
     },
     onError: (error) => {
-      console.error('Portfolio creation failed:', error);
+      console.error('PortfolioTypes creation failed:', error);
     },
     onSettled: () => {
       hide();
@@ -102,7 +102,7 @@ export const useUpdatePortfolioWeightsMutation = () => {
   const { show, hide } = useLoadingStore();
 
   return useMutation({
-    mutationFn: ({ portfolioId, weights }: { portfolioId: string; weights: UpdateWeightItem[] }) =>
+    mutationFn: ({ portfolioId, weights }: { portfolioId: string; weights: UpdateWeightItemTypes[] }) =>
       updatePortfolioWeights({ portfolioId, weights }),
     onMutate: () => {
       show('비중 수정 중...');
@@ -121,7 +121,7 @@ export const useUpdatePortfolioWeightsMutation = () => {
   });
 };
 
-type PreviousPortfolioData = {
+type PreviousPortfolioDataTypes = {
   previousEntries: Array<{ queryKey: readonly unknown[]; data: unknown }>;
 };
 
@@ -140,7 +140,7 @@ export const useSetMainPortfolioMutation = () => {
           data,
         }));
 
-      queryClient.setQueryData<Portfolio[]>(['portfolios'], (old) =>
+      queryClient.setQueryData<PortfolioTypes[]>(['portfolios'], (old) =>
         old
           ? old.map((p) => ({
               ...p,
@@ -150,10 +150,10 @@ export const useSetMainPortfolioMutation = () => {
       );
 
       queryClient
-        .getQueriesData<Portfolio>({ queryKey: ['portfolios'] })
+        .getQueriesData<PortfolioTypes>({ queryKey: ['portfolios'] })
         .forEach(([queryKey, data]) => {
           if (queryKey.length === 2 && typeof queryKey[1] === 'string' && data) {
-            queryClient.setQueryData<Portfolio>(queryKey, {
+            queryClient.setQueryData<PortfolioTypes>(queryKey, {
               ...data,
               isMain: data.portfolioId === portfolioId,
             });
@@ -162,7 +162,7 @@ export const useSetMainPortfolioMutation = () => {
 
       return { previousEntries };
     },
-    onError: (error, _portfolioId, context: PreviousPortfolioData | undefined) => {
+    onError: (error, _portfolioId, context: PreviousPortfolioDataTypes | undefined) => {
       console.error('Set main portfolio failed:', error);
       context?.previousEntries.forEach(({ queryKey, data }) => {
         queryClient.setQueryData(queryKey, data);

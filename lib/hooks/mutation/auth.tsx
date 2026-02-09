@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { setGuestSessionId } from '@/lib/api';
 import { login, signup } from '@/lib/api/auth';
 import { useSignupStore } from '@/lib/hooks/zustand/use-signup-store';
-import { UserState, useUserStore } from '@/lib/hooks/zustand/use-user-store';
+import { UserStateTypes, useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { useLoadingStore } from '@/lib/hooks/zustand/use-loading-store';
 import { router } from 'expo-router';
 
@@ -17,7 +17,7 @@ export const useLoginMutation = () => {
     },
     onSuccess: (data) => {
       console.log('login success', data);
-      setUser(data as UserState);
+      setUser(data as UserStateTypes);
       router.replace('/(tabs)');
     },
     onError: (error) => {

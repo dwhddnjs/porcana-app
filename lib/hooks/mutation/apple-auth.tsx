@@ -1,6 +1,6 @@
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { useMutation } from '@tanstack/react-query';
-import { UserState, useUserStore } from '@/lib/hooks/zustand/use-user-store';
+import { UserStateTypes, useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { useLoadingStore } from '@/lib/hooks/zustand/use-loading-store';
 import { router } from 'expo-router';
 import { useRef } from 'react';
@@ -21,7 +21,7 @@ export const useAppleAuth = () => {
     onSuccess: (data) => {
       if (data?.accessToken && data?.refreshToken) {
         setTokens(data.accessToken, data.refreshToken);
-        setUser(data as UserState);
+        setUser(data as UserStateTypes);
       }
       router.replace('/(tabs)');
       isProcessingRef.current = false;
