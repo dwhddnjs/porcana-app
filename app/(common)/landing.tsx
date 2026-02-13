@@ -8,12 +8,7 @@ import { CreatePortfolioDialog } from '@/components/portfolio/create-portfolio-d
 import { Link, useRouter } from 'expo-router';
 import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { useCreatePortfolioMutation } from '@/lib/hooks/mutation/portfolio';
-
-const CAROUSEL_IMAGES = [
-  require('@/assets/images/coin.png'),
-  require('@/assets/images/money.png'),
-  require('@/assets/images/card.png'),
-];
+import { CAROUSEL_ITEMS } from '@/lib/constant/variables';
 
 export default function LandingScreen() {
   const { accessToken, refreshToken, user, reset } = useUserStore();
@@ -38,12 +33,8 @@ export default function LandingScreen() {
       <Header title="" showBackButton={false} />
 
       <View className="flex-1 justify-between pt-[48px]">
-        <View className="gap-y-[24px]">
-          <Text className="px-[20px] text-2xl font-bold">
-            {'당신의 포트폴리오를\n만들어보세요.'}
-          </Text>
-          <ImageCarousel images={CAROUSEL_IMAGES} height={240} />
-        </View>
+        <ImageCarousel items={CAROUSEL_ITEMS} imageHeight={240} />
+
         <View className="gap-y-[12px] px-[20px]">
           <Link href="/login">
             <Text className="text-link text-center text-sm">이미 가입된 계정이 있으신가요?</Text>

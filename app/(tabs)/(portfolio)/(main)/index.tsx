@@ -68,6 +68,7 @@ export default function PortfolioScreen() {
             ))}
           </View>
         </View>
+        <Spacer height={240} />
       </LargeHeader>
     </View>
   );

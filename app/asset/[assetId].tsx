@@ -1,19 +1,16 @@
-import { LargeHeader } from '@/components/large-header';
 import { AssetCandlestickChart } from '@/components/portfolio/asset-candlestick-chart';
-import { Card, CardContent } from '@/components/ui/card';
 import { Text } from '@/components/ui/text';
 import { useGetAssetChartQuery, useGetAssetQuery } from '@/lib/hooks/query/asset';
 import { useLoadingStore } from '@/lib/hooks/zustand/use-loading-store';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
-import { Icon } from '@/components/ui/icon';
-import { ChevronLeft } from 'lucide-react-native';
 import { Image } from '@/components/ui/image';
 import { Spacer } from '@/components/spacer';
 import { ChartRangeTypes } from '@/lib/api/asset';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { SECTOR_KO_MAP } from '@/lib/constant/variables';
 
 export default function AssetDetailScreen() {
   const { assetId } = useLocalSearchParams<{ assetId: string }>();
@@ -27,8 +24,6 @@ export default function AssetDetailScreen() {
     isError: isChartError,
     error: chartError,
   } = useGetAssetChartQuery(assetId, chartRange);
-
-  console.log(data);
 
   useEffect(() => {
     if (isLoading) {
@@ -80,11 +75,11 @@ export default function AssetDetailScreen() {
       </View>
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 24 }}>
         <View>
-          <View className="gap-y-[8px] px-[24px]">
-            <View className="flex-row items-center gap-4">
+          <View className="gap-y-[12px] px-[24px]">
+            <View className="flex-row items-center gap-3">
               <Image
                 source={data.imageUrl}
-                className="bg-background border-primary/10 h-14 w-14 rounded-full border"
+                className="bg-background border-primary/10 h-12 w-12 rounded-full border"
                 contentFit="contain"
               />
               <View className="flex-1">
@@ -99,7 +94,9 @@ export default function AssetDetailScreen() {
             <View className="flex-row flex-wrap gap-2">
               {data.sector ? (
                 <View className="bg-muted border-primary/10 rounded-md border px-2 py-1">
-                  <Text className="text-muted-foreground text-xs">{data.sector}</Text>
+                  <Text className="text-muted-foreground text-xs">
+                    {SECTOR_KO_MAP[data.sector] ?? data.sector}
+                  </Text>
                 </View>
               ) : null}
               {data.currency ? (
@@ -118,9 +115,6 @@ export default function AssetDetailScreen() {
 
           <Spacer height={24} />
 
-          {/* 캔들스틱 차트 */}
-          {/* <Card className="py-[18px]"> */}
-          {/* <CardContent className="px-[12px]"> */}
           <View className="flex-row items-center justify-between px-[24px]">
             <Text className="text-lg font-semibold">가격 차트</Text>
             <View className="flex-row items-center gap-3">
@@ -168,7 +162,7 @@ export default function AssetDetailScreen() {
               </Pressable>
             </View>
           </View>
-          <AssetCandlestickChart />
+          <AssetCandlestickChart points={chartData?.points} isLoading={isChartLoading} />
         </View>
       </ScrollView>
       <View className="px-[24px] pb-[24px]">

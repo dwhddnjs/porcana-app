@@ -13,6 +13,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
+import { Toaster } from 'sonner-native';
 import { useUniwind } from 'uniwind';
 
 export {
@@ -68,6 +69,7 @@ export default function RootLayout() {
               />
             </Stack>
             <PortalHost />
+            <Toaster theme={theme ?? 'light'} />
             <LoadingOverlay />
             {showSplash && (
               <CustomSplashScreen

@@ -74,7 +74,6 @@ export const useAppleAuth = () => {
 
       // credential.email이 null인 경우 identityToken에서 이메일 추출
       const email = credential.email || parseEmailFromIdentityToken(credential.identityToken);
-      console.log('email@@@@@@@@@@@@@@@@', email);
       // 서버로 로그인 요청
       appleLoginMutation.mutate({
         identityToken: credential.identityToken || '',

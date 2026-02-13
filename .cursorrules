@@ -9,6 +9,7 @@ alwaysApply: true
 - 공용 컴포넌트 생성시 컴포넌트 폴더 아래 생성하고 feature 컴포넌트 생성시 폴더 생성후 그 아래 생성할 것
 - 컴포넌트 생성시 export 함수 표현식으로 작성하고 app내에 스크린 생성시 export default 함수 선언식으로 작성할 것
 - 내부 함수(핸들러, 유틸리티 등)는 함수 표현식(화살표 함수)으로 작성할 것
+- 이벤트 핸들러는 반드시 별도의 함수로 선언한 뒤 JSX에 참조로 전달할 것. JSX 내 인라인 함수 작성 금지 (예: `onPress={() => { ... }}` ✗ → `onPress={handleDelete}` ✓)
 - 서버쪽 상태관리는 tanstack query 사용할고 클라이언트 상태관리는 zustand 사용할 것
 - get은 useQuery 훅 사용하고 post put patch delete 는 useMutation 훅 사용해서 커스텀 훅을 만들덧
 
@@ -54,6 +55,7 @@ alwaysApply: true
 ## 스타일링 규칙
 
 - UI 컴포넌트 생성시 항상 react-native-reusable 문서를 참고해서 이미 있으면 그걸 추가해서 사용하고 없으면 만들 것 https://reactnativereusables.com/docs
+- React Native 기본 컴포넌트(Alert, Modal 등)보다 react-native-reusables 컴포넌트를 우선 사용할 것 (예: `Alert.alert` ✗ → `AlertDialog` ✓)
 - 인라인 스타일링 지향하고 스타일링 문법 질문시 uniwind 문서를 참고 할 것 https://docs.uniwind.dev/
 - 커스텀 animation 기능 생성시 react-native-reanimated 문서를 참조해서 만들 것 https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/getting-started
 - 스타일시 색상 넣을때 global.css 파일에 있는 색상 변수를 사용할 것

@@ -3,11 +3,13 @@ import { useUserStore } from '../zustand/use-user-store';
 import { useLoadingStore } from '../zustand/use-loading-store';
 import {
   createPortfolio,
+  deletePortfolio,
   setMainPortfolio,
   updatePortfolioWeights,
   type PortfolioTypes,
   type UpdateWeightItemTypes,
 } from '@/lib/api/portfolio';
+import { toast } from 'sonner-native';
 import { useArenaStore } from '../zustand/use-arena-store';
 import { useRouter } from 'expo-router';
 import { createArenaSessions, pickArenaSessionPreference } from '@/lib/api/arena';
@@ -123,6 +125,32 @@ export const useUpdatePortfolioWeightsMutation = () => {
 
 type PreviousPortfolioDataTypes = {
   previousEntries: Array<{ queryKey: readonly unknown[]; data: unknown }>;
+};
+
+export const useDeletePortfolioMutation = () => {
+  const queryClient = useQueryClient();
+  const { show, hide } = useLoadingStore();
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: (portfolioId: string) => deletePortfolio({ portfolioId }),
+    onMutate: () => {
+      show('포트폴리오 삭제 중...');
+    },
+    onSuccess: (_data, portfolioId) => {
+      queryClient.removeQueries({ queryKey: ['portfolios', portfolioId] });
+      queryClient.invalidateQueries({ queryKey: ['portfolios'] });
+      queryClient.invalidateQueries({ queryKey: ['home'] });
+      toast.success('포트폴리오가 삭제되었습니다');
+      router.back();
+    },
+    onError: (error) => {
+      console.error('Delete portfolio failed:', error);
+    },
+    onSettled: () => {
+      hide();
+    },
+  });
 };
 
 export const useSetMainPortfolioMutation = () => {

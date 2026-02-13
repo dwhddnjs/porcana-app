@@ -94,6 +94,7 @@ npm run clean        # .expo, node_modules 삭제
 - 공용 컴포넌트는 `components/ui/` 아래, feature 컴포넌트는 feature 폴더 생성 후 그 아래 생성
 - 컴포넌트 생성 시 `export` 함수 표현식, app 내 스크린은 `export default` 함수 선언식
 - 내부 함수(핸들러, 유틸리티 등)는 함수 표현식(화살표 함수)으로 작성
+- 이벤트 핸들러는 반드시 별도의 함수로 선언한 뒤 JSX에 참조로 전달할 것. JSX 내 인라인 함수 작성 금지 (예: `onPress={() => { ... }}` ✗ → `onPress={handleDelete}` ✓)
 - Prettier: printWidth 100, singleQuote, tabWidth 2, trailingComma es5
 - Tailwind 클래스 정렬: prettier-plugin-tailwindcss
 - 한글 UI 텍스트 사용 (한국 시장 타겟)
@@ -117,6 +118,7 @@ npm run clean        # .expo, node_modules 삭제
 ## 스타일링 규칙
 
 - UI 컴포넌트 생성 시 react-native-reusable 문서 참고: https://reactnativereusables.com/docs
+- React Native 기본 컴포넌트(Alert, Modal 등)보다 react-native-reusables 컴포넌트를 우선 사용할 것 (예: `Alert.alert` ✗ → `AlertDialog` ✓)
 - 인라인 스타일링 지향, 스타일링 문법은 uniwind 문서 참고: https://docs.uniwind.dev/
 - 커스텀 animation 생성 시 react-native-reanimated 문서 참조: https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/getting-started
 - 스타일 시 색상은 `global.css` 파일의 색상 변수 사용

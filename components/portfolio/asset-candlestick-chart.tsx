@@ -1,17 +1,18 @@
 import { THEME } from '@/lib/theme';
-import { Dimensions, LayoutChangeEvent, View } from 'react-native';
+import { ActivityIndicator, Dimensions, LayoutChangeEvent, View } from 'react-native';
 import { CandlestickChart } from 'react-native-wagmi-charts';
 import { useMemo, useState } from 'react';
 import { useUniwind } from 'uniwind';
 import { Text } from '../ui/text';
 import { Spacer } from '../spacer';
+import { ChartPointTypes } from '@/lib/api/asset';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const CONTAINER_HEIGHT = SCREEN_HEIGHT * 0.4;
 const LEGEND_PADDING = 80;
 const CHART_HEIGHT = CONTAINER_HEIGHT - LEGEND_PADDING;
 
-// 캔들스틱 데이터 타입
+// wagmi 캔들스틱 차트에서 요구하는 데이터 타입
 type CandleDataTypes = {
   timestamp: number;
   open: number;
@@ -20,54 +21,45 @@ type CandleDataTypes = {
   close: number;
 };
 
-// 목업 데이터 생성
-const generateMockCandleData = (): CandleDataTypes[] => {
-  const data: CandleDataTypes[] = [];
-  let basePrice = 150;
-  const now = Date.now();
-  const dayMs = 24 * 60 * 60 * 1000;
-
-  for (let i = 0; i < 30; i++) {
-    const change = (Math.random() - 0.5) * 10;
-    const open = basePrice;
-    const close = basePrice + change;
-    const high = Math.max(open, close) + Math.random() * 3;
-    const low = Math.min(open, close) - Math.random() * 3;
-
-    data.push({
-      timestamp: now - (30 - i) * dayMs,
-      open: parseFloat(open.toFixed(2)),
-      high: parseFloat(high.toFixed(2)),
-      low: parseFloat(low.toFixed(2)),
-      close: parseFloat(close.toFixed(2)),
-    });
-
-    basePrice = close;
-  }
-
-  return data;
-};
-
 type AssetCandlestickChartProps = {
-  data?: CandleDataTypes[];
+  points?: ChartPointTypes[];
+  isLoading?: boolean;
 };
 
-export const AssetCandlestickChart = ({ data }: AssetCandlestickChartProps) => {
+export const AssetCandlestickChart = ({ points, isLoading }: AssetCandlestickChartProps) => {
   const { theme } = useUniwind();
   const colors = theme === 'dark' ? THEME.dark : THEME.light;
   const [width, setWidth] = useState(0);
 
-  const mockData = useMemo(() => generateMockCandleData(), []);
-  const chartData = data ?? mockData;
+  // API points 데이터를 wagmi 캔들스틱 포맷으로 변환
+  const chartData: CandleDataTypes[] = useMemo(
+    () =>
+      (points ?? []).map((point) => ({
+        timestamp: new Date(point.date).getTime(),
+        open: point.open,
+        high: point.high,
+        low: point.low,
+        close: point.close,
+      })),
+    [points]
+  );
 
   const onLayout = (e: LayoutChangeEvent) => {
     const w = Math.round(e.nativeEvent.layout.width);
     setWidth((prev) => (prev === w ? prev : w));
   };
 
+  if (isLoading) {
+    return (
+      <View className="items-center justify-center" style={{ height: CONTAINER_HEIGHT }}>
+        <ActivityIndicator size="small" />
+      </View>
+    );
+  }
+
   if (chartData.length === 0) {
     return (
-      <View className="flex-1 items-center justify-center" style={{ height: CONTAINER_HEIGHT }}>
+      <View className="items-center justify-center" style={{ height: CONTAINER_HEIGHT }}>
         <Text className="text-muted-foreground">차트 데이터가 없습니다</Text>
       </View>
     );
@@ -86,7 +78,43 @@ export const AssetCandlestickChart = ({ data }: AssetCandlestickChartProps) => {
               negativeColor={colors.destructive}
             />
             <CandlestickChart.Crosshair>
-              <CandlestickChart.Tooltip />
+              <CandlestickChart.Tooltip
+                style={{
+                  backgroundColor: colors.card,
+                  borderRadius: 8,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                  paddingHorizontal: 10,
+                  paddingVertical: 6,
+                  alignItems: 'center',
+                  minWidth: 80,
+                }}>
+                <CandlestickChart.DatetimeText
+                  style={{
+                    color: colors.mutedForeground,
+                    fontSize: 11,
+                    fontWeight: '500',
+                    minWidth: 80,
+                    textAlign: 'center',
+                  }}
+                  options={{
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                  }}
+                />
+                <CandlestickChart.PriceText
+                  type="close"
+                  style={{
+                    color: colors.foreground,
+                    fontSize: 13,
+                    fontWeight: '700',
+                    marginTop: 2,
+                    minWidth: 80,
+                    textAlign: 'center',
+                  }}
+                />
+              </CandlestickChart.Tooltip>
             </CandlestickChart.Crosshair>
           </CandlestickChart>
           <View className="mt-2 flex-row justify-between px-[32px]">
@@ -94,28 +122,34 @@ export const AssetCandlestickChart = ({ data }: AssetCandlestickChartProps) => {
               <Text className="text-muted-foreground text-xs">시가</Text>
               <CandlestickChart.PriceText
                 type="open"
-                style={{ color: colors.foreground, fontSize: 12, fontWeight: '600' }}
+                style={{ color: colors.foreground, fontSize: 12, fontWeight: '600', minWidth: 42 }}
               />
             </View>
             <View className="items-center">
               <Text className="text-muted-foreground text-xs">고가</Text>
               <CandlestickChart.PriceText
                 type="high"
-                style={{ color: colors.success, fontSize: 12, fontWeight: '600' }}
+                style={{ color: colors.success, fontSize: 12, fontWeight: '600', minWidth: 42 }}
               />
             </View>
             <View className="items-center">
               <Text className="text-muted-foreground text-xs">저가</Text>
               <CandlestickChart.PriceText
                 type="low"
-                style={{ color: colors.destructive, fontSize: 12, fontWeight: '600' }}
+                style={{ color: colors.destructive, fontSize: 12, fontWeight: '600', minWidth: 42 }}
               />
             </View>
             <View className="items-center">
               <Text className="text-muted-foreground text-xs">종가</Text>
               <CandlestickChart.PriceText
                 type="close"
-                style={{ color: colors.foreground, fontSize: 12, fontWeight: '600' }}
+                style={{
+                  color: colors.foreground,
+                  fontSize: 12,
+                  fontWeight: '600',
+
+                  minWidth: 42,
+                }}
               />
             </View>
           </View>

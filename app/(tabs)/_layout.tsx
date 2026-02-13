@@ -2,10 +2,11 @@ import { Icon } from '@/components/ui/icon';
 import { CreatePortfolioDialog } from '@/components/portfolio/create-portfolio-dialog';
 import { useCreatePortfolioMutation } from '@/lib/hooks/mutation/portfolio';
 import { THEME } from '@/lib/theme';
+import { BlurView } from 'expo-blur';
 import { Tabs } from 'expo-router';
 import { PieChartIcon, PlusIcon, UserIcon } from 'lucide-react-native';
 import { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useUniwind } from 'uniwind';
 import { PressableScale } from 'pressto';
 
@@ -32,9 +33,17 @@ export default function TabLayout() {
           tabBarInactiveTintColor:
             theme === 'dark' ? THEME.dark.mutedForeground : THEME.light.mutedForeground,
           tabBarStyle: {
-            backgroundColor: theme === 'dark' ? THEME.dark.background : THEME.light.background,
+            position: 'absolute',
+            backgroundColor: 'transparent',
             borderTopColor: theme === 'dark' ? THEME.dark.border : THEME.light.border,
           },
+          tabBarBackground: () => (
+            <BlurView
+              intensity={80}
+              tint={theme === 'dark' ? 'dark' : 'light'}
+              style={StyleSheet.absoluteFill}
+            />
+          ),
           headerShown: false,
         }}>
         <Tabs.Screen
@@ -59,9 +68,9 @@ export default function TabLayout() {
                 onPress={handleAddButtonPress}
                 style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <View
-                  className="bg-primary items-center justify-center rounded-full"
+                  className="bg-card border-primary items-center justify-center rounded-full border"
                   style={{ width: 48, height: 48, marginTop: -12 }}>
-                  <Icon as={PlusIcon} size={32} className="text-primary-foreground" />
+                  <Icon as={PlusIcon} size={32} className="text-primary" />
                 </View>
               </PressableScale>
             ),

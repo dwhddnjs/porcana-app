@@ -4,7 +4,7 @@
     "slug": "porcana-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/logo-black.png",
     "scheme": "com.porcana",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -19,6 +19,10 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.porcana",
+      "icon": {
+        "light": "./assets/images/logo-black.png",
+        "dark": "./assets/images/logo_white.png"
+      },
       "usesAppleSignIn": true,
       "infoPlist": {
         "CFBundleURLTypes": [
@@ -34,14 +38,15 @@
       "package": "com.porcana",
       "edgeToEdgeEnabled": true,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/logo-black.png",
+        "monochromeImage": "./assets/images/logo-black.png",
         "backgroundColor": "#ffffff"
       }
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/logo-black.png"
     },
     "plugins": [
       "expo-router",

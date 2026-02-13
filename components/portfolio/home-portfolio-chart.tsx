@@ -6,6 +6,8 @@ import { Dimensions, View } from 'react-native';
 import { LineChart } from 'react-native-gifted-charts';
 import { useUniwind } from 'uniwind';
 import { Text } from '../ui/text';
+import { Icon } from '../ui/icon';
+import { ChartSpline } from 'lucide-react-native';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -39,8 +41,9 @@ export const HomePortfolioChart = ({ data, totalReturnPct = 0 }: HomePortfolioCh
 
   if (chartData.length === 0) {
     return (
-      <View className="h-[200px] items-center justify-center">
-        <Text className="text-muted-foreground">차트 데이터가 없습니다</Text>
+      <View className="h-[200px] flex-row items-center justify-center gap-2">
+        <Icon as={ChartSpline} size={24} className="text-muted-foreground" />
+        <Text className="text-muted-foreground text-sm">차트 데이터가 없습니다</Text>
       </View>
     );
   }

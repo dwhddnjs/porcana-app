@@ -8,13 +8,14 @@ import { cn } from '@/lib/utils';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
   ActivityIndicator,
-  Alert,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
   Pressable,
   View,
 } from 'react-native';
+import { toast } from 'sonner-native';
+import { DeletePortfolioDialog } from '@/components/portfolio/delete-portfolio-dialog';
 import { Icon } from '@/components/ui/icon';
 import {
   Check,
@@ -22,6 +23,7 @@ import {
   Split,
   Star,
   StarHalf,
+  Trash2,
   TriangleAlert,
   TrendingUp,
   X,
@@ -36,20 +38,28 @@ import RiskDistributionChart from '@/components/portfolio/risk-distribution-char
 import { Spacer } from '@/components/spacer';
 import { AssetItem } from '@/components/portfolio/asset-item';
 import {
+  useDeletePortfolioMutation,
   useSetMainPortfolioMutation,
   useUpdatePortfolioWeightsMutation,
 } from '@/lib/hooks/mutation/portfolio';
 import { useCallback, useState } from 'react';
+import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 
 export default function PortfolioDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { data, isLoading, isError, error } = useGetPortfolioQuery(id);
+  console.log('data', data);
   const { mutate: setMainPortfolio } = useSetMainPortfolioMutation();
   const { mutate: updateWeights } = useUpdatePortfolioWeightsMutation();
+  const { mutate: deletePortfolio, isPending: isDeleting } = useDeletePortfolioMutation();
+  const { accessToken } = useUserStore();
+
+  console.log('accessToken', accessToken);
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [weightValues, setWeightValues] = useState<Record<string, string>>({});
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const enterEditMode = useCallback(() => {
     if (!data?.positions) return;
@@ -77,11 +87,11 @@ export default function PortfolioDetailScreen() {
     const total = weights.reduce((sum, w) => sum + w.weightPct, 0);
     const roundedTotal = Math.round(total * 100) / 100;
     if (roundedTotal !== 100) {
-      Alert.alert('비중 합계 오류', `합계가 100%여야 합니다. (현재: ${roundedTotal}%)`);
+      toast.error('비중 합계 오류', {
+        description: `합계가 100%여야 합니다. (현재: ${roundedTotal}%)`,
+      });
       return;
     }
-
-    console.log(weights);
 
     updateWeights(
       { portfolioId: id, weights },
@@ -89,6 +99,7 @@ export default function PortfolioDetailScreen() {
         onSuccess: () => {
           setIsEditMode(false);
           setWeightValues({});
+          toast.success('비중이 수정되었습니다');
         },
       }
     );
@@ -97,6 +108,21 @@ export default function PortfolioDetailScreen() {
   const handleWeightChange = useCallback((assetId: string, value: string) => {
     setWeightValues((prev) => ({ ...prev, [assetId]: value }));
   }, []);
+
+  const handleDeletePress = useCallback(() => {
+    setIsDeleteDialogOpen(true);
+  }, []);
+
+  const handleDeleteConfirm = useCallback(() => {
+    if (!data?.portfolioId || isDeleting) return;
+    setIsDeleteDialogOpen(false);
+    deletePortfolio(data.portfolioId);
+  }, [data?.portfolioId, deletePortfolio, isDeleting]);
+
+  const handleSetMain = useCallback(() => {
+    if (!data?.portfolioId || data.isMain) return;
+    setMainPortfolio(data.portfolioId);
+  }, [data?.portfolioId, data?.isMain, setMainPortfolio]);
 
   const goBack = () => {
     if (isEditMode) return;
@@ -171,20 +197,19 @@ export default function PortfolioDetailScreen() {
               <Icon as={Check} size={24} className="text-primary" />
             </Pressable>
           ) : (
-            <Pressable
-              onPress={() => {
-                if (data.isMain) {
-                  return;
-                }
-                setMainPortfolio(data.portfolioId);
-              }}>
-              <Icon
-                as={Star}
-                size={24}
-                className={data.isMain ? 'text-yellow-500' : 'text-muted-foreground'}
-                fill={data.isMain ? '#eab308' : 'transparent'}
-              />
-            </Pressable>
+            <View className="flex-row items-center gap-4">
+              <Pressable onPress={handleDeletePress} hitSlop={8}>
+                <Icon as={Trash2} size={24} className="text-muted-foreground" />
+              </Pressable>
+              <Pressable onPress={handleSetMain} hitSlop={8}>
+                <Icon
+                  as={Star}
+                  size={24}
+                  className={data.isMain ? 'text-yellow-500' : 'text-muted-foreground'}
+                  fill={data.isMain ? '#eab308' : 'transparent'}
+                />
+              </Pressable>
+            </View>
           )
         }>
         <View className="px-[12px]">
@@ -290,6 +315,11 @@ export default function PortfolioDetailScreen() {
           </View>
         </View>
       </LargeHeader>
+      <DeletePortfolioDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+      />
     </KeyboardAvoidingView>
   );
 }
