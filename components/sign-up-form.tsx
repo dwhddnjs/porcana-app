@@ -46,7 +46,6 @@ export function SignUpForm() {
 
   async function onSubmit(data: SignUpFormDataTypes) {
     // TODO: API 호출
-    console.log('회원가입 데이터:', data);
   }
 
   return (

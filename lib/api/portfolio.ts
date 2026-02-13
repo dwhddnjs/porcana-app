@@ -86,8 +86,6 @@ export const updatePortfolioWeights = async ({
   weights: UpdateWeightItemTypes[];
 }): Promise<PortfolioTypes> => {
   try {
-    console.log(portfolioId);
-    console.log(weights);
     const response = await api.put<PortfolioTypes>(`/portfolios/${portfolioId}/weights`, {
       weights,
     });
@@ -100,12 +98,8 @@ export const updatePortfolioWeights = async ({
 };
 
 export const deletePortfolio = async ({ portfolioId }: { portfolioId: string }) => {
-  console.log('portfolioId', portfolioId);
   try {
     const response = await api.delete(`/portfolios/${portfolioId}`);
-
-    console.log('response', response);
-
     return response.data;
   } catch (error) {
     console.error(error);

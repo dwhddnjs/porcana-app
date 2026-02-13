@@ -11,7 +11,11 @@ import Animated, {
 import { Text } from '@/components/ui/text';
 import { memo, useEffect, useState } from 'react';
 import { AssetTypes } from '@/lib/hooks/zustand/use-arena-store';
+import { Icon } from '@/components/ui/icon';
 import { Image } from '@/components/ui/image';
+import { Star, TriangleAlert } from 'lucide-react-native';
+import { getRiskStarColor } from '@/lib/constant/function';
+import { sectorLabels } from '@/lib/constant/variables';
 
 const logoBlack = require('@/assets/images/logo-black.png');
 const logoWhite = require('@/assets/images/logo_white.png');
@@ -30,28 +34,6 @@ interface FlipCardProps {
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
-// 섹터 한글 매핑
-const sectorLabels: Record<string, string> = {
-  INFORMATION_TECHNOLOGY: 'IT',
-  HEALTH_CARE: '헬스케어',
-  FINANCIALS: '금융',
-  CONSUMER_DISCRETIONARY: '경기소비재',
-  COMMUNICATION_SERVICES: '커뮤니케이션',
-  INDUSTRIALS: '산업재',
-  CONSUMER_STAPLES: '필수소비재',
-  ENERGY: '에너지',
-  UTILITIES: '유틸리티',
-  REAL_ESTATE: '부동산',
-  MATERIALS: '소재',
-};
-
-// 리스크 레벨 색상
-const getRiskColor = (level: number) => {
-  if (level <= 2) return 'text-green-500';
-  if (level <= 4) return 'text-yellow-500';
-  return 'text-red-500';
-};
 
 export const FlipCard = memo(function FlipCard({
   index,
@@ -150,50 +132,80 @@ export const FlipCard = memo(function FlipCard({
       <Animated.View
         style={backAnimatedStyle}
         className="bg-card absolute h-full w-full rounded-xl shadow-lg shadow-black/25">
-        <View className="border-primary h-full w-full rounded-xl border-2 p-2">
+        <View className="border-primary border- h-full w-full rounded-xl border px-[12px] py-[8px]">
           {/* 상단: 이미지 + 티커 */}
+
           <View className="flex-row items-center gap-2">
             <Image
               source={asset.imageUrl}
-              className="bg-background h-8 w-8 rounded-full"
+              className="bg-background h-10 w-10 rounded-full"
               contentFit="contain"
-              emptyImageClassName="h-8 w-8"
-              emptyIconClassName="size-4"
             />
-            <Text className="text-primary text-xl font-bold">{asset.ticker}</Text>
+            <View>
+              <Text
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                className="text-primary max-w-[90px] min-w-[90px] text-lg font-bold text-ellipsis">
+                {asset.name}
+              </Text>
+              <Text className="text-muted-foreground mt-1 text-sm" numberOfLines={2}>
+                {asset.ticker}
+              </Text>
+            </View>
           </View>
 
           {/* 이름 */}
-          <Text className="text-muted-foreground mt-1 text-xs" numberOfLines={2}>
-            {asset.name}
-          </Text>
 
           {/* 중앙: 섹터 + 마켓 */}
           <View className="mt-2 flex-row flex-wrap gap-1">
-            <View className="bg-primary/10 rounded px-1.5 py-0.5">
-              <Text className="text-primary text-xs">
+            <View className="bg-primary/10 items-center justify-center rounded px-1.5 py-0.5">
+              <Text className="text-primary text-xs font-semibold">
                 {sectorLabels[asset.sector] || asset.sector}
               </Text>
             </View>
-            <View className="bg-muted rounded px-1.5 py-0.5">
-              <Text className="text-muted-foreground text-xs">{asset.market}</Text>
+            <View className="border-primary/10 rounded border-2 px-1.5 py-0.5">
+              <Text className="text-muted-foreground text-xs font-semibold">{asset.market}</Text>
             </View>
           </View>
 
+          <View className="nowrap flex-1 items-center justify-center">
+            <Text className="text-primary text-center text-xs">{asset.impactHint}</Text>
+          </View>
+
           {/* 리스크 레벨 */}
-          <View className="mt-2 flex-row items-center gap-1">
-            <Text className="text-muted-foreground text-xs">리스크</Text>
-            <Text className={`text-sm font-bold ${getRiskColor(asset.currentRiskLevel)}`}>
-              {asset.currentRiskLevel}
-            </Text>
+          <View className="mt-auto items-center justify-start gap-2">
+            <View className="flex-row items-center gap-1">
+              <Icon
+                as={TriangleAlert}
+                size={16}
+                className="text-muted-foreground"
+                // color={getRiskStarColor(asset.currentRiskLevel, colorScheme ?? 'light')}
+              />
+              <Text
+                className="text-muted-foreground text-xs font-bold"
+                // style={{ color: getRiskStarColor(asset.currentRiskLevel, colorScheme ?? 'light') }}
+              >
+                리스크
+              </Text>
+            </View>
+            <View className="flex-row items-center gap-1.5 pb-[4px]">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Icon
+                  key={i}
+                  as={Star}
+                  size={20}
+                  color={getRiskStarColor(asset.currentRiskLevel, colorScheme ?? 'light')}
+                  fill={
+                    i < asset.currentRiskLevel
+                      ? getRiskStarColor(asset.currentRiskLevel, colorScheme ?? 'light')
+                      : 'transparent'
+                  }
+                />
+              ))}
+            </View>
           </View>
 
           {/* 하단: 영향 힌트 */}
-          <View className="mt-auto">
-            <Text className="text-primary text-center text-xs" numberOfLines={1}>
-              {asset.impactHint}
-            </Text>
-          </View>
         </View>
       </Animated.View>
     </AnimatedPressable>

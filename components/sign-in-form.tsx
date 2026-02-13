@@ -40,7 +40,6 @@ export function SignInForm() {
 
   async function onSubmit(data: SignInFormDataTypes) {
     // TODO: API 호출
-    console.log('로그인 데이터:', data);
   }
 
   return (

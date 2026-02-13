@@ -1,4 +1,4 @@
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, useColorScheme } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
@@ -11,8 +11,10 @@ import { Image } from '@/components/ui/image';
 import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
+import { getRiskStarColor } from '@/lib/constant/function';
 
 export default function ArenaComplete() {
+  const colorScheme = useColorScheme() ?? 'light';
   const { name, selectedCards, resetArena } = useArenaStore();
   const { user, accessToken, refreshToken, reset } = useUserStore();
   const queryClient = useQueryClient();
@@ -74,7 +76,7 @@ export default function ArenaComplete() {
                     <Text
                       numberOfLines={1}
                       ellipsizeMode="tail"
-                      className="text-foreground max-w-[150px] min-w-[150px] font-semibold text-ellipsis">
+                      className="text-foreground max-w-[150px] font-semibold text-ellipsis">
                       {card.name}
                     </Text>
                     <View className="bg-muted rounded px-1.5 py-0.5">
@@ -87,18 +89,22 @@ export default function ArenaComplete() {
                 </View>
 
                 {/* 리스크 */}
-                <View className="items-center">
+                <View className="items-center gap-1">
                   <Text className="text-muted-foreground text-xs">리스크</Text>
-                  <Text
-                    className={`font-bold ${
-                      card.currentRiskLevel <= 2
-                        ? 'text-green-500'
-                        : card.currentRiskLevel <= 4
-                          ? 'text-yellow-500'
-                          : 'text-red-500'
-                    }`}>
-                    {card.currentRiskLevel}
-                  </Text>
+                  <View
+                    className="h-6 w-6 items-center justify-center rounded-full border-[1.5px]"
+                    style={{ borderColor: getRiskStarColor(card.currentRiskLevel, colorScheme) }}>
+                    <Text
+                      style={{
+                        color: getRiskStarColor(card.currentRiskLevel, colorScheme),
+                        includeFontPadding: false,
+                        textAlignVertical: 'center',
+                        lineHeight: 20,
+                      }}
+                      className="text-xs font-bold">
+                      {card.currentRiskLevel}
+                    </Text>
+                  </View>
                 </View>
               </Animated.View>
             ))}

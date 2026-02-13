@@ -39,17 +39,9 @@ export const useCreatePortfolioMutation = () => {
       show('포트폴리오 생성 중...');
     },
     onSuccess: async (data) => {
-      if (!data) {
-        console.log('data is null');
-        return;
-      }
+      if (!data) return;
       const response = await createArenaSessions({ portfolioId: data.portfolioId });
-      console.log('response', response);
-
-      if (!response) {
-        console.log('response is null');
-        return;
-      }
+      if (!response) return;
 
       setPortfolio({
         name: data.name,

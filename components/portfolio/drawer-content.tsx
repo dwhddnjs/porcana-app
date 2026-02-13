@@ -23,8 +23,6 @@ export function PortfolioDrawerContent(props: DrawerContentComponentProps) {
   const { data: portfolios, isLoading } = useGetPortfoliosQuery();
   const { mutate: setMainPortfolio } = useSetMainPortfolioMutation();
 
-  console.log('portfolios', portfolios);
-
   const handleSelectPortfolio = (portfolioId: string) => {
     props.navigation.closeDrawer();
     // 드로어 닫힌 뒤 이동해 전환 시 버벅임 방지

@@ -68,7 +68,7 @@ export default function TabLayout() {
                 onPress={handleAddButtonPress}
                 style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <View
-                  className="bg-card border-primary items-center justify-center rounded-full border"
+                  className="bg-card border-primary/20 items-center justify-center rounded-full border-[1.5px]"
                   style={{ width: 48, height: 48, marginTop: -12 }}>
                   <Icon as={PlusIcon} size={32} className="text-primary" />
                 </View>

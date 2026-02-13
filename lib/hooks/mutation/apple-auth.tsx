@@ -89,7 +89,6 @@ export const useAppleAuth = () => {
     } catch (error: any) {
       // 사용자가 취소한 경우
       if (error.code === 'ERR_REQUEST_CANCELED') {
-        console.log('Apple Sign In was canceled by user');
         isProcessingRef.current = false;
         return;
       }

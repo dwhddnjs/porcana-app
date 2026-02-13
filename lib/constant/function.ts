@@ -1,4 +1,11 @@
 import type { DiversityLevelTypes } from '@/lib/api/portfolio';
+import { THEME } from '@/lib/theme';
+
+export const getRiskStarColor = (level: number, theme: 'light' | 'dark' = 'light') => {
+  if (level <= 2) return THEME[theme].link;
+  if (level <= 3) return THEME[theme].success;
+  return THEME[theme].destructive;
+};
 
 /**
  * DiversityLevelTypes 한글 라벨

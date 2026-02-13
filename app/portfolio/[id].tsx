@@ -49,14 +49,9 @@ export default function PortfolioDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { data, isLoading, isError, error } = useGetPortfolioQuery(id);
-  console.log('data', data);
   const { mutate: setMainPortfolio } = useSetMainPortfolioMutation();
   const { mutate: updateWeights } = useUpdatePortfolioWeightsMutation();
   const { mutate: deletePortfolio, isPending: isDeleting } = useDeletePortfolioMutation();
-  const { accessToken } = useUserStore();
-
-  console.log('accessToken', accessToken);
-
   const [isEditMode, setIsEditMode] = useState(false);
   const [weightValues, setWeightValues] = useState<Record<string, string>>({});
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);

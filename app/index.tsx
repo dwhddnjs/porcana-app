@@ -8,4 +8,5 @@ export default function Index() {
   if (user && !accessToken && !refreshToken) return <Redirect href="/login" />;
 
   return <Redirect href="/(tabs)" />;
+  // return <Redirect href="/component-preview" />;
 }

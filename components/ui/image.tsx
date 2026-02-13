@@ -18,7 +18,7 @@ type EmptyImageProps = {
 type ImageProps = Omit<ExpoImageProps, 'source'> & {
   source?: ImageSource | ImageSourcePropType | string | null;
   emptyImage?: ComponentType<EmptyImageProps>;
-  emptyImageClassName?: string;
+
   emptyIconClassName?: string;
   className?: string;
   tintColor?: string;
@@ -30,7 +30,7 @@ const blurhash =
 export const Image = ({
   source,
   emptyImage: EmptyImageComponent,
-  emptyImageClassName,
+
   emptyIconClassName,
   className,
   contentFit = 'contain',
@@ -52,11 +52,7 @@ export const Image = ({
     if (EmptyImageComponent) {
       return (
         <EmptyImageComponent
-          className={cn(
-            'bg-muted items-center justify-center rounded-full',
-            emptyImageClassName,
-            className
-          )}
+          className={cn('bg-muted items-center justify-center rounded-full', className)}
           iconClassName={emptyIconClassName}
         />
       );
@@ -65,8 +61,7 @@ export const Image = ({
     return (
       <View
         className={cn(
-          'bg-muted border-primary/10 h-10 w-10 items-center justify-center rounded-full border',
-          emptyImageClassName,
+          'bg-muted border-primary/10 items-center justify-center rounded-full border',
           className
         )}>
         <Icon

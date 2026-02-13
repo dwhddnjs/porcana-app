@@ -17,9 +17,6 @@ export const signup = async ({
   password,
 }: SignupRequestTypes): Promise<SignupResponseTypes> => {
   try {
-    // 디버깅용 - 문제 해결 후 삭제
-    console.log('Signup request to:', api.defaults.baseURL + 'auth/signup');
-
     const response = await api.post('/auth/signup', {
       nickname,
       email,
@@ -60,7 +57,6 @@ export const login = async ({
   provider = 'EMAIL',
   code,
 }: LoginRequestTypes): Promise<LoginResponseTypes> => {
-  console.log('login', { email, password, provider, code });
   try {
     const response = await api.post('auth/login', {
       provider,
@@ -68,7 +64,6 @@ export const login = async ({
       password,
       code,
     });
-    console.log('login response', response.data);
     return response.data;
   } catch (error: any) {
     console.error('Login Error:', error);

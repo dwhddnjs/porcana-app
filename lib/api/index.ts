@@ -120,15 +120,6 @@ api.interceptors.response.use(
       }
     }
 
-    // 디버깅용 - 실제 에러 정보 출력
-    console.log('Axios Error Debug:', {
-      status: err.response?.status,
-      statusText: err.response?.statusText,
-      data: err.response?.data,
-      message: err.message,
-      code: err.code,
-    });
-
     // 기타 에러 처리
     const errorObj: { message: string; status?: number } = { message: 'Unknown error' };
 

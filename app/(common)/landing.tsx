@@ -12,9 +12,6 @@ import { CAROUSEL_ITEMS } from '@/lib/constant/variables';
 
 export default function LandingScreen() {
   const { accessToken, refreshToken, user, reset } = useUserStore();
-  // console.log('accessToken', accessToken);
-  // console.log('refreshToken', refreshToken);
-  // console.log('user', user);
 
   const [open, setOpen] = useState(false);
   const { mutate } = useCreatePortfolioMutation();

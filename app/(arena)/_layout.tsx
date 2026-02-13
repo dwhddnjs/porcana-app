@@ -37,7 +37,6 @@ function CustomDrawerContent() {
                   source={card.imageUrl}
                   className="bg-background h-7 w-7 rounded-full"
                   contentFit="contain"
-                  emptyImageClassName="h-7 w-7"
                   emptyIconClassName="size-4"
                 />
 

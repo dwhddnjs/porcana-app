@@ -17,8 +17,6 @@ export default function EditProfileScreen() {
   const [nickname, setNickname] = useState(user?.nickname ?? '');
   const { mutate } = useUpdateProfileMutation();
 
-  console.log(accessToken);
-
   const isDisabled = nickname.trim().length === 0 || nickname.trim() === user?.nickname;
   const onSubmit = () => {
     if (isDisabled) return;

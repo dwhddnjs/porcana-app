@@ -60,3 +60,18 @@ export const CAROUSEL_ITEMS = [
       '결과로 배우는 투자\n실제 시작 데이터로 수익률 추적\n시간이 지날수록 내 선택이 어떻게 변했는지 확인',
   },
 ];
+
+// 섹터 한글 매핑
+export const sectorLabels: Record<string, string> = {
+  INFORMATION_TECHNOLOGY: 'IT',
+  HEALTH_CARE: '헬스케어',
+  FINANCIALS: '금융',
+  CONSUMER_DISCRETIONARY: '경기소비재',
+  COMMUNICATION_SERVICES: '커뮤니케이션',
+  INDUSTRIALS: '산업재',
+  CONSUMER_STAPLES: '필수소비재',
+  ENERGY: '에너지',
+  UTILITIES: '유틸리티',
+  REAL_ESTATE: '부동산',
+  MATERIALS: '소재',
+};

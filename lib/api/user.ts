@@ -13,7 +13,6 @@ export const updateProfile = async ({
   nickname,
 }: UpdateProfileRequestTypes): Promise<UpdateProfileResponseTypes> => {
   try {
-    console.log(nickname);
     const response = await api.patch<UpdateProfileResponseTypes>('me', {
       nickname,
     });
