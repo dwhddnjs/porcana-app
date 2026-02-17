@@ -7,6 +7,8 @@ import { useCSSVariable } from "uniwind";
 
 const Container = ({ children, className, edges = ['top', 'bottom'] }: { children: React.ReactNode, className?: string, edges?: Edges }) => {
     const backgroundColor = useCSSVariable('--color-background');
+  
+  
 
 
     
