@@ -37,7 +37,6 @@ export default function AddModal() {
     if (!selectedRiskProfile || selectedSector.length === 0) {
       return;
     }
-    router.dismiss();
 
     pickArenaSessionPreference({
       riskProfile: selectedRiskProfile.toUpperCase(),

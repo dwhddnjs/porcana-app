@@ -51,8 +51,20 @@
     "plugins": [
       "expo-router",
       "expo-web-browser",
-      "expo-apple-authentication"
+      "expo-apple-authentication",
+      [
+        "expo-updates",
+        {
+          "handleMissingAppAfterUpdate": "warn"
+        }
+      ]
     ],
+    "updates": {
+      "url": "https://u.expo.dev/30a3c2c0-3d6f-4a36-ab42-31dab54ab6e5"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "experiments": {
       "typedRoutes": true
     },

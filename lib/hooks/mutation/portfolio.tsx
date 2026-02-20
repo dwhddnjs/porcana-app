@@ -80,6 +80,7 @@ export const usePickArenaSessionPreferenceMutation = () => {
     },
     onSuccess: (data) => {
       setPicked(data.picked, data.currentRound);
+      router.dismiss();
       router.push('/start-arena');
     },
     onError: (error) => {

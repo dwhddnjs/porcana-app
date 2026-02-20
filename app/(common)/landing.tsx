@@ -21,10 +21,6 @@ export default function LandingScreen() {
     mutate?.(portfolioName);
   };
 
-  // useEffect(() => {
-  //   reset();
-  // }, [accessToken, refreshToken, user]);
-
   return (
     <Container>
       <Header title="" showBackButton={false} />

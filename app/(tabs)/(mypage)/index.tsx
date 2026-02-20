@@ -3,6 +3,7 @@ import { MenuItem } from '@/components/mypage/menu-item';
 import { Spacer } from '@/components/spacer';
 import { Text } from '@/components/ui/text';
 import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
+import { queryClient } from '@/lib/react-query';
 import { useRouter } from 'expo-router';
 import { PaletteIcon, UserPenIcon } from 'lucide-react-native';
 import { Pressable, View } from 'react-native';
@@ -11,7 +12,9 @@ export default function MypageScreen() {
   const router = useRouter();
   const logout = useUserStore((s) => s.logout);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await queryClient.cancelQueries();
+    queryClient.clear();
     logout();
     router.replace('/(auth)/login');
   };

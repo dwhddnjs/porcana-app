@@ -80,6 +80,12 @@ api.interceptors.response.use(
     if (httpStatus === 401 && !originalRequest._retry && !isRefreshRequest) {
       originalRequest._retry = true;
 
+      const { refreshToken, setTokens, clearTokens } = useUserStore.getState();
+
+      if (!refreshToken) {
+        return Promise.reject(err);
+      }
+
       // 이미 갱신 중이면 큐에 넣고 대기
       if (isRefreshing) {
         return new Promise<string>((resolve, reject) => {
@@ -93,12 +99,8 @@ api.interceptors.response.use(
       }
 
       isRefreshing = true;
-      const { refreshToken, setTokens, clearTokens } = useUserStore.getState();
 
       try {
-        if (!refreshToken) {
-          return Promise.reject(new Error('No refresh token available'));
-        }
         const res = await getRefreshToken({ refreshToken });
 
         const newAccessToken = res.accessToken;
