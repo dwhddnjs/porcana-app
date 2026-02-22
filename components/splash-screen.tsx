@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Animated, Image, StyleSheet, View } from 'react-native';
 import { useUniwind } from 'uniwind';
 
-const logoWhite = require('@/assets/images/logo_white.png');
+const logoWhite = require('@/assets/images/logo-white.png');
 const logoBlack = require('@/assets/images/logo-black.png');
 
 interface SplashScreenProps {
@@ -32,12 +32,7 @@ export const SplashScreen = ({ onFinish }: SplashScreenProps) => {
   }, []);
 
   return (
-    <Animated.View
-      style={[
-        styles.container,
-        { backgroundColor, opacity: fadeAnim },
-      ]}
-    >
+    <Animated.View style={[styles.container, { backgroundColor, opacity: fadeAnim }]}>
       <Image source={logo} style={styles.logo} resizeMode="contain" />
     </Animated.View>
   );

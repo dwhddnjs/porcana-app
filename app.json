@@ -9,19 +9,22 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./assets/images/logo/splash-icon-light.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "imageWidth": 200,
+      "backgroundColor": "#ffffff",
+      "dark": {
+        "image": "./assets/images/logo/splash-icon-dark.png",
+        "backgroundColor": "#000000"
+      }
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.porcana",
       "icon": {
-        "light": "./assets/images/logo-black.png",
-        "dark": "./assets/images/logo_white.png"
+        "light": "./assets/images/logo/ios-light.png",
+        "dark": "./assets/images/logo/ios-dark.png"
       },
       "usesAppleSignIn": true,
       "infoPlist": {
@@ -30,16 +33,22 @@
             "CFBundleURLSchemes": [
               "com.googleusercontent.apps.265152231870-3c6ep7jleluv9eubu2k9nufr3hfv2nt6"
             ]
+          },
+          {
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.265152231870-3c6ep7jleluv9eubu2k9nufr3hfv2nt6"
+            ]
           }
-        ]
+        ],
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
       "package": "com.porcana",
       "edgeToEdgeEnabled": true,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/logo-black.png",
-        "monochromeImage": "./assets/images/logo-black.png",
+        "foregroundImage": "./assets/images/logo/adaptive-icon.png",
+        "monochromeImage": "./assets/images/logo/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       }
     },

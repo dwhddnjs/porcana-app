@@ -18,7 +18,7 @@ import { getRiskStarColor } from '@/lib/constant/function';
 import { sectorLabels } from '@/lib/constant/variables';
 
 const logoBlack = require('@/assets/images/logo-black.png');
-const logoWhite = require('@/assets/images/logo_white.png');
+const logoWhite = require('@/assets/images/logo-white.png');
 
 interface FlipCardProps {
   index: number;
