@@ -29,7 +29,7 @@ export default function LoginSheet() {
         {/* 구글 로그인 */}
         <Button
           size="lg"
-          className="w-full flex-row items-center justify-center gap-3 border-[0.5px] border-black bg-white"
+          className="w-full flex-row items-center justify-center gap-3 border-[0.5px] border-black bg-white active:bg-white/80"
           onPress={handleGoogleLogin}
           disabled={isGoogleLoading}>
           {isGoogleLoading ? (
@@ -48,7 +48,7 @@ export default function LoginSheet() {
         {/* 애플 로그인 */}
         <Button
           size="lg"
-          className="border-primary w-full flex-row items-center justify-center gap-3 border-[0.5px] bg-black"
+          className="border-primary w-full flex-row items-center justify-center gap-3 border-[0.5px] bg-black active:bg-black/30"
           onPress={handleAppleLogin}
           disabled={isAppleLoading}>
           {isAppleLoading ? (

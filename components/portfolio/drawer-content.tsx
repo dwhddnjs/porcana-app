@@ -13,6 +13,7 @@ import Animated, { LinearTransition } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
+import { Spacer } from '../spacer';
 
 export function PortfolioDrawerContent(props: DrawerContentComponentProps) {
   const insets = useSafeAreaInsets();
@@ -105,6 +106,7 @@ export function PortfolioDrawerContent(props: DrawerContentComponentProps) {
                 />
               </Animated.View>
             ))}
+            <Spacer height={120} />
           </Animated.View>
         ) : (
           <View className="items-center justify-center py-8">

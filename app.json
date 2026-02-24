@@ -11,7 +11,6 @@
     "splash": {
       "image": "./assets/images/logo/splash-icon-light.png",
       "resizeMode": "contain",
-      "imageWidth": 200,
       "backgroundColor": "#ffffff",
       "dark": {
         "image": "./assets/images/logo/splash-icon-dark.png",

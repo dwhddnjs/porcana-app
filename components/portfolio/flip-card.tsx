@@ -148,7 +148,7 @@ export const FlipCard = memo(function FlipCard({
                 className="text-primary max-w-[90px] min-w-[90px] text-lg font-bold text-ellipsis">
                 {asset.name}
               </Text>
-              <Text className="text-muted-foreground mt-1 text-sm" numberOfLines={2}>
+              <Text className="text-muted-foreground text-sm" numberOfLines={2}>
                 {asset.ticker}
               </Text>
             </View>

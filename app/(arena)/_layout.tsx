@@ -1,13 +1,15 @@
 import { Drawer } from 'expo-router/drawer';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, useColorScheme } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Icon } from '@/components/ui/icon';
 import { useArenaStore } from '@/lib/hooks/zustand/use-arena-store';
 import { Building2 } from 'lucide-react-native';
 import { Image } from '@/components/ui/image';
+import { getRiskStarColor } from '@/lib/constant/function';
 
 function CustomDrawerContent() {
   const { selectedCards } = useArenaStore();
+  const colorScheme = useColorScheme() ?? 'light';
 
   return (
     <View className="bg-background flex-1 px-4 pt-12">
@@ -35,30 +37,39 @@ function CustomDrawerContent() {
                 {/* 이미지 */}
                 <Image
                   source={card.imageUrl}
-                  className="bg-background h-7 w-7 rounded-full"
+                  className="bg-background h-8 w-8 rounded-full"
                   contentFit="contain"
                   emptyIconClassName="size-4"
                 />
 
                 {/* 정보 */}
                 <View className="flex-1">
-                  <Text className="text-foreground text-sm font-semibold">{card.ticker}</Text>
-                  <Text className="text-muted-foreground text-xs" numberOfLines={1}>
+                  <Text
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                    className="text-foreground max-w-[140px] text-sm font-semibold text-ellipsis">
                     {card.name}
+                  </Text>
+                  <Text className="text-muted-foreground text-xs" numberOfLines={1}>
+                    {card.ticker}
                   </Text>
                 </View>
 
                 {/* 리스크 */}
-                <Text
-                  className={`text-sm font-bold ${
-                    card.currentRiskLevel <= 2
-                      ? 'text-green-500'
-                      : card.currentRiskLevel <= 4
-                        ? 'text-yellow-500'
-                        : 'text-red-500'
-                  }`}>
-                  {card.currentRiskLevel}
-                </Text>
+                <View
+                  className="h-6 w-6 items-center justify-center rounded-full border-[1.5px]"
+                  style={{ borderColor: getRiskStarColor(card.currentRiskLevel, colorScheme) }}>
+                  <Text
+                    style={{
+                      color: getRiskStarColor(card.currentRiskLevel, colorScheme),
+                      includeFontPadding: false,
+                      textAlignVertical: 'center',
+                      lineHeight: 20,
+                    }}
+                    className="text-xs font-bold">
+                    {card.currentRiskLevel}
+                  </Text>
+                </View>
               </View>
             ))}
           </View>
