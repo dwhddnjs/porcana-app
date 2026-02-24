@@ -37,7 +37,13 @@ export default function RootLayout() {
           <ThemeProvider value={NAV_THEME[theme ?? 'light']}>
             <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
             <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="(tabs)"
+                options={{
+                  headerShown: false,
+                  gestureEnabled: false,
+                }}
+              />
               <Stack.Screen
                 name="add-modal"
                 options={{
