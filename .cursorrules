@@ -2,86 +2,24 @@
 alwaysApply: true
 ---
 
-## 메인 규칙
+## 코드 작성 규칙
 
-- 기능 및 컴포넌트 생성시 항상 expo 문서를 참조 해서 만들 것 https://docs.expo.dev/
 - 파일과 폴더는 케밥케이스로 네이밍 할 것
-- 공용 컴포넌트 생성시 컴포넌트 폴더 아래 생성하고 feature 컴포넌트 생성시 폴더 생성후 그 아래 생성할 것
-- 컴포넌트 생성시 export 함수 표현식으로 작성하고 app내에 스크린 생성시 export default 함수 선언식으로 작성할 것
+- 컴포넌트는 `export` 함수 표현식, app 내 스크린은 `export default` 함수 선언식으로 작성할 것
 - 내부 함수(핸들러, 유틸리티 등)는 함수 표현식(화살표 함수)으로 작성할 것
-- 이벤트 핸들러는 반드시 별도의 함수로 선언한 뒤 JSX에 참조로 전달할 것. JSX 내 인라인 함수 작성 금지 (예: `onPress={() => { ... }}` ✗ → `onPress={handleDelete}` ✓)
-- 서버쪽 상태관리는 tanstack query 사용할고 클라이언트 상태관리는 zustand 사용할 것
-- get은 useQuery 훅 사용하고 post put patch delete 는 useMutation 훅 사용해서 커스텀 훅을 만들덧
+- 이벤트 핸들러는 별도 함수로 선언 후 JSX에 참조 전달. 인라인 함수 금지 (`onPress={() => {}}` ✗ → `onPress={handleDelete}` ✓)
+- 타입/인터페이스에는 반드시 `Types` 접미사 (`Portfolio` ✗ → `PortfolioTypes` ✓)
+- import 시 `@/` 경로 별칭 사용
+- 서버 상태: TanStack Query / 클라이언트 상태: Zustand
 
-## Import 및 경로
+## 스타일링
 
-- 루트에서 import 시 `@/` 경로 별칭 사용 (예: `@/components/ui/button`, `@/lib/hooks/zustand/use-user-store`)
-
-## API 및 훅 네이밍
-
-- 쿼리 훅: `useGet[Resource]Query()` (예: useGetPortfoliosQuery)
-- 뮤테이션 훅: `use[Action]Mutation()` (예: useCreatePortfolioMutation)
-- API 함수/엔드포인트는 `lib/api/` 에 리소스별 파일로 정의 (`lib/api/portfolio.ts` 등)
-- 데이터 확인 후 request, response 타입을 항상 정의할 것
-- 타입/인터페이스 선언 시 이름 뒤에 반드시 `Types` 접미사를 붙일 것 (예: `Portfolio` ✗ → `PortfolioTypes` ✓, `HomeResponse` ✗ → `HomeResponseTypes` ✓)
-
-## 파일 네이밍
-
-- 컴포넌트: `kebab-case.tsx`
-- 훅: `use-[name].tsx`
-- API 파일: `[resource].ts`
-
-## 프로젝트 구조 참고
-
-- app: Expo Router 파일 기반 라우팅. (auth)=인증, (tabs)=메인 탭, (arena)=투자 아레나, (common)=랜딩/공통
-- components: ui/=공용 UI, feature별 하위 폴더(예: portfolio/)
-- lib: api/=API 레이어, hooks/query·mutation·zustand, validations, constant, theme.ts, utils.ts
-- API Base: https://api.porcana.co.kr/api/v1/ , Swagger UI: https://api.porcana.co.kr/swagger-ui/index.html
-- API 스펙 조회 시 Swagger UI HTML 대신 OpenAPI JSON 엔드포인트 사용: https://api.porcana.co.kr/v3/api-docs (fetch로 바로 조회 가능, HTML+JS 렌더링 불필요)
-- Axios: Bearer 자동 주입, 401 시 토큰 리프레시, X-Guest-Session-Id 게스트 세션 지원
-
-## Zustand 스토어
-
-- useUserStore: 인증(토큰, 유저), AsyncStorage 영속화
-- useSignupStore: 회원가입 플로우
-- useArenaStore: 투자 아레나 게임 상태
-- useLoadingStore: 전역 로딩. `show('메시지')` / `hide()` — mutation 시 로딩 표시 권장
-
-## 코드 포맷팅
-
+- React Native 기본 컴포넌트(Alert, Modal)보다 react-native-reusables 우선 사용
+- 색상은 `global.css` 변수 사용, 클래스 병합은 `cn()`, variant는 CVA
 - Prettier: printWidth 100, singleQuote, tabWidth 2, trailingComma es5
-- Tailwind 클래스 정렬: prettier-plugin-tailwindcss
-
-## 스타일링 규칙
-
-- UI 컴포넌트 생성시 항상 react-native-reusable 문서를 참고해서 이미 있으면 그걸 추가해서 사용하고 없으면 만들 것 https://reactnativereusables.com/docs
-- React Native 기본 컴포넌트(Alert, Modal 등)보다 react-native-reusables 컴포넌트를 우선 사용할 것 (예: `Alert.alert` ✗ → `AlertDialog` ✓)
-- 인라인 스타일링 지향하고 스타일링 문법 질문시 uniwind 문서를 참고 할 것 https://docs.uniwind.dev/
-- 커스텀 animation 기능 생성시 react-native-reanimated 문서를 참조해서 만들 것 https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/getting-started
-- 스타일시 색상 넣을때 global.css 파일에 있는 색상 변수를 사용할 것
-- 컴포넌트 variant는 CVA 사용. 클래스 병합 시 `lib/utils.ts`의 `cn()` 사용
-
-## Auth Flow
-
-- Email 인증: enter-email → enter-password → enter-nickname → signup → auto-login
-- OAuth: Google (expo-auth-session), Apple (expo-apple-authentication)
-- 토큰 관리: Zustand persist → AsyncStorage, 자동 리프레시 인터셉터
-
-## React Query Config
-
-- staleTime: 5분, gcTime: 10분, retry: 2 (query) / 1 (mutation)
-- expo-network 기반 네트워크 상태 감지
-- 앱 포커스 시 자동 refetch
-
-## 환경 변수
-
-- `EXPO_PUBLIC_API_BASE_URL` — API 서버 URL
-- `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` — Google OAuth Web 클라이언트 ID
-- `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` — Google OAuth iOS 클라이언트 ID
-- `EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID` — Google OAuth Android 클라이언트 ID
 
 ## 기타
 
-- 유효성 검사: Zod 스키마(`lib/validations/`), React Hook Form + @hookform/resolvers
 - 앱 전체 한국어, 다크 모드 지원, 모든 화면 Safe Area 처리
-- 날짜 포맷팅: date-fns 사용
+- 유효성 검사: Zod + React Hook Form
+- 날짜: date-fns 사용

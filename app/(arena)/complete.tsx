@@ -29,6 +29,10 @@ export default function ArenaComplete() {
     router.replace('/(tabs)/(portfolio)/(main)');
   };
 
+  // useEffect(() => {
+  //   reset();
+  // }, [user, accessToken, refreshToken]);
+
   return (
     <Container>
       {/* 헤더 */}

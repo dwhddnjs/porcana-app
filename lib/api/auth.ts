@@ -87,6 +87,10 @@ export const appleLogin = async ({
   email,
   fullName,
 }: AppleLoginRequestTypes): Promise<LoginResponseTypes> => {
+  console.log('identityToken', identityToken);
+  console.log('user', user);
+  console.log('email', email);
+  console.log('fullName', fullName);
   try {
     const response = await api.post('auth/login', {
       provider: 'APPLE' as ProviderTypes,

@@ -66,6 +66,8 @@ export const useAppleAuth = () => {
         ],
       });
 
+      console.log('credential', credential);
+
       // credential이 없으면 취소된 것으로 간주
       if (!credential) {
         isProcessingRef.current = false;
@@ -76,7 +78,7 @@ export const useAppleAuth = () => {
       const email = credential.email || parseEmailFromIdentityToken(credential.identityToken);
       // 서버로 로그인 요청
       appleLoginMutation.mutate({
-        identityToken: credential.identityToken || '',
+        identityToken: credential.authorizationCode || '',
         user: credential.user,
         email: email,
         fullName: credential.fullName

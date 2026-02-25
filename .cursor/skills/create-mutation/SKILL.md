@@ -1,20 +1,28 @@
+---
+name: create-mutation
+description: React Query useMutation 커스텀 훅을 생성. Use when the user asks to create a mutation hook for POST, PUT, PATCH, or DELETE API calls.
+---
+
 # Create Mutation Hook
 
-주어진 인수를 바탕으로 `lib/hooks/mutation/` 에 React Query 뮤테이션 훅을 생성합니다.
+주어진 인수를 바탕으로 `lib/hooks/mutation/`에 React Query 뮤테이션 훅을 생성합니다.
 
-**사용법**: `/create-mutation <액션명> [설명]`
+**사용법**: `<액션명> [설명]`
 
 예시:
-- `/create-mutation create-portfolio` → `useCreatePortfolioMutation` 훅 생성
-- `/create-mutation delete-asset 에셋 삭제` → `useDeleteAssetMutation` 훅 생성
+- `create-portfolio` → `useCreatePortfolioMutation` 훅 생성
+- `delete-asset 에셋 삭제` → `useDeleteAssetMutation` 훅 생성
 
-> 네이밍, 타입 등 일반 규칙은 CLAUDE.md를 따릅니다.
+> 네이밍, 타입 등 일반 규칙은 `.cursorrules`를 따릅니다.
 
 ## 뮤테이션 훅 전용 규칙
 
+- 훅 이름: **`use[Action]Mutation`** (예: `useCreatePortfolioMutation`)
+- 파일명: `use-[action].tsx`
 - 성공 시 관련 쿼리 `invalidateQueries` 수행
 - 글로벌 로딩은 `useLoadingStore` 사용 (`show('메시지')` / `hide()`)
 - 에러 처리는 `onError` 콜백에서 처리
+- API 함수는 `lib/api/`에서 임포트
 
 ## 출력 예시
 
@@ -47,5 +55,9 @@ export const useCreatePortfolioMutation = () => {
 };
 ```
 
-생성 전에 기존 `lib/hooks/mutation/` 파일들을 읽어 패턴을 파악하세요.
-`useLoadingStore`의 임포트 경로는 기존 코드를 확인 후 맞추세요.
+## 절차
+
+1. 기존 `lib/hooks/mutation/` 파일들을 읽어 패턴 파악
+2. `useLoadingStore` 임포트 경로는 기존 코드 확인 후 맞추기
+3. 대응하는 API 함수가 `lib/api/`에 있는지 확인, 없으면 먼저 생성
+4. 훅 파일 생성
