@@ -1,24 +1,27 @@
-import { cn } from "@/lib/utils";
-import { ColorValue } from "react-native";
-import { Edges, SafeAreaView } from "react-native-safe-area-context";
-import { useCSSVariable } from "uniwind";
+import { cn } from '@/lib/utils';
+import { ColorValue, Text, View } from 'react-native';
+import { Edges, SafeAreaView } from 'react-native-safe-area-context';
+import { useCSSVariable } from 'uniwind';
 
-
-
-const Container = ({ children, className, edges = ['top', 'bottom'] }: { children: React.ReactNode, className?: string, edges?: Edges }) => {
-    const backgroundColor = useCSSVariable('--color-background');
-  
-  
-
-
-    
+const Container = ({
+  children,
+  className,
+  edges = ['top', 'bottom'],
+}: {
+  children: React.ReactNode;
+  className?: string;
+  edges?: Edges;
+}) => {
+  const backgroundColor = useCSSVariable('--color-background');
 
   return (
-    <SafeAreaView style={{
+    <SafeAreaView
+      style={{
         flex: 1,
-    
+
         backgroundColor: backgroundColor as ColorValue,
-    }} edges={edges}>
+      }}
+      edges={edges}>
       {children}
     </SafeAreaView>
   );

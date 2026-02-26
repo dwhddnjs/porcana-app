@@ -72,8 +72,8 @@ export const login = async ({
 };
 
 type AppleLoginRequestTypes = {
-  identityToken: string;
-  user: string;
+  authorizationCode: string;
+  user?: string;
   email?: string | null;
   fullName?: {
     givenName?: string | null;
@@ -82,23 +82,14 @@ type AppleLoginRequestTypes = {
 };
 
 export const appleLogin = async ({
-  identityToken,
-  user,
-  email,
-  fullName,
+  authorizationCode,
 }: AppleLoginRequestTypes): Promise<LoginResponseTypes> => {
-  console.log('identityToken', identityToken);
-  console.log('user', user);
-  console.log('email', email);
-  console.log('fullName', fullName);
   try {
     const response = await api.post('auth/login', {
       provider: 'APPLE' as ProviderTypes,
-      identityToken,
-      user,
-      email,
-      fullName,
+      code: authorizationCode,
     });
+
     return response.data;
   } catch (error: any) {
     console.error('Apple Login Error:', error);

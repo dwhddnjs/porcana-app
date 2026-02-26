@@ -78,7 +78,7 @@ export const useAppleAuth = () => {
       const email = credential.email || parseEmailFromIdentityToken(credential.identityToken);
       // 서버로 로그인 요청
       appleLoginMutation.mutate({
-        identityToken: credential.authorizationCode || '',
+        authorizationCode: credential.authorizationCode || '',
         user: credential.user,
         email: email,
         fullName: credential.fullName
