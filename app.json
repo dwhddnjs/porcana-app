@@ -19,7 +19,7 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.porcana",
       "icon": {
         "light": "./assets/images/logo/ios-light.png",
