@@ -12,7 +12,7 @@ type HeaderProps = {
   onBackPress?: () => void;
   rightContent?: React.ReactNode;
   className?: string;
-
+  rightIcon?: any;
 };
 
 export const Header = ({
@@ -20,8 +20,8 @@ export const Header = ({
   showBackButton = true,
   onBackPress,
   rightContent,
+  rightIcon = ChevronLeft,
   className,
-  
 }: HeaderProps) => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -35,34 +35,23 @@ export const Header = ({
   };
 
   return (
-    <View
-      className={cn('flex-row items-center justify-between px-4 h-14 ', className)}
-   
-    >
+    <View className={cn('h-14 flex-row items-center justify-between px-4', className)}>
       {/* 왼쪽 영역 - 백버튼 */}
       <View className="w-10 items-start">
         {showBackButton && (
-          <Pressable
-            onPress={handleBackPress}
-            className="p-2 -ml-3 active:opacity-70 "
-            hitSlop={8}
-          >
-            <Icon as={ChevronLeft} className="size-[28px] text-foreground" />
+          <Pressable onPress={handleBackPress} className="-ml-3 p-2 active:opacity-70" hitSlop={8}>
+            <Icon as={rightIcon} className="text-foreground size-[28px]" />
           </Pressable>
         )}
       </View>
 
       {/* 중앙 영역 - 타이틀 */}
       <View className="flex-1 items-center">
-        {title && (
-          <Text className="text-lg font-semibold text-foreground">{title}</Text>
-        )}
+        {title && <Text className="text-foreground text-lg font-semibold">{title}</Text>}
       </View>
 
       {/* 오른쪽 영역 - 커스텀 콘텐츠 */}
-      <View className="w-10 items-end">
-        {rightContent}
-      </View>
+      <View className="w-10 items-end">{rightContent}</View>
     </View>
   );
 };

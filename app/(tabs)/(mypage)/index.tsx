@@ -19,6 +19,10 @@ export default function MypageScreen() {
     router.replace('/(auth)/login');
   };
 
+  const handleWithdraw = () => {
+    router.push('/withdraw');
+  };
+
   return (
     <LargeHeader title="마이페이지">
       <View className="px-4 pt-[12px]">
@@ -38,9 +42,15 @@ export default function MypageScreen() {
       </View>
 
       <View className="px-4 pt-6">
-        <Pressable onPress={handleLogout} className="items-center py-3 active:opacity-70">
-          <Text className="text-primary/60 text-sm">로그아웃</Text>
-        </Pressable>
+        <View className="flex-row items-center justify-center py-3">
+          <Pressable onPress={handleLogout} className="active:opacity-70">
+            <Text className="text-primary/60 text-sm">로그아웃</Text>
+          </Pressable>
+          <Text className="text-primary/40 mx-2 text-sm">/</Text>
+          <Pressable onPress={handleWithdraw} className="active:opacity-70">
+            <Text className="text-primary/60 text-sm">회원탈퇴</Text>
+          </Pressable>
+        </View>
       </View>
     </LargeHeader>
   );

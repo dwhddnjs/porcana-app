@@ -64,6 +64,13 @@ export default function RootLayout() {
               <Stack.Screen name="component-preview" options={{ headerShown: false }} />
               <Stack.Screen name="color-mode" options={{ headerShown: false }} />
               <Stack.Screen name="edit-profile" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="withdraw"
+                options={{
+                  headerShown: false,
+                  animation: 'slide_from_bottom',
+                }}
+              />
               <Stack.Screen name="(auth)" options={{ headerShown: false }} />
               <Stack.Screen
                 name="login-sheet"

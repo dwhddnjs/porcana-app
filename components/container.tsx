@@ -1,5 +1,4 @@
-import { cn } from '@/lib/utils';
-import { ColorValue, Text, View } from 'react-native';
+import { ColorValue, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { Edges, SafeAreaView } from 'react-native-safe-area-context';
 import { useCSSVariable } from 'uniwind';
 
@@ -15,15 +14,13 @@ const Container = ({
   const backgroundColor = useCSSVariable('--color-background');
 
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-
-        backgroundColor: backgroundColor as ColorValue,
-      }}
-      edges={edges}>
-      {children}
-    </SafeAreaView>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <SafeAreaView
+        style={{ flex: 1, backgroundColor: backgroundColor as ColorValue }}
+        edges={edges}>
+        {children}
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 };
 

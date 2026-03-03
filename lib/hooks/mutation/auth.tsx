@@ -5,6 +5,7 @@ import { useSignupStore } from '@/lib/hooks/zustand/use-signup-store';
 import { UserStateTypes, useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { useLoadingStore } from '@/lib/hooks/zustand/use-loading-store';
 import { router } from 'expo-router';
+import { toast } from 'sonner-native';
 
 export const useLoginMutation = () => {
   const { setUser } = useUserStore((state) => state);
@@ -21,6 +22,7 @@ export const useLoginMutation = () => {
     },
     onError: (error) => {
       console.error('Login failed:', error);
+      toast.error('이메일과 비밀번호를 확인해주세요');
     },
     onSettled: () => {
       hide();

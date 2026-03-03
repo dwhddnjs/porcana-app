@@ -32,3 +32,8 @@ export const getProfile = async (): Promise<UpdateProfileResponseTypes> => {
     throw error;
   }
 };
+
+export const deleteAccount = async () => {
+  const response = await api.delete('me');
+  return response.data;
+};

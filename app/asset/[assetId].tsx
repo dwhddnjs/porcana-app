@@ -25,6 +25,8 @@ export default function AssetDetailScreen() {
     error: chartError,
   } = useGetAssetChartQuery(assetId, chartRange);
 
+  console.log(chartData);
+
   useEffect(() => {
     if (isLoading) {
       show('자산 불러오는 중...');

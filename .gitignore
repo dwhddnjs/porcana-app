@@ -45,3 +45,6 @@ android
 
 temp_venv
 scripts
+
+# Google Service Account Key
+service-account.json
