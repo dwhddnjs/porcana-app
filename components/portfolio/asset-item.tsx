@@ -48,16 +48,16 @@ export const AssetItem = ({
         className
       )}
       style={({ pressed }) => (onPress && !isEditMode && pressed ? { opacity: 0.8 } : undefined)}>
-      <View className="flex-1 flex-row items-center gap-4">
+      <View className="flex-1 flex-row items-center gap-3">
         <Image
           source={item.imageUrl}
           className="bg-background border-primary/10 h-10 w-10 rounded-full border"
           contentFit="contain"
         />
-        <View className="flex-1 gap-[4px]">
+        <View className="flex-1 gap-[2px]">
           <View className="flex-row items-center gap-[4px]">
             <Text
-              className="max-w-[130px] min-w-[130px] text-base font-semibold text-ellipsis"
+              className="max-w-[160px] min-w-[160px] text-base font-semibold text-ellipsis"
               numberOfLines={1}
               ellipsizeMode="tail">
               {item.name}

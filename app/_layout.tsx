@@ -71,7 +71,8 @@ export default function RootLayout() {
                   animation: 'slide_from_bottom',
                 }}
               />
-              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+              <Stack.Screen name="(common)" options={{ headerShown: false, gestureEnabled: false, animation: 'fade' }} />
+              <Stack.Screen name="(auth)" options={{ headerShown: false, animation: 'fade' }} />
               <Stack.Screen
                 name="login-sheet"
                 options={{

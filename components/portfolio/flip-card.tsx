@@ -135,7 +135,7 @@ export const FlipCard = memo(function FlipCard({
         <View className="border-primary h-full w-full rounded-xl border-[1.5px] px-[12px] py-[8px]">
           {/* 상단: 이미지 + 티커 */}
 
-          <View className="flex-row items-center gap-2">
+          <View className="flex-row items-center gap-[6px]">
             <Image
               source={asset.imageUrl}
               className="bg-background h-10 w-10 rounded-full"
@@ -145,7 +145,7 @@ export const FlipCard = memo(function FlipCard({
               <Text
                 numberOfLines={1}
                 ellipsizeMode="tail"
-                className="text-primary max-w-[90px] min-w-[90px] text-lg font-bold text-ellipsis">
+                className="text-primary max-w-[90px] min-w-[90px] text-base font-bold text-ellipsis">
                 {asset.name}
               </Text>
               <Text className="text-muted-foreground text-sm" numberOfLines={2}>

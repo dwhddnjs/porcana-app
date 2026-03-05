@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import * as DialogPrimitive from '@rn-primitives/dialog';
 import { X } from 'lucide-react-native';
 import * as React from 'react';
-import { KeyboardAvoidingView, Platform, Text, View, type ViewProps } from 'react-native';
+import { Keyboard, KeyboardAvoidingView, Platform, Pressable, Text, View, type ViewProps } from 'react-native';
 import { FadeIn, FadeOut } from 'react-native-reanimated';
 import { FullWindowOverlay as RNFullWindowOverlay } from 'react-native-screens';
 
@@ -21,32 +21,39 @@ const FullWindowOverlay = Platform.OS === 'ios' ? RNFullWindowOverlay : React.Fr
 function DialogOverlay({
   className,
   children,
+  bottomInset = 0,
   ...props
 }: Omit<DialogPrimitive.OverlayProps, 'asChild'> &
   React.RefAttributes<DialogPrimitive.OverlayRef> & {
     children?: React.ReactNode;
+    bottomInset?: number;
   }) {
   return (
     <FullWindowOverlay>
       <DialogPrimitive.Overlay
         className={cn(
-          'absolute bottom-0 left-0 right-0 top-0 z-50 flex items-center justify-center bg-black/50 p-2',
+          'absolute top-0 right-0 left-0 z-50 flex items-center justify-center bg-black/50 p-2',
           Platform.select({
             web: 'animate-in fade-in-0 fixed cursor-default [&>*]:cursor-auto',
           }),
           className
         )}
+        style={{ bottom: bottomInset }}
         {...props}
         asChild={Platform.OS !== 'web'}>
         <NativeOnlyAnimatedView entering={FadeIn.duration(200)} exiting={FadeOut.duration(150)}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? -100 : 0}
-            style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <NativeOnlyAnimatedView entering={FadeIn.delay(50)} exiting={FadeOut.duration(150)}>
-              <>{children}</>
-            </NativeOnlyAnimatedView>
-          </KeyboardAvoidingView>
+          <Pressable
+            onPress={Keyboard.dismiss}
+            style={{ flex: 1, width: '100%' }}>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              keyboardVerticalOffset={Platform.OS === 'ios' ? -100 : 0}
+              style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <NativeOnlyAnimatedView entering={FadeIn.delay(50)} exiting={FadeOut.duration(150)}>
+                <>{children}</>
+              </NativeOnlyAnimatedView>
+            </KeyboardAvoidingView>
+          </Pressable>
         </NativeOnlyAnimatedView>
       </DialogPrimitive.Overlay>
     </FullWindowOverlay>
@@ -76,9 +83,9 @@ function DialogContent({
           <>{children}</>
           <DialogPrimitive.Close
             className={cn(
-              'absolute right-4 top-4 rounded opacity-70 active:opacity-100',
+              'absolute top-4 right-4 rounded opacity-70 active:opacity-100',
               Platform.select({
-                web: 'ring-offset-background focus:ring-ring data-[state=open]:bg-accent transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-offset-2',
+                web: 'ring-offset-background focus:ring-ring data-[state=open]:bg-accent transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none',
               })
             )}
             hitSlop={12}>
@@ -115,7 +122,7 @@ function DialogTitle({
 }: DialogPrimitive.TitleProps & React.RefAttributes<DialogPrimitive.TitleRef>) {
   return (
     <DialogPrimitive.Title
-      className={cn('text-foreground text-lg font-semibold leading-none', className)}
+      className={cn('text-foreground text-lg leading-none font-semibold', className)}
       {...props}
     />
   );

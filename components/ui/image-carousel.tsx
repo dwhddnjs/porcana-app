@@ -1,9 +1,10 @@
 import { cn } from '@/lib/utils';
 import { useCallback, useRef } from 'react';
-import { Dimensions, FlatList, View, type ImageSourcePropType, type ViewToken } from 'react-native';
+import { Dimensions, FlatList, View, type ImageSourcePropType } from 'react-native';
 import Animated, {
   Extrapolation,
   interpolate,
+  useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -138,23 +139,11 @@ export const ImageCarousel = ({
   const scrollX = useSharedValue(0);
   const flatListRef = useRef<FlatList>(null);
 
-  const onViewableItemsChanged = useCallback(
-    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
-      if (viewableItems.length > 0) {
-        const index = viewableItems[0].index ?? 0;
-        scrollX.value = withSpring(index * width, { damping: 15, stiffness: 150 });
-      }
+  const handleScroll = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollX.value = event.contentOffset.x;
     },
-    [width]
-  );
-
-  const viewabilityConfig = {
-    itemVisiblePercentThreshold: 50,
-  };
-
-  const handleScroll = useCallback((event: { nativeEvent: { contentOffset: { x: number } } }) => {
-    scrollX.value = event.nativeEvent.contentOffset.x;
-  }, []);
+  });
 
   const renderItem = useCallback(
     ({ item, index }: { item: CarouselItemDataTypes; index: number }) => (
@@ -177,7 +166,7 @@ export const ImageCarousel = ({
 
   return (
     <View className={cn('items-center', className)}>
-      <FlatList
+      <Animated.FlatList
         ref={flatListRef}
         data={items}
         renderItem={renderItem}
@@ -187,8 +176,6 @@ export const ImageCarousel = ({
         showsHorizontalScrollIndicator={false}
         onScroll={handleScroll}
         scrollEventThrottle={16}
-        onViewableItemsChanged={onViewableItemsChanged}
-        viewabilityConfig={viewabilityConfig}
         getItemLayout={(_, index) => ({
           length: width,
           offset: width * index,

@@ -40,7 +40,7 @@ export default function EnterNicknameScreen() {
   };
 
   return (
-    <Container>
+    <Container isKeyboardAvioding>
       <Header title="" />
       <KeyboardAvoidingView
         behavior="padding"

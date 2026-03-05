@@ -28,7 +28,7 @@ export default function CreatePortfolio() {
   // 타이머 정리를 위한 ref (React Native에서는 setTimeout이 number 반환)
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
-  const { data: arenaSessionRounds, refetch, isLoading } = useGetArenaSessionRoundsQuery();
+  const { data: arenaSessionRounds, refetch, isLoading, isPending } = useGetArenaSessionRoundsQuery();
   const { mutate: pickAsset } = usePickArenaSessionAssetMutation();
 
   // 서버에서 받아온 assets (3장) - useMemo로 불필요한 재생성 방지
@@ -71,17 +71,20 @@ export default function CreatePortfolio() {
     }, [])
   );
 
-  // 화면 진입 시 초기화
-  useEffect(() => {
-    clearAllTimers();
-    clearCards();
-    setHasInitialFlip(false);
-    setRound(1);
-    setIsFlipped(false);
-    setShowCards(true);
-    setIsTransitioning(false);
-    setSelectedCardIndex(null);
-  }, [clearAllTimers, clearCards]);
+  // 화면 포커스 시 초기화 (재방문 시에도 실행)
+  useFocusEffect(
+    useCallback(() => {
+      clearAllTimers();
+      clearCards();
+      setHasInitialFlip(false);
+      setRound(1);
+      setIsFlipped(false);
+      setShowCards(true);
+      setIsTransitioning(false);
+      setSelectedCardIndex(null);
+      refetch();
+    }, [clearAllTimers, clearCards, refetch])
+  );
 
   // 첫 로드 시에만 카드 뒤집기 (이후 라운드는 handleCardSelect에서 처리)
   useEffect(() => {
@@ -161,7 +164,7 @@ export default function CreatePortfolio() {
 
       {/* 카드 영역 */}
       <View className="flex-1 items-center justify-center">
-        {isLoading ? (
+        {isLoading || isPending ? (
           <Text className="text-muted-foreground">로딩 중...</Text>
         ) : (
           showCards &&

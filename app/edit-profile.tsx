@@ -24,7 +24,7 @@ export default function EditProfileScreen() {
   };
 
   return (
-    <Container>
+    <Container isKeyboardAvioding>
       <Header title="닉네임 변경" />
       <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
         <View className="flex-1 px-4 pt-[20px]">

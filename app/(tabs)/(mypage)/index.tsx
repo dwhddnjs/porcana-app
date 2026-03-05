@@ -7,6 +7,7 @@ import { queryClient } from '@/lib/react-query';
 import { useRouter } from 'expo-router';
 import { PaletteIcon, UserPenIcon } from 'lucide-react-native';
 import { Pressable, View } from 'react-native';
+import { toast } from 'sonner-native';
 
 export default function MypageScreen() {
   const router = useRouter();
@@ -16,6 +17,7 @@ export default function MypageScreen() {
     await queryClient.cancelQueries();
     queryClient.clear();
     logout();
+    toast.success('로그아웃 되었습니다.');
     router.replace('/(auth)/login');
   };
 

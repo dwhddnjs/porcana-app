@@ -6,21 +6,32 @@ const Container = ({
   children,
   className,
   edges = ['top', 'bottom'],
+  isKeyboardAvioding = false,
 }: {
   children: React.ReactNode;
   className?: string;
   edges?: Edges;
+  isKeyboardAvioding?: boolean;
 }) => {
   const backgroundColor = useCSSVariable('--color-background');
 
+  if (isKeyboardAvioding) {
+    // TODO: Keyboard avoiding view
+    return (
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <SafeAreaView
+          style={{ flex: 1, backgroundColor: backgroundColor as ColorValue }}
+          edges={edges}>
+          {children}
+        </SafeAreaView>
+      </TouchableWithoutFeedback>
+    );
+  }
+
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <SafeAreaView
-        style={{ flex: 1, backgroundColor: backgroundColor as ColorValue }}
-        edges={edges}>
-        {children}
-      </SafeAreaView>
-    </TouchableWithoutFeedback>
+    <SafeAreaView style={{ flex: 1, backgroundColor: backgroundColor as ColorValue }} edges={edges}>
+      {children}
+    </SafeAreaView>
   );
 };
 

@@ -15,8 +15,8 @@ import { getRiskStarColor } from '@/lib/constant/function';
 
 export default function ArenaComplete() {
   const colorScheme = useColorScheme() ?? 'light';
-  const { name, selectedCards, resetArena } = useArenaStore();
-  const { user, accessToken, refreshToken, reset } = useUserStore();
+  const { name, portfolioId, selectedCards, resetArena } = useArenaStore();
+  const { user } = useUserStore();
   const queryClient = useQueryClient();
 
   const handleOpenLoginSheet = () => {
@@ -24,9 +24,9 @@ export default function ArenaComplete() {
       router.push('/login-sheet');
       return;
     }
-    resetArena();
     queryClient.invalidateQueries({ queryKey: ['portfolios'] });
-    router.replace('/(tabs)/(portfolio)/(main)');
+    resetArena();
+    router.replace(`/portfolio/${portfolioId}`);
   };
 
   // useEffect(() => {

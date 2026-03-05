@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useRef } from 'react';
+import { TextInput } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,12 +24,19 @@ export const CreatePortfolioDialog = ({
   onSubmit,
   showTrigger = true,
 }: CreatePortfolioDialogProps) => {
-  const [portfolioName, setPortfolioName] = useState('');
+  const inputRef = useRef<TextInput>(null);
+  const portfolioNameRef = useRef('');
+
+  const handleChangeText = (text: string) => {
+    portfolioNameRef.current = text;
+  };
 
   const handleStart = () => {
-    if (portfolioName.trim()) {
-      onSubmit(portfolioName);
-      setPortfolioName('');
+    const name = portfolioNameRef.current.trim();
+    if (name) {
+      onSubmit(name);
+      portfolioNameRef.current = '';
+      inputRef.current?.clear();
     }
   };
 
@@ -46,9 +54,9 @@ export const CreatePortfolioDialog = ({
           <DialogTitle className="text-lg">새 포트폴리오 이름을 적어주세요</DialogTitle>
         </DialogHeader>
         <Input
+          ref={inputRef}
           placeholder="포트폴리오 이름"
-          value={portfolioName}
-          onChangeText={setPortfolioName}
+          onChangeText={handleChangeText}
         />
         <Button size={'lg'} onPress={handleStart}>
           <Text>시작하기</Text>

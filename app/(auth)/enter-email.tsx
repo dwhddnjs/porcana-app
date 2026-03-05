@@ -51,7 +51,7 @@ export default function EnterEmailScreen() {
   };
 
   return (
-    <Container>
+    <Container isKeyboardAvioding>
       <Header title="" />
       <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
         <View className="flex-1 px-[20px]">

@@ -121,7 +121,11 @@ export default function PortfolioDetailScreen() {
 
   const goBack = () => {
     if (isEditMode) return;
-    router.back();
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)/(portfolio)/(main)');
+    }
   };
 
   const totalWeight = Object.values(weightValues).reduce((sum, v) => sum + (parseFloat(v) || 0), 0);
@@ -169,152 +173,143 @@ export default function PortfolioDetailScreen() {
   const hasHalfStar = riskLevel % 1 >= 0.5;
 
   return (
-    <KeyboardAvoidingView
-      className="flex-1"
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={0}>
-      <LargeHeader
-        title={data.name}
-        headerLeft={
-          isEditMode ? (
-            <Pressable onPress={cancelEditMode} hitSlop={8}>
-              <Icon as={X} size={24} className="text-foreground" />
+    <LargeHeader
+      title={data.name}
+      headerLeft={
+        isEditMode ? (
+          <Pressable onPress={cancelEditMode} hitSlop={8}>
+            <Icon as={X} size={24} className="text-foreground" />
+          </Pressable>
+        ) : (
+          <Pressable onPress={goBack} hitSlop={8}>
+            <Icon as={ChevronLeft} size={24} className="text-foreground" />
+          </Pressable>
+        )
+      }
+      headerRight={
+        isEditMode ? (
+          <Pressable onPress={handleSave} hitSlop={8}>
+            <Icon as={Check} size={24} className="text-primary" />
+          </Pressable>
+        ) : (
+          <View className="flex-row items-center gap-4">
+            <Pressable onPress={handleDeletePress} hitSlop={8}>
+              <Icon as={Trash2} size={24} className="text-muted-foreground" />
             </Pressable>
-          ) : (
-            <Pressable onPress={goBack} hitSlop={8}>
-              <Icon as={ChevronLeft} size={24} className="text-foreground" />
-            </Pressable>
-          )
-        }
-        headerRight={
-          isEditMode ? (
-            <Pressable onPress={handleSave} hitSlop={8}>
-              <Icon as={Check} size={24} className="text-primary" />
-            </Pressable>
-          ) : (
-            <View className="flex-row items-center gap-4">
-              <Pressable onPress={handleDeletePress} hitSlop={8}>
-                <Icon as={Trash2} size={24} className="text-muted-foreground" />
-              </Pressable>
-              <Pressable onPress={handleSetMain} hitSlop={8}>
-                <Icon
-                  as={Star}
-                  size={24}
-                  className={data.isMain ? 'text-yellow-500' : 'text-muted-foreground'}
-                  fill={data.isMain ? '#eab308' : 'transparent'}
-                />
-              </Pressable>
-            </View>
-          )
-        }>
-        <View className="px-[12px]">
-          {/* 수익률 요약 카드 */}
-          <Spacer height={12} />
-          <Card className="py-[18px]">
-            <CardContent className="gap-y-[24px] px-[24px]">
-              <View>
-                <View className="flex-row items-center gap-2">
-                  <Icon as={TrendingUp} size={20} className="text-primary" />
-                  <Text className="text-lg font-semibold">수익률</Text>
-                </View>
-                <Text
-                  className={cn(
-                    'text-3xl font-bold',
-                    isPositive ? 'text-link' : 'text-destructive'
-                  )}>
-                  {isPositive ? '+' : ''}
-                  {data.totalReturnPct.toFixed(2)}%
-                </Text>
-              </View>
-              <View className="flex-row justify-between">
-                <View className="flex-1 justify-between">
-                  <View className="flex-row items-center gap-2">
-                    <Icon as={TriangleAlert} size={16} className="text-primary" />
-                    <Text className="font-semibold">평균 위험도</Text>
-                    <Text className="text-muted-foreground text-md">{riskLevel}</Text>
-                  </View>
-                  <View className="flex-row items-center gap-1">
-                    {Array.from({ length: fullStars }).map((_, index) => (
-                      <Icon
-                        key={`full-${index}`}
-                        as={Star}
-                        size={16}
-                        className="text-success"
-                        fill={THEME.light.success}
-                      />
-                    ))}
-                    {hasHalfStar && (
-                      <Icon
-                        key="half"
-                        as={StarHalf}
-                        size={16}
-                        className="text-success"
-                        fill={THEME.light.success}
-                      />
-                    )}
-                  </View>
-                </View>
-                <View className="flex-1 justify-between">
-                  <View className="flex-row items-center gap-2">
-                    <Icon as={Split} size={16} className="text-primary" />
-                    <Text className="font-semibold">분산도</Text>
-                  </View>
-                  <Text className={getDiversityLevelColor(data?.diversityLevel)}>
-                    {DIVERSITY_LEVEL_LABELS[data?.diversityLevel ?? 'LOW']}
-                  </Text>
-                </View>
-              </View>
-              <RiskDistributionChart data={data.riskDistribution} />
-            </CardContent>
-          </Card>
-          <Spacer height={36} />
-          <View>
-            <View className="flex-row items-center justify-between pb-[12px]">
-              <Text className="text-muted-foreground text-md font-bold">주요 자산</Text>
-              {isEditMode ? (
-                <Text
-                  className={cn(
-                    'text-sm font-semibold',
-                    Math.round(totalWeight * 100) / 100 === 100
-                      ? 'text-success'
-                      : 'text-destructive'
-                  )}>
-                  합계: {totalWeight.toFixed(2)}%
-                </Text>
-              ) : (
-                <Pressable
-                  onPress={enterEditMode}
-                  style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
-                  className="border-primary rounded-lg border px-[10px] py-[4px]">
-                  <Text className="text-sm">자산 비중 수정</Text>
-                </Pressable>
-              )}
-            </View>
-            {data?.positions?.map((item, index) => (
-              <AssetItem
-                key={item.assetId}
-                item={item}
-                showTopBorder={index === 0}
-                isEditMode={isEditMode}
-                weightValue={weightValues[item.assetId]}
-                onWeightChange={(value) => handleWeightChange(item.assetId, value)}
-                onPress={
-                  isEditMode
-                    ? undefined
-                    : () => {
-                        router.push(`/asset/${item.assetId}`);
-                      }
-                }
+            <Pressable onPress={handleSetMain} hitSlop={8}>
+              <Icon
+                as={Star}
+                size={24}
+                className={data.isMain ? 'text-yellow-500' : 'text-muted-foreground'}
+                fill={data.isMain ? '#eab308' : 'transparent'}
               />
-            ))}
+            </Pressable>
           </View>
+        )
+      }>
+      <View className="px-[12px]">
+        {/* 수익률 요약 카드 */}
+        <Spacer height={12} />
+        <Card className="py-[18px]">
+          <CardContent className="gap-y-[24px] px-[24px]">
+            <View>
+              <View className="flex-row items-center gap-2">
+                <Icon as={TrendingUp} size={20} className="text-primary" />
+                <Text className="text-lg font-semibold">수익률</Text>
+              </View>
+              <Text
+                className={cn('text-3xl font-bold', isPositive ? 'text-link' : 'text-destructive')}>
+                {isPositive ? '+' : ''}
+                {data.totalReturnPct.toFixed(2)}%
+              </Text>
+            </View>
+            <View className="flex-row justify-between">
+              <View className="flex-1 justify-between">
+                <View className="flex-row items-center gap-2">
+                  <Icon as={TriangleAlert} size={16} className="text-primary" />
+                  <Text className="font-semibold">평균 위험도</Text>
+                  <Text className="text-muted-foreground text-md">{riskLevel}</Text>
+                </View>
+                <View className="flex-row items-center gap-1">
+                  {Array.from({ length: fullStars }).map((_, index) => (
+                    <Icon
+                      key={`full-${index}`}
+                      as={Star}
+                      size={16}
+                      className="text-success"
+                      fill={THEME.light.success}
+                    />
+                  ))}
+                  {hasHalfStar && (
+                    <Icon
+                      key="half"
+                      as={StarHalf}
+                      size={16}
+                      className="text-success"
+                      fill={THEME.light.success}
+                    />
+                  )}
+                </View>
+              </View>
+              <View className="flex-1 justify-between">
+                <View className="flex-row items-center gap-2">
+                  <Icon as={Split} size={16} className="text-primary" />
+                  <Text className="font-semibold">분산도</Text>
+                </View>
+                <Text className={getDiversityLevelColor(data?.diversityLevel)}>
+                  {DIVERSITY_LEVEL_LABELS[data?.diversityLevel ?? 'LOW']}
+                </Text>
+              </View>
+            </View>
+            <RiskDistributionChart data={data.riskDistribution} />
+          </CardContent>
+        </Card>
+        <Spacer height={36} />
+        <View>
+          <View className="flex-row items-center justify-between pb-[12px]">
+            <Text className="text-muted-foreground text-md font-bold">주요 자산</Text>
+            {isEditMode ? (
+              <Text
+                className={cn(
+                  'text-sm font-semibold',
+                  Math.round(totalWeight * 100) / 100 === 100 ? 'text-success' : 'text-destructive'
+                )}>
+                합계: {totalWeight.toFixed(2)}%
+              </Text>
+            ) : (
+              <Pressable
+                onPress={enterEditMode}
+                style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
+                className="border-primary rounded-lg border px-[10px] py-[4px]">
+                <Text className="text-sm">자산 비중 수정</Text>
+              </Pressable>
+            )}
+          </View>
+          {data?.positions?.map((item, index) => (
+            <AssetItem
+              key={item.assetId}
+              item={item}
+              showTopBorder={index === 0}
+              isEditMode={isEditMode}
+              weightValue={weightValues[item.assetId]}
+              onWeightChange={(value) => handleWeightChange(item.assetId, value)}
+              onPress={
+                isEditMode
+                  ? undefined
+                  : () => {
+                      router.push(`/asset/${item.assetId}`);
+                    }
+              }
+            />
+          ))}
         </View>
-      </LargeHeader>
+        <Spacer height={120} />
+      </View>
       <DeletePortfolioDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
         onConfirm={handleDeleteConfirm}
       />
-    </KeyboardAvoidingView>
+    </LargeHeader>
   );
 }

@@ -23,13 +23,12 @@ export default function LoginScreen() {
   const passwordInputRef = useRef<TextInput>(null);
   const { mutate: login } = useLoginMutation();
 
-  const { accessToken, reset } = useUserStore();
+  const { accessToken, reset, user } = useUserStore();
 
-  // useEffect(() => {
-  //   if (accessToken) {
-  //     reset();
-  //   }
-  // }, [accessToken]);
+  const handleBackPress = () => {
+    reset();
+    router.replace('/(common)/landing');
+  };
 
   const {
     control,
@@ -57,8 +56,8 @@ export default function LoginScreen() {
   };
 
   return (
-    <Container>
-      <Header title="이메일 로그인" showBackButton={false} />
+    <Container isKeyboardAvioding>
+      <Header title="이메일 로그인" onBackPress={handleBackPress} />
       <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
         <Spacer height={48} />
         <View className="flex-1 gap-y-[48px] px-[20px]">
