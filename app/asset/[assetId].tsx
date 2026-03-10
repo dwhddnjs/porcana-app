@@ -11,6 +11,7 @@ import { ChartRangeTypes } from '@/lib/api/asset';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { SECTOR_KO_MAP } from '@/lib/constant/variables';
+import Container from '@/components/container';
 
 export default function AssetDetailScreen() {
   const { assetId } = useLocalSearchParams<{ assetId: string }>();
@@ -70,7 +71,7 @@ export default function AssetDetailScreen() {
   }
 
   return (
-    <View className="flex-1">
+    <Container className="flex-1" edges={['bottom']}>
       {/* 커스텀 그리퍼 핸들 */}
       <View className="items-center py-3">
         <View className="bg-muted-foreground/40 h-1 w-10 rounded-full" />
@@ -167,11 +168,11 @@ export default function AssetDetailScreen() {
           <AssetCandlestickChart points={chartData?.points} isLoading={isChartLoading} />
         </View>
       </ScrollView>
-      <View className="px-[24px] pb-[24px]">
+      <View className="px-[24px]">
         <Button size="lg" variant="default" onPress={goBack}>
           <Text className="font-semibold">차트 닫기</Text>
         </Button>
       </View>
-    </View>
+    </Container>
   );
 }
