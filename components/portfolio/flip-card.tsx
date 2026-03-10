@@ -132,68 +132,66 @@ export const FlipCard = memo(function FlipCard({
       <Animated.View
         style={backAnimatedStyle}
         className="bg-card absolute h-full w-full rounded-xl shadow-lg shadow-black/25">
-        <View className="border-primary h-full w-full rounded-xl border-[1.5px] px-[12px] py-[8px]">
+        <View className="border-primary h-full w-full rounded-xl border-[1.5px] px-[11px] py-[7px]">
           {/* 상단: 이미지 + 티커 */}
 
           <View className="flex-row items-center gap-[6px]">
             <Image
               source={asset.imageUrl}
-              className="bg-background h-10 w-10 rounded-full"
+              className="bg-background h-9 w-9 rounded-full"
               contentFit="contain"
             />
-            <View>
+            <View className="flex-1">
               <Text
                 numberOfLines={1}
                 ellipsizeMode="tail"
-                className="text-primary max-w-[90px] min-w-[90px] text-base font-bold text-ellipsis">
+                className="text-primary text-sm font-bold text-ellipsis">
                 {asset.name}
               </Text>
-              <Text className="text-muted-foreground text-sm" numberOfLines={2}>
+              <Text className="text-muted-foreground text-xs" numberOfLines={1}>
                 {asset.ticker}
               </Text>
             </View>
           </View>
 
-          {/* 이름 */}
-
           {/* 중앙: 섹터 + 마켓 */}
-          <View className="mt-2 flex-row flex-wrap gap-1">
+          <View className="mt-1.5 flex-row flex-wrap gap-1">
             <View className="bg-primary/10 items-center justify-center rounded px-1.5 py-0.5">
               <Text className="text-primary text-xs font-semibold">
                 {sectorLabels[asset.sector] || asset.sector}
               </Text>
             </View>
             <View className="border-primary/10 rounded border-2 px-1.5 py-0.5">
-              <Text className="text-muted-foreground text-xs font-semibold">{asset.market}</Text>
+              <Text className="text-muted-foreground text-xs font-semibold">
+                {asset.market}
+              </Text>
             </View>
           </View>
 
-          <View className="nowrap flex-1 items-center justify-center">
-            <Text className="text-primary text-center text-xs">{asset.impactHint}</Text>
+          <View className="flex-1 items-center justify-center">
+            <Text className="text-primary text-center text-xs" numberOfLines={2}>
+              {asset.impactHint}
+            </Text>
           </View>
 
           {/* 리스크 레벨 */}
-          <View className="mt-auto items-center justify-start gap-2">
+          <View className="mt-auto items-center justify-start gap-1.5">
             <View className="flex-row items-center gap-1">
               <Icon
                 as={TriangleAlert}
-                size={16}
+                size={14}
                 className="text-muted-foreground"
-                // color={getRiskStarColor(asset.currentRiskLevel, colorScheme ?? 'light')}
               />
-              <Text
-                className="text-muted-foreground text-xs font-bold"
-                // style={{ color: getRiskStarColor(asset.currentRiskLevel, colorScheme ?? 'light') }}
-              >
+              <Text className="text-muted-foreground text-xs font-bold">
                 리스크
               </Text>
             </View>
-            <View className="flex-row items-center gap-1.5 pb-[4px]">
+            <View className="flex-row items-center gap-1.5 pb-[3px]">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Icon
                   key={i}
                   as={Star}
-                  size={20}
+                  size={18}
                   color={getRiskStarColor(asset.currentRiskLevel, colorScheme ?? 'light')}
                   fill={
                     i < asset.currentRiskLevel
@@ -204,8 +202,6 @@ export const FlipCard = memo(function FlipCard({
               ))}
             </View>
           </View>
-
-          {/* 하단: 영향 힌트 */}
         </View>
       </Animated.View>
     </AnimatedPressable>

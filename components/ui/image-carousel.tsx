@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 import { useCallback, useRef } from 'react';
-import { Dimensions, FlatList, View, type ImageSourcePropType } from 'react-native';
+import { Dimensions, FlatList, Platform, View, type ImageSourcePropType } from 'react-native';
 import Animated, {
   Extrapolation,
   interpolate,
@@ -72,7 +72,13 @@ const CarouselItem = ({
     <View style={{ width }}>
       <View className="mb-4 gap-y-2 px-5">
         <Animated.View style={titleAnimatedStyle}>
-          <Text className="text-foreground text-2xl font-bold">{item.title}</Text>
+          <Text
+            className={cn(
+              'text-foreground text-2xl font-bold',
+              Platform.OS === 'android' && 'text-xl'
+            )}>
+            {item.title}
+          </Text>
         </Animated.View>
         <Animated.View style={descriptionAnimatedStyle}>
           <Text className="text-muted-foreground text-base leading-5">{item.description}</Text>

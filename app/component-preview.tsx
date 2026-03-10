@@ -71,6 +71,9 @@ export default function ComponentPreviewScreen() {
           }}
         />
       </View>
+      <View className="flex-row items-center justify-center">
+        <Text>{inputValue}</Text>
+      </View>
     </Container>
   );
 

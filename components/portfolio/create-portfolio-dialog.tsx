@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { TextInput } from 'react-native';
+import { Platform, TextInput } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
 
 interface CreatePortfolioDialogProps {
   open: boolean;
@@ -51,13 +52,11 @@ export const CreatePortfolioDialog = ({
       )}
       <DialogContent className="w-[320px]">
         <DialogHeader>
-          <DialogTitle className="text-lg">새 포트폴리오 이름을 적어주세요</DialogTitle>
+          <DialogTitle className={cn('text-lg', Platform.OS === 'android' && 'text-base')}>
+            새 포트폴리오 이름을 적어주세요
+          </DialogTitle>
         </DialogHeader>
-        <Input
-          ref={inputRef}
-          placeholder="포트폴리오 이름"
-          onChangeText={handleChangeText}
-        />
+        <Input ref={inputRef} placeholder="포트폴리오 이름" onChangeText={handleChangeText} />
         <Button size={'lg'} onPress={handleStart}>
           <Text>시작하기</Text>
         </Button>

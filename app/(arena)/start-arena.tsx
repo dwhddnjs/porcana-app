@@ -1,4 +1,4 @@
-import { View, useWindowDimensions } from 'react-native';
+import { Platform, View, useWindowDimensions } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { FlipCard } from '@/components/portfolio/flip-card';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
@@ -54,8 +54,11 @@ export default function CreatePortfolio() {
 
   // 화면 높이 기준으로 카드 크기 계산 (가로모드)
   // 상단 제목(~60px) + 하단 라운드 표시(~80px) 제외
-  const availableHeight = screenHeight - 40;
-  const cardHeight = Math.min(availableHeight * 0.75, 240); // 최대 240px 제한
+  // Android는 시스템 네비게이션 바로 가용 높이가 더 작음
+  const heightOffset = Platform.OS === 'android' ? 60 : 40;
+  const maxCardHeight = Platform.OS === 'android' ? 220 : 240;
+  const availableHeight = screenHeight - heightOffset;
+  const cardHeight = Math.min(availableHeight * 0.72, maxCardHeight);
   const cardWidth = cardHeight * (2 / 3); // 2:3 비율 유지
 
   // 화면 진입 시 가로모드로 고정, 떠날 때 원래대로 복원

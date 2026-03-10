@@ -1,6 +1,13 @@
-import { ColorValue, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { ColorValue, Keyboard, Platform, TouchableWithoutFeedback } from 'react-native';
 import { Edges, SafeAreaView } from 'react-native-safe-area-context';
 import { useCSSVariable } from 'uniwind';
+
+const hasBottomEdge = (edges: Edges): boolean => {
+  if (Array.isArray(edges)) {
+    return edges.includes('bottom');
+  }
+  return false;
+};
 
 const Container = ({
   children,
@@ -14,13 +21,18 @@ const Container = ({
   isKeyboardAvioding?: boolean;
 }) => {
   const backgroundColor = useCSSVariable('--color-background');
+  const needsAndroidBottomPadding = Platform.OS === 'android' && hasBottomEdge(edges);
 
   if (isKeyboardAvioding) {
     // TODO: Keyboard avoiding view
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <SafeAreaView
-          style={{ flex: 1, backgroundColor: backgroundColor as ColorValue }}
+          style={{
+            flex: 1,
+            backgroundColor: backgroundColor as ColorValue,
+            paddingBottom: needsAndroidBottomPadding ? 16 : undefined,
+          }}
           edges={edges}>
           {children}
         </SafeAreaView>
@@ -29,7 +41,13 @@ const Container = ({
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: backgroundColor as ColorValue }} edges={edges}>
+    <SafeAreaView
+      style={{
+        flex: 1,
+        backgroundColor: backgroundColor as ColorValue,
+        paddingBottom: needsAndroidBottomPadding ? 16 : undefined,
+      }}
+      edges={edges}>
       {children}
     </SafeAreaView>
   );

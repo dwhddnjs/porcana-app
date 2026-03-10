@@ -11,6 +11,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
+import { Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { Toaster } from 'sonner-native';
@@ -47,17 +48,23 @@ export default function RootLayout() {
               <Stack.Screen
                 name="add-modal"
                 options={{
-                  presentation: 'modal',
+                  presentation: Platform.OS === 'ios' ? 'modal' : 'formSheet',
                   headerShown: false,
+                  gestureEnabled: true,
+                  sheetAllowedDetents: [0.96],
+                  sheetCornerRadius: 36,
+                  sheetGrabberVisible: false,
                 }}
               />
               <Stack.Screen name="portfolio/[id]" options={{ headerShown: false }} />
               <Stack.Screen
                 name="asset/[assetId]"
                 options={{
-                  presentation: 'modal',
+                  presentation: Platform.OS === 'ios' ? 'modal' : 'formSheet',
                   headerShown: false,
                   gestureEnabled: true,
+                  sheetAllowedDetents: [0.96],
+                  sheetCornerRadius: 36,
                   sheetGrabberVisible: false,
                 }}
               />
@@ -71,14 +78,19 @@ export default function RootLayout() {
                   animation: 'slide_from_bottom',
                 }}
               />
-              <Stack.Screen name="(common)" options={{ headerShown: false, gestureEnabled: false, animation: 'fade' }} />
+              <Stack.Screen
+                name="(common)"
+                options={{ headerShown: false, gestureEnabled: false, animation: 'fade' }}
+              />
               <Stack.Screen name="(auth)" options={{ headerShown: false, animation: 'fade' }} />
               <Stack.Screen
                 name="login-sheet"
                 options={{
                   presentation: 'formSheet',
                   headerShown: false,
-                  sheetAllowedDetents: [0.3],
+                  gestureEnabled: true,
+                  sheetAllowedDetents: [0.34],
+                  sheetCornerRadius: 36,
                   sheetGrabberVisible: false,
                 }}
               />
@@ -86,14 +98,13 @@ export default function RootLayout() {
             <PortalHost />
             <Toaster theme={theme ?? 'light'} />
             <LoadingOverlay />
-            {showSplash && (
-              <CustomSplashScreen
-                onFinish={() => {
-                  setShowSplash(false);
-                  SplashScreen.hideAsync();
-                }}
-              />
-            )}
+            <CustomSplashScreen
+              visible={showSplash}
+              onFinish={() => {
+                setShowSplash(false);
+                SplashScreen.hideAsync();
+              }}
+            />
           </ThemeProvider>
         </GestureHandlerRootView>
       </KeyboardProvider>

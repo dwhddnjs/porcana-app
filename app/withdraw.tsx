@@ -67,7 +67,7 @@ export default function WithdrawScreen() {
         </View>
       </View>
 
-      <View className="px-4 pb-4">
+      <View className="px-4">
         <Button variant="destructive" size="lg" onPress={handleOpenAlert}>
           <Text className="text-primary">탈퇴하기</Text>
         </Button>

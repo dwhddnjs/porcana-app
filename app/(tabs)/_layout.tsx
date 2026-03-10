@@ -9,7 +9,7 @@ import * as Haptics from 'expo-haptics';
 import { Tabs } from 'expo-router';
 import { PieChartIcon, PlusIcon, UserIcon } from 'lucide-react-native';
 import { useRef, useState } from 'react';
-import { Keyboard, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Keyboard, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import Animated, {
   Easing,
   FadeIn,
@@ -75,17 +75,24 @@ export default function TabLayout() {
             theme === 'dark' ? THEME.dark.mutedForeground : THEME.light.mutedForeground,
           tabBarStyle: {
             position: 'absolute',
-            backgroundColor: 'transparent',
+            backgroundColor:
+              Platform.OS === 'android'
+                ? theme === 'dark'
+                  ? THEME.dark.background
+                  : THEME.light.background
+                : 'transparent',
             borderTopColor: theme === 'dark' ? THEME.dark.border : THEME.light.border,
             zIndex: 100,
           },
-          tabBarBackground: () => (
-            <BlurView
-              intensity={80}
-              tint={theme === 'dark' ? 'dark' : 'light'}
-              style={StyleSheet.absoluteFill}
-            />
-          ),
+          ...(Platform.OS !== 'android' && {
+            tabBarBackground: () => (
+              <BlurView
+                intensity={80}
+                tint={theme === 'dark' ? 'dark' : 'light'}
+                style={StyleSheet.absoluteFill}
+              />
+            ),
+          }),
           headerShown: false,
         }}>
         <Tabs.Screen

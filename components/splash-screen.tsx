@@ -1,15 +1,16 @@
 import { useEffect, useRef } from 'react';
-import { Animated, Image, StyleSheet, View } from 'react-native';
+import { Animated, Image, StyleSheet } from 'react-native';
 import { useUniwind } from 'uniwind';
 
 const logoWhite = require('@/assets/images/logo-white.png');
 const logoBlack = require('@/assets/images/logo-black.png');
 
-interface SplashScreenProps {
+interface SplashScreenPropsTypes {
+  visible: boolean;
   onFinish: () => void;
 }
 
-export const SplashScreen = ({ onFinish }: SplashScreenProps) => {
+export const SplashScreen = ({ visible, onFinish }: SplashScreenPropsTypes) => {
   const { theme } = useUniwind();
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
@@ -18,6 +19,8 @@ export const SplashScreen = ({ onFinish }: SplashScreenProps) => {
   const backgroundColor = isDark ? '#0a0a0a' : '#ffffff';
 
   useEffect(() => {
+    if (!visible) return;
+
     const timer = setTimeout(() => {
       Animated.timing(fadeAnim, {
         toValue: 0,
@@ -32,7 +35,10 @@ export const SplashScreen = ({ onFinish }: SplashScreenProps) => {
   }, []);
 
   return (
-    <Animated.View style={[styles.container, { backgroundColor, opacity: fadeAnim }]}>
+    <Animated.View
+      pointerEvents={visible ? 'auto' : 'none'}
+      style={[styles.container, { backgroundColor, opacity: fadeAnim }]}
+    >
       <Image source={logo} style={styles.logo} resizeMode="contain" />
     </Animated.View>
   );

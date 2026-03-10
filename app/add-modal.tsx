@@ -1,4 +1,4 @@
-import { Pressable, View } from 'react-native';
+import { Platform, Pressable, View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { router, Link } from 'expo-router';
 import { Button } from '@/components/ui/button';
@@ -45,7 +45,12 @@ export default function AddModal() {
   };
 
   return (
-    <Container>
+    <Container edges={['bottom']}>
+      {Platform.OS === 'android' && (
+        <View className="items-center pt-3">
+          <View className="bg-muted-foreground/40 h-1 w-10 rounded-full" />
+        </View>
+      )}
       <View className="flex-1 justify-between px-[20px] pt-[120px]">
         <View className="gap-y-[64px]">
           <View className="gap-y-[20px]">
