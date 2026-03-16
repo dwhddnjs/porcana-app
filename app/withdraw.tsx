@@ -33,7 +33,7 @@ export default function WithdrawScreen() {
 
   return (
     <Container>
-      <Header title="회원탈퇴" rightIcon={ChevronDown} />
+      <Header title="회원탈퇴" backIcon={ChevronDown} />
       <View className="flex-1 px-4 pt-6">
         <Text className="text-foreground mb-6 text-xl font-semibold">회원탈퇴를 하시겠습니까?</Text>
 

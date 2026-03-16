@@ -67,12 +67,12 @@ export default function LoginSheet() {
 
         {/* 이메일 로그인 */}
         <Button
-          variant="outline"
+          // variant="outline"
           size="lg"
-          className="w-full flex-row items-center justify-center gap-3"
+          className="bg-foreground/10 border-muted-foreground/50 w-full flex-row items-center justify-center gap-3 border-[0.5px]"
           onPress={handleEmailLogin}>
           <Icon as={Mail} className="text-foreground size-5" />
-          <Text className="font-semibold">이메일로 로그인</Text>
+          <Text className="text-foreground font-semibold">이메일 로그인</Text>
         </Button>
       </View>
     </View>

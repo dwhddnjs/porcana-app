@@ -1,131 +1,95 @@
 import Container from '@/components/container';
-import { SignInForm } from '@/components/sign-in-form';
-import { Spacer } from '@/components/spacer';
+import { Button } from '@/components/ui/button';
+import { Icon } from '@/components/ui/icon';
+import { useAppleAuth } from '@/lib/hooks/mutation/apple-auth';
+import { useGoogleAuth } from '@/lib/hooks/mutation/google-auth';
+import { router } from 'expo-router';
+import { ChevronDown, Mail } from 'lucide-react-native';
+import { ActivityIndicator, View, Text, useColorScheme } from 'react-native';
+import { AntDesign } from '@expo/vector-icons';
+import { Image } from '@/components/ui/image';
 import { Header } from '@/components/ui/header';
-import { Input } from '@/components/ui/input';
-import { KeyboardStickyButton } from '@/components/ui/keyboard-sticky-button';
-import { Label } from '@/components/ui/label';
-import { Text } from '@/components/ui/text';
-import { ProviderTypes } from '@/lib/api/auth';
-import { useLoginMutation } from '@/lib/hooks/mutation/auth';
-import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
-import { LoginFormDataTypes, loginSchema } from '@/lib/validations/auth';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'expo-router';
-import { useEffect, useRef } from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { TextInput, View } from 'react-native';
-import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import { Spacer } from '@/components/spacer';
 
-export default function LoginScreen() {
-  const router = useRouter();
-  const emailInputRef = useRef<TextInput>(null);
-  const passwordInputRef = useRef<TextInput>(null);
-  const { mutate: login } = useLoginMutation();
+const logoWhite = require('@/assets/images/logo-white.png');
+const logoBlack = require('@/assets/images/logo-black.png');
 
-  const { accessToken, reset, user } = useUserStore();
+export default function Login() {
+  const colorScheme = useColorScheme();
+  const { handleGoogleLogin, isLoading: isGoogleLoading } = useGoogleAuth();
+  const { handleAppleLogin, isLoading: isAppleLoading } = useAppleAuth();
 
-  const handleBackPress = () => {
-    reset();
-    router.replace('/(common)/landing');
+  const handleEmailLogin = () => {
+    router.replace('/email-login');
   };
 
-  const {
-    control,
-    handleSubmit,
-    watch,
-    formState: { errors, isSubmitting },
-  } = useForm<LoginFormDataTypes>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
-  });
-
-  const emailValue = watch('email');
-  const passwordValue = watch('password');
-
-  const onSubmit = async (data: LoginFormDataTypes) => {
-    const requestBody = {
-      email: data.email,
-      password: data.password,
-      provider: 'EMAIL' as ProviderTypes,
-    };
-    login(requestBody);
+  const handleBackPress = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.navigate('/(common)/landing');
+    }
   };
 
   return (
-    <Container isKeyboardAvioding>
-      <Header title="이메일 로그인" onBackPress={handleBackPress} />
-      <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-        <Spacer height={48} />
-        <View className="flex-1 gap-y-[48px] px-[20px]">
-          <View className="gap-y-[18px]">
-            <Label htmlFor="email" className="text-lg font-bold">
-              이메일
-            </Label>
-            <View className="gap-y-[12px]">
-              <Controller
-                control={control}
-                name="email"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <Input
-                    id="email"
-                    placeholder="이메일 입력"
-                    keyboardType="email-address"
-                    autoComplete="email"
-                    autoCapitalize="none"
-                    onSubmitEditing={handleSubmit(onSubmit)}
-                    returnKeyType="done"
-                    submitBehavior="submit"
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                  />
-                )}
-              />
-              {errors.email && (
-                <Text className="text-destructive text-sm">{errors.email.message}</Text>
-              )}
-            </View>
-          </View>
-          <View className="gap-y-[18px]">
-            <Label htmlFor="password" className="text-lg font-bold">
-              비밀번호
-            </Label>
-            <View className="gap-y-[12px]">
-              <Controller
-                control={control}
-                name="password"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <Input
-                    id="password"
-                    placeholder="비밀번호 입력"
-                    secureTextEntry
-                    autoCapitalize="none"
-                    onSubmitEditing={handleSubmit(onSubmit)}
-                    returnKeyType="done"
-                    submitBehavior="submit"
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                  />
-                )}
-              />
-              {errors.password && (
-                <Text className="text-destructive text-sm">{errors.password.message}</Text>
-              )}
-            </View>
-          </View>
+    <Container>
+      <Header title="" backIcon={ChevronDown} onBackPress={handleBackPress} />
+      <View className="flex-1 items-center justify-center">
+        <View className="items-center gap-1">
+          <Image source={colorScheme === 'dark' ? logoWhite : logoBlack} className="size-24" />
         </View>
-      </KeyboardAvoidingView>
-      <KeyboardStickyButton
-        onPress={handleSubmit(onSubmit)}
-        size="lg"
-        disabled={!emailValue.trim() || !passwordValue.trim()}>
-        <Text>로그인</Text>
-      </KeyboardStickyButton>
+      </View>
+      <View className="gap-3 px-5">
+        {/* 구글 로그인 */}
+        <Button
+          size="lg"
+          className="w-full flex-row items-center justify-center gap-3 border-[0.5px] border-black bg-white active:bg-white/80"
+          onPress={handleGoogleLogin}
+          disabled={isGoogleLoading}>
+          {isGoogleLoading ? (
+            <ActivityIndicator size="small" color="#000" />
+          ) : (
+            <>
+              <Image
+                source={{ uri: 'https://img.clerk.com/static/google.png?width=160' }}
+                className="size-5"
+              />
+              <Text className="font-semibold text-black">구글로 로그인</Text>
+            </>
+          )}
+        </Button>
+
+        {/* 애플 로그인 */}
+        <Button
+          size="lg"
+          className="border-primary w-full flex-row items-center justify-center gap-3 border-[0.5px] bg-black active:bg-black/30"
+          onPress={handleAppleLogin}
+          disabled={isAppleLoading}>
+          {isAppleLoading ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <>
+              <Image
+                source={{ uri: 'https://img.clerk.com/static/apple.png?width=160' }}
+                className="size-5"
+                tintColor="white"
+              />
+              <Text className="font-semibold text-white">애플로 로그인</Text>
+            </>
+          )}
+        </Button>
+
+        {/* 이메일 로그인 */}
+        <Button
+          // variant="outline"
+          size="lg"
+          className="bg-foreground/10 border-muted-foreground/50 w-full flex-row items-center justify-center gap-3 border-[0.5px]"
+          onPress={handleEmailLogin}>
+          <Icon as={Mail} className="text-foreground size-5" />
+          <Text className="text-foreground font-semibold">이메일 로그인</Text>
+        </Button>
+      </View>
+      <Spacer className="h-5" />
     </Container>
   );
 }

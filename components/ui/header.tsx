@@ -1,4 +1,4 @@
-import { View, Pressable } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
 import { Icon } from './icon';
@@ -12,6 +12,7 @@ type HeaderProps = {
   onBackPress?: () => void;
   rightContent?: React.ReactNode;
   className?: string;
+  backIcon?: any;
   rightIcon?: any;
 };
 
@@ -20,7 +21,8 @@ export const Header = ({
   showBackButton = true,
   onBackPress,
   rightContent,
-  rightIcon = ChevronLeft,
+  backIcon = ChevronLeft,
+  rightIcon,
   className,
 }: HeaderProps) => {
   const router = useRouter();
@@ -35,15 +37,18 @@ export const Header = ({
   };
 
   return (
-    <View className={cn('h-14 flex-row items-center justify-between px-4', className)}>
+    <View className={cn('z-10 h-14 flex-row items-center justify-between px-2', className)}>
       {/* 왼쪽 영역 - 백버튼 */}
-      <View className="w-10 items-start">
-        {showBackButton && (
-          <Pressable onPress={handleBackPress} className="-ml-3 p-2 active:opacity-70" hitSlop={8}>
-            <Icon as={rightIcon} className="text-foreground size-[28px]" />
-          </Pressable>
-        )}
-      </View>
+      {showBackButton ? (
+        <Pressable
+          onPress={handleBackPress}
+          hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
+          style={{ padding: 8 }}>
+          <Icon as={backIcon} className="text-foreground size-[28px]" />
+        </Pressable>
+      ) : (
+        <View className="w-10" />
+      )}
 
       {/* 중앙 영역 - 타이틀 */}
       <View className="flex-1 items-center">

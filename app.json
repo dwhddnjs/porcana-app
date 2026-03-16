@@ -8,15 +8,6 @@
     "scheme": "com.porcana",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/images/logo/splash-icon-light.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff",
-      "dark": {
-        "image": "./assets/images/logo/splash-icon-dark.png",
-        "backgroundColor": "#000000"
-      }
-    },
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": false,
@@ -60,6 +51,18 @@
       "expo-router",
       "expo-web-browser",
       "expo-apple-authentication",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#ffffff",
+          "image": "./assets/images/logo/splash-icon-light.png",
+          "imageWidth": 200,
+          "dark": {
+            "backgroundColor": "#000000",
+            "image": "./assets/images/logo/splash-icon-dark.png"
+          }
+        }
+      ],
       [
         "expo-updates",
         {

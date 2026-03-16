@@ -2,8 +2,8 @@ import { useEffect, useRef } from 'react';
 import { Animated, Image, StyleSheet } from 'react-native';
 import { useUniwind } from 'uniwind';
 
-const logoWhite = require('@/assets/images/logo-white.png');
-const logoBlack = require('@/assets/images/logo-black.png');
+const logoWhite = require('@/assets/images/logo/splash-icon-white.png');
+const logoBlack = require('@/assets/images/logo/splash-icon-black.png');
 
 interface SplashScreenPropsTypes {
   visible: boolean;
@@ -37,9 +37,8 @@ export const SplashScreen = ({ visible, onFinish }: SplashScreenPropsTypes) => {
   return (
     <Animated.View
       pointerEvents={visible ? 'auto' : 'none'}
-      style={[styles.container, { backgroundColor, opacity: fadeAnim }]}
-    >
-      <Image source={logo} style={styles.logo} resizeMode="contain" />
+      style={[styles.container, { backgroundColor, opacity: fadeAnim }]}>
+      <Image source={logo} resizeMode="contain" />
     </Animated.View>
   );
 };
@@ -54,5 +53,7 @@ const styles = StyleSheet.create({
   logo: {
     width: 120,
     height: 120,
+    borderWidth: 2,
+    borderColor: '#ffffff',
   },
 });

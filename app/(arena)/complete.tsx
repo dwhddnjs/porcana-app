@@ -13,7 +13,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { getRiskStarColor } from '@/lib/constant/function';
 
-
 export default function ArenaComplete() {
   const colorScheme = useColorScheme() ?? 'light';
   const { name, portfolioId, selectedCards, resetArena } = useArenaStore();
@@ -114,9 +113,7 @@ export default function ArenaComplete() {
       </Animated.View>
 
       {/* 하단 버튼 */}
-      <Animated.View
-        entering={FadeInDown.duration(500).delay(500)}
-        className="gap-3 px-4 pt-4">
+      <Animated.View entering={FadeInDown.duration(500).delay(500)} className="gap-3 px-4 pt-4">
         <Button onPress={handleOpenLoginSheet} className="w-full" size="lg">
           <Text className="font-semibold">{user ? '포트폴리오 보러가기' : '로그인 하러가기'}</Text>
         </Button>

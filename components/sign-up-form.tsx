@@ -1,12 +1,6 @@
 import { SocialConnections } from '@/components/social-connections';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
@@ -50,7 +44,7 @@ export function SignUpForm() {
 
   return (
     <View className="gap-6">
-      <Card className="border-border/0 sm:border-border shadow-none sm:shadow-sm sm:shadow-black/5 bg-background">
+      <Card className="border-border/0 sm:border-border bg-background shadow-none sm:shadow-sm sm:shadow-black/5">
         <CardHeader>
           <CardTitle className="text-center text-xl sm:text-left">Create your account</CardTitle>
           <CardDescription className="text-center sm:text-left">
@@ -134,7 +128,7 @@ export function SignUpForm() {
           </View>
           <Text className="text-center text-sm">
             Already have an account?{' '}
-            <Pressable onPress={() => router.push('/(auth)/login')}>
+            <Pressable onPress={() => router.push('/(auth)/email-login')}>
               <Text className="text-sm underline underline-offset-4">Sign in</Text>
             </Pressable>
           </Text>

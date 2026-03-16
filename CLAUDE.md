@@ -58,27 +58,32 @@ npm run clean        # .expo, node_modules 삭제
 ## Architecture Patterns
 
 ### API Layer
+
 - Base URL: `EXPO_PUBLIC_API_BASE_URL/api/v1/` (프로덕션: `https://api.porcana.co.kr`)
 - Request 인터셉터: `Authorization: Bearer {token}` 자동 주입, 게스트는 `X-Guest-Session-Id` 헤더 사용
 - Response 인터셉터: 401 시 자동 토큰 리프레시 + 요청 큐잉 후 재시도
 
 ### State Management
+
 - `useUserStore`: 사용자 정보 + 토큰 (AsyncStorage 영속화)
 - `useSignupStore`: 회원가입 플로우 임시 상태
 - `useArenaStore`: 아레나 세션 상태
 - `useLoadingStore`: 글로벌 로딩 오버레이. `show('메시지')` / `hide()` — mutation 시 로딩 표시 권장
 
 ### React Query Config
+
 - staleTime: 5분, gcTime: 10분, retry: 2 (query) / 1 (mutation)
 - expo-network 기반 네트워크 상태 감지
 - 앱 포커스 시 자동 refetch
 
 ### Component Styling
+
 - CVA(Class Variance Authority)로 variant 기반 컴포넌트 스타일링
 - `cn()` 유틸리티: clsx + tailwind-merge 조합
 - 다크/라이트 모드 지원 (Uniwind ThemeProvider)
 
 ### Auth Flow
+
 - Email 인증: enter-email → enter-password → enter-nickname → signup → auto-login
 - OAuth: Google (expo-auth-session), Apple (expo-apple-authentication)
 - 토큰 관리: Zustand persist → AsyncStorage, 자동 리프레시 인터셉터
@@ -137,20 +142,20 @@ EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID # Google OAuth Android 클라이언트 ID
 
 ## Key API Endpoints
 
-| Module    | Method | Path                                              | Description        |
-|-----------|--------|---------------------------------------------------|--------------------|
-| Auth      | POST   | /auth/signup                                      | 이메일 회원가입    |
-| Auth      | POST   | /auth/login                                       | 로그인 (EMAIL/GOOGLE/APPLE) |
-| Auth      | POST   | /auth/refresh                                     | 토큰 갱신          |
-| Portfolio | POST   | /portfolios                                       | 포트폴리오 생성    |
-| Portfolio | GET    | /portfolios                                       | 포트폴리오 목록    |
-| Portfolio | GET    | /portfolios/:id                                   | 포트폴리오 상세    |
-| Arena     | POST   | /arena/sessions                                   | 아레나 세션 생성   |
-| Arena     | POST   | /arena/sessions/:id/rounds/current/pick-preferences | 선호도 설정      |
-| Arena     | POST   | /arena/sessions/:id/rounds/current/pick-asset     | 에셋 선택          |
-| Asset     | GET    | /assets/:id                                       | 에셋 상세          |
-| Asset     | GET    | /assets/:id/chart?range=1M\|3M\|1Y               | 에셋 차트 데이터   |
-| Home      | GET    | /home                                             | 홈 대시보드        |
+| Module    | Method | Path                                                | Description                 |
+| --------- | ------ | --------------------------------------------------- | --------------------------- |
+| Auth      | POST   | /auth/signup                                        | 이메일 회원가입             |
+| Auth      | POST   | /auth/email-login                                   | 로그인 (EMAIL/GOOGLE/APPLE) |
+| Auth      | POST   | /auth/refresh                                       | 토큰 갱신                   |
+| Portfolio | POST   | /portfolios                                         | 포트폴리오 생성             |
+| Portfolio | GET    | /portfolios                                         | 포트폴리오 목록             |
+| Portfolio | GET    | /portfolios/:id                                     | 포트폴리오 상세             |
+| Arena     | POST   | /arena/sessions                                     | 아레나 세션 생성            |
+| Arena     | POST   | /arena/sessions/:id/rounds/current/pick-preferences | 선호도 설정                 |
+| Arena     | POST   | /arena/sessions/:id/rounds/current/pick-asset       | 에셋 선택                   |
+| Asset     | GET    | /assets/:id                                         | 에셋 상세                   |
+| Asset     | GET    | /assets/:id/chart?range=1M\|3M\|1Y                  | 에셋 차트 데이터            |
+| Home      | GET    | /home                                               | 홈 대시보드                 |
 
 ## 기타
 
