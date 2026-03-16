@@ -1,3 +1,4 @@
+import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { useEffect, useRef } from 'react';
 import { Animated, Image, StyleSheet } from 'react-native';
 import { useUniwind } from 'uniwind';

@@ -5,11 +5,12 @@ import { useAppleAuth } from '@/lib/hooks/mutation/apple-auth';
 import { useGoogleAuth } from '@/lib/hooks/mutation/google-auth';
 import { router } from 'expo-router';
 import { ChevronDown, Mail } from 'lucide-react-native';
-import { ActivityIndicator, View, Text, useColorScheme } from 'react-native';
+import { ActivityIndicator, Platform, View, Text, useColorScheme } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { Image } from '@/components/ui/image';
 import { Header } from '@/components/ui/header';
 import { Spacer } from '@/components/spacer';
+import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 
 const logoWhite = require('@/assets/images/logo-white.png');
 const logoBlack = require('@/assets/images/logo-black.png');
@@ -18,16 +19,20 @@ export default function Login() {
   const colorScheme = useColorScheme();
   const { handleGoogleLogin, isLoading: isGoogleLoading } = useGoogleAuth();
   const { handleAppleLogin, isLoading: isAppleLoading } = useAppleAuth();
+  const { user, reset } = useUserStore();
 
   const handleEmailLogin = () => {
     router.replace('/email-login');
   };
 
   const handleBackPress = () => {
-    if (router.canGoBack()) {
+    if (user) {
+      reset();
+      router.replace('/(common)/landing');
+    } else if (router.canGoBack()) {
       router.back();
     } else {
-      router.navigate('/(common)/landing');
+      router.replace('/(common)/landing');
     }
   };
 
@@ -60,24 +65,26 @@ export default function Login() {
         </Button>
 
         {/* 애플 로그인 */}
-        <Button
-          size="lg"
-          className="border-primary w-full flex-row items-center justify-center gap-3 border-[0.5px] bg-black active:bg-black/30"
-          onPress={handleAppleLogin}
-          disabled={isAppleLoading}>
-          {isAppleLoading ? (
-            <ActivityIndicator size="small" color="#fff" />
-          ) : (
-            <>
-              <Image
-                source={{ uri: 'https://img.clerk.com/static/apple.png?width=160' }}
-                className="size-5"
-                tintColor="white"
-              />
-              <Text className="font-semibold text-white">애플로 로그인</Text>
-            </>
-          )}
-        </Button>
+        {Platform.OS === 'ios' && (
+          <Button
+            size="lg"
+            className="border-primary w-full flex-row items-center justify-center gap-3 border-[0.5px] bg-black active:bg-black/30"
+            onPress={handleAppleLogin}
+            disabled={isAppleLoading}>
+            {isAppleLoading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <>
+                <Image
+                  source={{ uri: 'https://img.clerk.com/static/apple.png?width=160' }}
+                  className="size-5"
+                  tintColor="white"
+                />
+                <Text className="font-semibold text-white">애플로 로그인</Text>
+              </>
+            )}
+          </Button>
+        )}
 
         {/* 이메일 로그인 */}
         <Button

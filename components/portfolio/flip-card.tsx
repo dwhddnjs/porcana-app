@@ -155,18 +155,24 @@ export const FlipCard = memo(function FlipCard({
           </View>
 
           {/* 중앙: 섹터 + 마켓 */}
-          <View className="mt-1.5 flex-row flex-wrap gap-1">
-            <View className="bg-primary/10 items-center justify-center rounded px-1.5 py-0.5">
-              <Text className="text-primary text-xs font-semibold">
-                {sectorLabels[asset.sector] || asset.sector}
-              </Text>
+          {(asset.sector || asset.market) && (
+            <View className="mt-1.5 flex-row flex-wrap gap-1">
+              {asset.sector && (
+                <View className="bg-primary/10 items-center justify-center rounded px-1.5 py-0.5">
+                  <Text className="text-primary text-xs font-semibold">
+                    {sectorLabels[asset.sector] || asset.sector}
+                  </Text>
+                </View>
+              )}
+              {asset.market && (
+                <View className="border-primary/10 rounded border-2 px-1.5 py-0.5">
+                  <Text className="text-muted-foreground text-xs font-semibold">
+                    {asset.market}
+                  </Text>
+                </View>
+              )}
             </View>
-            <View className="border-primary/10 rounded border-2 px-1.5 py-0.5">
-              <Text className="text-muted-foreground text-xs font-semibold">
-                {asset.market}
-              </Text>
-            </View>
-          </View>
+          )}
 
           <View className="flex-1 items-center justify-center">
             <Text className="text-primary text-center text-xs" numberOfLines={2}>
@@ -177,14 +183,8 @@ export const FlipCard = memo(function FlipCard({
           {/* 리스크 레벨 */}
           <View className="mt-auto items-center justify-start gap-1.5">
             <View className="flex-row items-center gap-1">
-              <Icon
-                as={TriangleAlert}
-                size={14}
-                className="text-muted-foreground"
-              />
-              <Text className="text-muted-foreground text-xs font-bold">
-                리스크
-              </Text>
+              <Icon as={TriangleAlert} size={14} className="text-muted-foreground" />
+              <Text className="text-muted-foreground text-xs font-bold">리스크</Text>
             </View>
             <View className="flex-row items-center gap-1.5 pb-[3px]">
               {Array.from({ length: 5 }).map((_, i) => (

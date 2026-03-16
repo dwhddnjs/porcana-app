@@ -18,6 +18,7 @@ export default function MypageScreen() {
     queryClient.clear();
     logout();
     toast.success('로그아웃 되었습니다.');
+    router.dismissAll();
     router.replace('/(auth)/login');
   };
 
