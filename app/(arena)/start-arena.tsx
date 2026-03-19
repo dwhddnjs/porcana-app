@@ -1,4 +1,4 @@
-import { Platform, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, Platform, View, useColorScheme, useWindowDimensions } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { FlipCard } from '@/components/portfolio/flip-card';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
@@ -10,10 +10,12 @@ import { useNavigation, DrawerActions } from '@react-navigation/native';
 import { useGetArenaSessionRoundsQuery } from '@/lib/hooks/query/arena';
 import { usePickArenaSessionAssetMutation } from '@/lib/hooks/mutation/arena';
 import { useArenaStore, AssetTypes } from '@/lib/hooks/zustand/use-arena-store';
+import { THEME } from '@/lib/theme';
 
 const MAX_ROUNDS = 10;
 
 export default function CreatePortfolio() {
+  const colorScheme = useColorScheme() ?? 'light';
   const { height: screenHeight } = useWindowDimensions();
   const navigation = useNavigation();
   const { selectedCards, addCard, clearCards } = useArenaStore();
@@ -168,7 +170,7 @@ export default function CreatePortfolio() {
       {/* 카드 영역 */}
       <View className="flex-1 items-center justify-center">
         {isLoading || isPending ? (
-          <Text className="text-muted-foreground">로딩 중...</Text>
+          <ActivityIndicator size="large" color={THEME[colorScheme].mutedForeground} />
         ) : (
           showCards &&
           currentAssets.length > 0 && (

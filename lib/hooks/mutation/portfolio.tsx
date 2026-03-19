@@ -18,42 +18,60 @@ import { setGuestSessionId } from '@/lib/api';
 
 export const useCreatePortfolioMutation = () => {
   const { user } = useUserStore((state) => state);
-  const { setPortfolio, resetArena } = useArenaStore((state) => state);
+  const { setPortfolio, setPicked, resetArena } = useArenaStore((state) => state);
   const { show, hide } = useLoadingStore();
   const router = useRouter();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (name: string) => {
-      if (user?.userId) {
-        return createPortfolio({ name });
+    mutationFn: async ({
+      name,
+      riskProfile,
+      sectors,
+    }: {
+      name: string;
+      riskProfile: string;
+      sectors: string[];
+    }) => {
+      if (!user?.userId) {
+        const { guestSessionId } = await createGuestSession();
+        setGuestSessionId(guestSessionId);
       }
-      const { guestSessionId } = await createGuestSession();
-      setGuestSessionId(guestSessionId);
-      return createPortfolio({ name });
+
+      // 1. 포트폴리오 생성
+      const portfolio = await createPortfolio({ name });
+
+      // 2. 아레나 세션 생성
+      const session = await createArenaSessions({ portfolioId: portfolio.portfolioId });
+
+      // 3. 선호도 설정
+      const preference = await pickArenaSessionPreference({
+        sessionId: session.sessionId,
+        riskProfile,
+        sectors,
+      });
+
+      return { portfolio, session, preference };
     },
     onMutate: () => {
-      // 이전 아레나 상태 및 캐시 정리
       resetArena();
       queryClient.removeQueries({ queryKey: ['arena-session-rounds'] });
       show('포트폴리오 생성 중...');
     },
-    onSuccess: async (data) => {
-      if (!data) return;
-      const response = await createArenaSessions({ portfolioId: data.portfolioId });
-      if (!response) return;
-
+    onSuccess: ({ portfolio, session, preference }) => {
       setPortfolio({
-        name: data.name,
-        portfolioId: data.portfolioId,
-        sessionId: response.sessionId,
-        status: response.status,
-        currentRound: response.currentRound,
+        name: portfolio.name,
+        portfolioId: portfolio.portfolioId,
+        sessionId: session.sessionId,
+        status: session.status,
+        currentRound: session.currentRound,
       });
-      router.push('/add-modal');
+      setPicked(preference.picked, preference.currentRound);
+      router.dismiss();
+      router.push('/start-arena');
     },
     onError: (error) => {
-      console.error('PortfolioTypes creation failed:', error);
+      console.error('Portfolio creation failed:', error);
     },
     onSettled: () => {
       hide();

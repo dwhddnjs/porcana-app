@@ -1,14 +1,27 @@
+---
+name: create-screen
+description: Porcana 앱의 Expo Router 스크린을 생성합니다. 화면 만들기, 새 페이지 생성, 라우트 추가 시 사용.
+argument-hint: "<경로> [설명]"
+allowed-tools: Read, Write, Glob, Grep
+---
+
 # Create Screen
 
 주어진 인수를 바탕으로 Porcana 앱의 Expo Router 스크린을 생성합니다.
 
-**사용법**: `/create-screen <경로> [설명]`
+인수: $ARGUMENTS
 
 예시:
 - `/create-screen (tabs)/(portfolio)/detail` → `app/(tabs)/(portfolio)/detail.tsx`
 - `/create-screen (auth)/verify-email` → `app/(auth)/verify-email.tsx`
 
 > 네이밍, 타입, 이벤트 핸들러 등 일반 규칙은 CLAUDE.md를 따릅니다.
+
+## 절차
+
+1. `app/` 디렉토리 구조 파악
+2. 관련 기존 스크린을 읽어 패턴을 맞춤
+3. 스크린 생성
 
 ## 스크린 전용 규칙
 
@@ -34,5 +47,3 @@ export default function DetailScreen() {
   );
 }
 ```
-
-생성 전에 `app/` 디렉토리 구조를 파악하고, 관련 기존 스크린을 읽어 패턴을 맞추세요.

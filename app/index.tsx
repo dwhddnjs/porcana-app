@@ -8,5 +8,4 @@ export default function Index() {
   if (user && !accessToken && !refreshToken) return <Redirect href="/email-login" />;
 
   return <Redirect href="/(tabs)" />;
-  // return <Redirect href="/landing" />;
 }

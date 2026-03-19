@@ -17,7 +17,9 @@ export default function PortfolioScreen() {
   const navigation = useNavigation();
   const router = useRouter();
   const { show, hide } = useLoadingStore();
-  const { user } = useUserStore();
+  const { user, accessToken } = useUserStore();
+
+  console.log(accessToken);
 
   const { data, isLoading } = useGetHomeQuery();
 

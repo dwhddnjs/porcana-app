@@ -1,14 +1,28 @@
+---
+name: create-mutation
+description: lib/hooks/mutation/에 React Query 뮤테이션 훅을 생성합니다. 뮤테이션 훅 만들기, useMutation 생성, 데이터 변경 훅 시 사용.
+argument-hint: "<액션명> [설명]"
+allowed-tools: Read, Write, Glob, Grep
+---
+
 # Create Mutation Hook
 
 주어진 인수를 바탕으로 `lib/hooks/mutation/` 에 React Query 뮤테이션 훅을 생성합니다.
 
-**사용법**: `/create-mutation <액션명> [설명]`
+인수: $ARGUMENTS
 
 예시:
 - `/create-mutation create-portfolio` → `useCreatePortfolioMutation` 훅 생성
 - `/create-mutation delete-asset 에셋 삭제` → `useDeleteAssetMutation` 훅 생성
 
 > 네이밍, 타입 등 일반 규칙은 CLAUDE.md를 따릅니다.
+
+## 절차
+
+1. 기존 `lib/hooks/mutation/` 파일들을 읽어 패턴 파악
+2. 대응하는 API 함수(`lib/api/`)의 타입 확인
+3. `useLoadingStore`의 임포트 경로는 기존 코드를 확인 후 맞춤
+4. 뮤테이션 훅 생성
 
 ## 뮤테이션 훅 전용 규칙
 
@@ -46,6 +60,3 @@ export const useCreatePortfolioMutation = () => {
   });
 };
 ```
-
-생성 전에 기존 `lib/hooks/mutation/` 파일들을 읽어 패턴을 파악하세요.
-`useLoadingStore`의 임포트 경로는 기존 코드를 확인 후 맞추세요.
