@@ -1,0 +1,61 @@
+import { Pressable, View, useColorScheme } from 'react-native';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import { Text } from '@/components/ui/text';
+import { Image } from '@/components/ui/image';
+import { Icon } from '@/components/ui/icon';
+import { X } from 'lucide-react-native';
+import { AssetLibraryItemTypes } from '@/lib/api/asset';
+import { getRiskStarColor } from '@/lib/constant/function';
+
+interface SelectedAssetItemProps {
+  asset: AssetLibraryItemTypes;
+  onRemove: () => void;
+}
+
+export const SelectedAssetItem = ({ asset, onRemove }: SelectedAssetItemProps) => {
+  const colorScheme = useColorScheme() ?? 'light';
+
+  return (
+    <Animated.View entering={FadeIn.duration(200)} exiting={FadeOut.duration(150)}>
+      <View className="bg-card border-border flex-row items-center gap-2 rounded-lg border p-2">
+        <Image
+          source={asset.imageUrl}
+          className="bg-background h-8 w-8 rounded-full"
+          contentFit="contain"
+          emptyIconClassName="size-4"
+        />
+
+        <View className="flex-1">
+          <Text
+            numberOfLines={1}
+            ellipsizeMode="tail"
+            className="text-foreground max-w-[100px] text-sm font-semibold text-ellipsis">
+            {asset.name}
+          </Text>
+          <Text className="text-muted-foreground text-xs" numberOfLines={1}>
+            {asset.symbol}
+          </Text>
+        </View>
+
+        <View
+          className="h-6 w-6 items-center justify-center rounded-full border-[1.5px]"
+          style={{ borderColor: getRiskStarColor(asset.currentRiskLevel, colorScheme) }}>
+          <Text
+            style={{
+              color: getRiskStarColor(asset.currentRiskLevel, colorScheme),
+              includeFontPadding: false,
+              textAlignVertical: 'center',
+              lineHeight: 20,
+            }}
+            className="text-xs font-bold">
+            {asset.currentRiskLevel}
+          </Text>
+        </View>
+
+        <Pressable onPress={onRemove} className="ml-1 p-1">
+          <Icon as={X} size={14} className="text-muted-foreground" />
+        </Pressable>
+      </View>
+    </Animated.View>
+  );
+};

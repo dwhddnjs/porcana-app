@@ -59,7 +59,7 @@ export default function TabLayout() {
   const handleCustomMode = () => {
     rotation.value = withTiming(0, { duration: 300, easing: Easing.out(Easing.cubic) });
     setOverlayOpen(false);
-    router.push('/custom-portfolio');
+    router.push('/(custom-portfolio)/custom-portfolio');
   };
 
   return (

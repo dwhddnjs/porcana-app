@@ -74,6 +74,10 @@ export default function RootLayout() {
                   sheetGrabberVisible: false,
                 }}
               />
+              <Stack.Screen
+                name="(custom-portfolio)"
+                options={{ headerShown: false }}
+              />
               <Stack.Screen name="component-preview" options={{ headerShown: false }} />
               <Stack.Screen name="color-mode" options={{ headerShown: false }} />
               <Stack.Screen name="edit-profile" options={{ headerShown: false }} />

@@ -4,7 +4,6 @@ export default function CommonLayout() {
   return (
     <Stack screenOptions={{ headerShown: false, animation: 'fade' }}>
       <Stack.Screen options={{ animation: 'fade' }} name="landing" />
-      <Stack.Screen options={{ animation: 'fade' }} name="custom-portfolio" />
     </Stack>
   );
 }
