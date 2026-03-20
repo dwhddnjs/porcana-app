@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Icon } from '@/components/ui/icon';
 import { Image } from '@/components/ui/image';
-import { ArrowLeft, Search, SlidersHorizontal, Star, TriangleAlert, Check } from 'lucide-react-native';
+import { ChevronLeft, Search, SlidersHorizontal, Star, TriangleAlert, Check } from 'lucide-react-native';
 import { useState, useCallback, useRef, useMemo } from 'react';
 import Animated, {
   useSharedValue,
@@ -225,7 +225,7 @@ export default function CustomPortfolio() {
       {/* 상단바 */}
       <View className="border-border flex-row items-center gap-3 border-b px-4 pb-2 pt-3">
         <Pressable onPress={handleBack} className="p-1">
-          <Icon as={ArrowLeft} size={22} className="text-primary" />
+          <Icon as={ChevronLeft} size={22} className="text-primary" />
         </Pressable>
 
         <View className="bg-muted flex-1 flex-row items-center rounded-lg px-3 py-1.5">
