@@ -9,15 +9,16 @@ import { getRiskStarColor } from '@/lib/constant/function';
 
 interface SelectedAssetItemProps {
   asset: AssetLibraryItemTypes;
+  index: number;
   onRemove: () => void;
 }
 
-export const SelectedAssetItem = ({ asset, onRemove }: SelectedAssetItemProps) => {
+export const SelectedAssetItem = ({ asset, index, onRemove }: SelectedAssetItemProps) => {
   const colorScheme = useColorScheme() ?? 'light';
 
   return (
     <Animated.View entering={FadeIn.duration(200)} exiting={FadeOut.duration(150)}>
-      <View className="bg-card border-border flex-row items-center gap-2 rounded-lg border p-2">
+      <View className="bg-card border-border relative flex-row items-center gap-2 rounded-lg border p-2 pr-2">
         <Image
           source={asset.imageUrl}
           className="bg-background h-8 w-8 rounded-full"
@@ -52,8 +53,10 @@ export const SelectedAssetItem = ({ asset, onRemove }: SelectedAssetItemProps) =
           </Text>
         </View>
 
-        <Pressable onPress={onRemove} className="ml-1 p-1">
-          <Icon as={X} size={14} className="text-muted-foreground" />
+        <Pressable
+          onPress={onRemove}
+          className="bg-background border-muted-foreground absolute -top-2 -right-2 h-5 w-5 items-center justify-center rounded-full border">
+          <Icon as={X} size={12} className="text-muted-foreground" />
         </Pressable>
       </View>
     </Animated.View>

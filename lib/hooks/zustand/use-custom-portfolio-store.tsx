@@ -11,9 +11,11 @@ export interface FilterValuesTypes {
 }
 
 interface CustomPortfolioStateTypes {
+  portfolioName: string;
   selectedAssets: AssetLibraryItemTypes[];
   filters: FilterValuesTypes;
   quickMode: boolean;
+  setPortfolioName: (name: string) => void;
   addAsset: (asset: AssetLibraryItemTypes) => void;
   removeAsset: (assetId: string) => void;
   clearAssets: () => void;
@@ -28,11 +30,14 @@ const DEFAULT_FILTERS: FilterValuesTypes = {
 };
 
 export const useCustomPortfolioStore = create<CustomPortfolioStateTypes>((set) => ({
+  portfolioName: '',
   selectedAssets: [],
   filters: { ...DEFAULT_FILTERS },
   quickMode: false,
+  setPortfolioName: (name) => set({ portfolioName: name }),
   addAsset: (asset) =>
     set((state) => {
+      if (state.selectedAssets.length >= 10) return state;
       if (state.selectedAssets.some((a) => a.assetId === asset.assetId)) return state;
       return { selectedAssets: [...state.selectedAssets, asset] };
     }),
@@ -40,7 +45,7 @@ export const useCustomPortfolioStore = create<CustomPortfolioStateTypes>((set) =
     set((state) => ({
       selectedAssets: state.selectedAssets.filter((a) => a.assetId !== assetId),
     })),
-  clearAssets: () => set({ selectedAssets: [] }),
+  clearAssets: () => set({ selectedAssets: [], portfolioName: '' }),
   setFilters: (filters) => set({ filters }),
   resetFilters: () => set({ filters: { ...DEFAULT_FILTERS } }),
   toggleQuickMode: () => set((state) => ({ quickMode: !state.quickMode })),
