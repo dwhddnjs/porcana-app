@@ -10,6 +10,7 @@ import {
   FilterValuesTypes,
 } from '@/lib/hooks/zustand/use-custom-portfolio-store';
 import type { DrawerContentComponentProps } from '@react-navigation/drawer';
+import { Spacer } from '../spacer';
 
 interface FilterDrawerContentProps {
   navigation: DrawerContentComponentProps['navigation'];
@@ -85,11 +86,11 @@ export const FilterDrawerContent = ({ navigation }: FilterDrawerContentProps) =>
   };
 
   return (
-    <View className="bg-background flex-1 px-4 pt-12">
-      <Text className="text-primary mb-4 text-xl font-bold">필터</Text>
+    <View className="bg-background flex-1 px-4 pt-5">
+      <Text className="text-primary mb-3 text-xl font-bold">필터</Text>
 
       {/* 퀵모드 스위치 */}
-      <View className="border-border mb-4 flex-row items-center justify-between border-b pb-4">
+      <View className="border-border mb-3 flex-row items-center justify-between border-b pb-3">
         <View>
           <Text className="text-primary text-sm font-bold">퀵 모드</Text>
           <Text className="text-muted-foreground text-xs">터치만으로 바로 추가</Text>
@@ -174,11 +175,7 @@ export const FilterDrawerContent = ({ navigation }: FilterDrawerContentProps) =>
               ] as const
             ).map(({ key, label }) => {
               const isActive = localFilters.sortBy === key;
-              const dirLabel = isActive
-                ? localFilters.sortDirection === 'asc'
-                  ? ' ↑'
-                  : ' ↓'
-                : '';
+              const dirLabel = isActive ? (localFilters.sortDirection === 'asc' ? ' ↑' : ' ↓') : '';
               return (
                 <ToggleChip
                   key={key}
@@ -190,10 +187,11 @@ export const FilterDrawerContent = ({ navigation }: FilterDrawerContentProps) =>
             })}
           </View>
         </View>
+        <Spacer height={20} />
       </ScrollView>
 
       {/* Buttons */}
-      <View className="flex-row gap-3 pb-6">
+      <View className="flex-row gap-3 pt-3 pb-4">
         <Button variant="outline" className="flex-1" onPress={handleReset}>
           <Text>초기화</Text>
         </Button>
@@ -215,7 +213,7 @@ const ToggleChip = ({ label, isSelected, onPress }: ToggleChipProps) => {
   return (
     <Pressable
       onPress={onPress}
-      className={`border-primary rounded-full border-2 px-3 py-1 ${isSelected ? 'bg-primary' : ''}`}>
+      className={`border-primary rounded-full border px-3 py-1 ${isSelected ? 'bg-primary' : ''}`}>
       <Text className={`text-sm ${isSelected ? 'text-primary-foreground font-bold' : ''}`}>
         {label}
       </Text>
