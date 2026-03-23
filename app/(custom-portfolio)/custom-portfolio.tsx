@@ -293,7 +293,6 @@ export default function CustomPortfolio() {
           />
         </View>
 
-        
         <Pressable onPress={handleOpenFilter} className="p-1">
           <Icon as={SlidersHorizontal} size={24} className="text-primary" />
         </Pressable>
@@ -421,6 +420,7 @@ const DraggableAssetCard = ({
       }, flipDelay);
       return () => clearTimeout(timer);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleTap = () => onTap(asset);

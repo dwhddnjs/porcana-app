@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { View, ScrollView, LayoutChangeEvent } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { SelectedAssetItem } from './selected-asset-item';
@@ -17,8 +18,9 @@ export const DropZone = ({
   isDragOverSV,
   onLayout,
 }: DropZoneProps) => {
+  const reversedAssets = useMemo(() => [...selectedAssets].reverse(), [selectedAssets]);
+
   const borderStyle = useAnimatedStyle(() => ({
-    borderColor: isDragOverSV.value ? undefined : undefined,
     opacity: isDragOverSV.value ? 1 : 0,
   }));
 
@@ -54,7 +56,7 @@ export const DropZone = ({
             paddingBottom: 8,
             paddingHorizontal: 12,
           }}>
-          {[...selectedAssets].reverse().map((asset, index) => {
+          {reversedAssets.map((asset, index) => {
             const handleRemove = () => onRemoveAsset(asset.assetId);
             return (
               <SelectedAssetItem
