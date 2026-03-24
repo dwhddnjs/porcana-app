@@ -33,12 +33,13 @@ export const DropZone = ({
         className="bg-primary/10 border-primary absolute inset-0 z-0 rounded-xl border-2"
       />
 
-      {/* 헤더 — 스크롤 위에 고정 */}
-      {/* <View className="z-10 px-3 pt-3">
-        <Text className="text-primary text-base font-bold">
-          선택된 에셋 ({selectedAssets.length})
+      {/* 헤더 */}
+      <View className="z-10 flex-row items-center justify-between px-3 pt-3">
+        <Text className="text-primary text-base font-bold">선택한 종목</Text>
+        <Text className="text-muted-foreground text-sm font-semibold">
+          {selectedAssets.length} / 10
         </Text>
-      </View> */}
+      </View>
 
       {selectedAssets.length === 0 ? (
         <View className="flex-1 items-center justify-center">

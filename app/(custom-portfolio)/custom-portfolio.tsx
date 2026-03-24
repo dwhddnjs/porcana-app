@@ -39,18 +39,20 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, DrawerActions } from '@react-navigation/native';
 import { useGetAssetLibraryInfiniteQuery } from '@/lib/hooks/query/use-get-asset-library-infinite-query';
 import { useCustomPortfolioStore } from '@/lib/hooks/zustand/use-custom-portfolio-store';
+import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { AssetLibraryItemTypes } from '@/lib/api/asset';
 import { DropZone } from '@/components/custom-portfolio/drop-zone';
 import { getRiskStarColor } from '@/lib/constant/function';
 import { sectorLabels } from '@/lib/constant/variables';
 import { THEME } from '@/lib/theme';
+import { toast } from 'sonner-native';
 
 const logoBlack = require('@/assets/images/logo-black.png');
 const logoWhite = require('@/assets/images/logo-white.png');
 
 const CARD_WIDTH = 128;
 const CARD_HEIGHT = 192;
-const CARD_GAP = 28;
+const CARD_GAP = 24;
 
 export default function CustomPortfolio() {
   const colorScheme = useColorScheme() ?? 'light';
@@ -58,19 +60,20 @@ export default function CustomPortfolio() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const {
-    portfolioName,
-    setPortfolioName,
     selectedAssets,
     filters,
     quickMode,
+    skipNextClear,
     addAsset,
     removeAsset,
     clearAssets,
+    setSkipNextClear,
   } = useCustomPortfolioStore();
+
+  const { user } = useUserStore();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
-  const [isNameFocused, setIsNameFocused] = useState(false);
   const isInitialRender = useRef(true);
 
   const debounceTimer = useRef<ReturnType<typeof setTimeout>>(null);
@@ -96,11 +99,15 @@ export default function CustomPortfolio() {
     }, [])
   );
 
-  // 포커스 시 에셋 초기화
+  // 포커스 시 에셋 초기화 (디테일 화면에서 복귀 시 스킵)
   useFocusEffect(
     useCallback(() => {
+      if (skipNextClear) {
+        setSkipNextClear(false);
+        return;
+      }
       clearAssets();
-    }, [clearAssets])
+    }, [skipNextClear, setSkipNextClear, clearAssets])
   );
 
   // Infinite query
@@ -151,6 +158,19 @@ export default function CustomPortfolio() {
 
   const handleBack = () => {
     router.back();
+  };
+
+  const handleComplete = () => {
+    if (!user?.userId) {
+      router.push('/login-sheet');
+      return;
+    }
+    if (selectedAssets.length !== 10) {
+      toast.error('종목을 10개 선택해주세요');
+      return;
+    }
+    setSkipNextClear(true);
+    router.push('/custom-portfolio-detail');
   };
 
   const handleOpenFilter = useCallback(() => {
@@ -297,18 +317,16 @@ export default function CustomPortfolio() {
           <Icon as={SlidersHorizontal} size={24} className="text-primary" />
         </Pressable>
 
-        <Pressable
-          onPress={handleBack}
-          className="bg-primary h-8 w-8 items-center justify-center rounded-full">
-          <Icon as={Check} size={20} className="text-primary-foreground" />
-        </Pressable>
+        <Button onPress={handleComplete} size="sm" className="bg-primary rounded-lg ">
+          <Text className="text-primary-foreground text-sm font-semibold">다음</Text>
+        </Button>
        
       </View>
 
-      {/* 메인 영역: 7:3 */}
+      {/* 메인 영역: 6.5:4.5 */}
       <View className="flex-1 flex-row">
         {/* 좌측: 에셋 그리드 */}
-        <View style={{ flex: 7, overflow: 'hidden' }} className="px-3">
+        <View style={{ flex: 6.5, overflow: 'hidden' }} className="px-3">
           {isLoading ? (
             <View className="flex-1 items-center justify-center">
               <ActivityIndicator size="large" color={THEME[colorScheme].mutedForeground} />
@@ -339,16 +357,8 @@ export default function CustomPortfolio() {
           )}
         </View>
 
-        {/* 우측: 이름 입력 + 드롭존 */}
-        <View style={{ flex: 3 }} className="gap-2 pt-1 py-3 ">
-          <Input
-            value={portfolioName}
-            onChangeText={setPortfolioName}
-            onFocus={() => setIsNameFocused(true)}
-            onBlur={() => setIsNameFocused(false)}
-            placeholder="포트폴리오 이름"
-            className={`native:h-9 border-border rounded-lg border text-sm ${!isNameFocused && portfolioName ? 'bg-card dark:bg-card' : 'bg-background dark:bg-background'}`}
-          />
+        {/* 우측: 드롭존 */}
+        <View style={{ flex: 3.5 }} className="pt-1 py-3">
           <DropZone
             selectedAssets={selectedAssets}
             onRemoveAsset={handleRemoveAsset}

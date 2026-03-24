@@ -78,6 +78,7 @@ export default function RootLayout() {
                 name="(custom-portfolio)"
                 options={{ headerShown: false }}
               />
+              <Stack.Screen name="custom-portfolio-detail" options={{ headerShown: false }} />
               <Stack.Screen name="component-preview" options={{ headerShown: false }} />
               <Stack.Screen name="color-mode" options={{ headerShown: false }} />
               <Stack.Screen name="edit-profile" options={{ headerShown: false }} />
@@ -106,7 +107,10 @@ export default function RootLayout() {
               />
             </Stack>
             <PortalHost />
-            <Toaster theme={theme ?? 'light'} />
+            <Toaster
+              theme={theme ?? 'light'}
+              positionerStyle={{ maxWidth: 400, width: '100%', alignSelf: 'center' }}
+            />
             <LoadingOverlay />
           </ThemeProvider>
         </GestureHandlerRootView>
