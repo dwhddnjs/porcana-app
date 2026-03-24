@@ -3,12 +3,14 @@ import { useUserStore } from '../zustand/use-user-store';
 import { useLoadingStore } from '../zustand/use-loading-store';
 import {
   createPortfolio,
+  directCreatePortfolio,
   deletePortfolio,
   setMainPortfolio,
   updatePortfolioWeights,
   type PortfolioTypes,
   type UpdateWeightItemTypes,
 } from '@/lib/api/portfolio';
+import { useCustomPortfolioStore } from '../zustand/use-custom-portfolio-store';
 import { toast } from 'sonner-native';
 import { useArenaStore } from '../zustand/use-arena-store';
 import { useRouter } from 'expo-router';
@@ -79,6 +81,40 @@ export const useCreatePortfolioMutation = () => {
   });
 };
 
+export const useDirectCreatePortfolioMutation = () => {
+  const { show, hide } = useLoadingStore();
+  const { clearAssets } = useCustomPortfolioStore();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      name,
+      assets,
+    }: {
+      name: string;
+      assets: { assetId: string; weightPct?: number }[];
+    }) => directCreatePortfolio({ name, assets }),
+    onMutate: () => {
+      show('포트폴리오 생성 중...');
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['portfolios'] });
+      queryClient.invalidateQueries({ queryKey: ['home'] });
+      clearAssets();
+      toast.success('포트폴리오가 생성되었습니다');
+      router.replace(`/portfolio/${data.portfolioId}`);
+    },
+    onError: (error) => {
+      console.error('Direct portfolio creation failed:', error);
+      toast.error('포트폴리오 생성에 실패했습니다');
+    },
+    onSettled: () => {
+      hide();
+    },
+  });
+};
+
 export const usePickArenaSessionPreferenceMutation = () => {
   const setPicked = useArenaStore((state) => state.setPicked);
   const { show, hide } = useLoadingStore();
@@ -115,8 +151,13 @@ export const useUpdatePortfolioWeightsMutation = () => {
   const { show, hide } = useLoadingStore();
 
   return useMutation({
-    mutationFn: ({ portfolioId, weights }: { portfolioId: string; weights: UpdateWeightItemTypes[] }) =>
-      updatePortfolioWeights({ portfolioId, weights }),
+    mutationFn: ({
+      portfolioId,
+      weights,
+    }: {
+      portfolioId: string;
+      weights: UpdateWeightItemTypes[];
+    }) => updatePortfolioWeights({ portfolioId, weights }),
     onMutate: () => {
       show('비중 수정 중...');
     },

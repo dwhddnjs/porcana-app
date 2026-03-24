@@ -107,6 +107,39 @@ export const deletePortfolio = async ({ portfolioId }: { portfolioId: string }) 
   }
 };
 
+export type DirectCreatePortfolioAssetTypes = {
+  assetId: string;
+  weightPct?: number;
+};
+
+export type DirectCreatePortfolioRequestTypes = {
+  name: string;
+  assets: DirectCreatePortfolioAssetTypes[];
+};
+
+export type DirectCreatePortfolioResponseTypes = {
+  portfolioId: string;
+  name: string;
+  status: string;
+  createdAt: string;
+};
+
+export const directCreatePortfolio = async ({
+  name,
+  assets,
+}: DirectCreatePortfolioRequestTypes): Promise<DirectCreatePortfolioResponseTypes> => {
+  try {
+    const response = await api.post<DirectCreatePortfolioResponseTypes>('/portfolios/direct', {
+      name,
+      assets,
+    });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
 export const setMainPortfolio = async ({
   portfolioId,
 }: {

@@ -15,6 +15,7 @@ interface CustomPortfolioStateTypes {
   selectedAssets: AssetLibraryItemTypes[];
   filters: FilterValuesTypes;
   quickMode: boolean;
+  skipNextClear: boolean;
   setPortfolioName: (name: string) => void;
   addAsset: (asset: AssetLibraryItemTypes) => void;
   removeAsset: (assetId: string) => void;
@@ -22,6 +23,7 @@ interface CustomPortfolioStateTypes {
   setFilters: (filters: FilterValuesTypes) => void;
   resetFilters: () => void;
   toggleQuickMode: () => void;
+  setSkipNextClear: (value: boolean) => void;
 }
 
 const DEFAULT_FILTERS: FilterValuesTypes = {
@@ -34,6 +36,7 @@ export const useCustomPortfolioStore = create<CustomPortfolioStateTypes>((set) =
   selectedAssets: [],
   filters: { ...DEFAULT_FILTERS },
   quickMode: false,
+  skipNextClear: false,
   setPortfolioName: (name) => set({ portfolioName: name }),
   addAsset: (asset) =>
     set((state) => {
@@ -45,8 +48,9 @@ export const useCustomPortfolioStore = create<CustomPortfolioStateTypes>((set) =
     set((state) => ({
       selectedAssets: state.selectedAssets.filter((a) => a.assetId !== assetId),
     })),
-  clearAssets: () => set({ selectedAssets: [], portfolioName: '' }),
+  clearAssets: () => set({ selectedAssets: [], portfolioName: '', skipNextClear: false }),
   setFilters: (filters) => set({ filters }),
   resetFilters: () => set({ filters: { ...DEFAULT_FILTERS } }),
   toggleQuickMode: () => set((state) => ({ quickMode: !state.quickMode })),
+  setSkipNextClear: (value) => set({ skipNextClear: value }),
 }));
