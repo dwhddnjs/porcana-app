@@ -12,11 +12,11 @@ import {
 import type { DrawerContentComponentProps } from '@react-navigation/drawer';
 import { Spacer } from '../spacer';
 
-interface FilterDrawerContentProps {
+interface FilterDrawerContentPropsTypes {
   navigation: DrawerContentComponentProps['navigation'];
 }
 
-export const FilterDrawerContent = ({ navigation }: FilterDrawerContentProps) => {
+export const FilterDrawerContent = ({ navigation }: FilterDrawerContentPropsTypes) => {
   const { filters, setFilters, resetFilters, quickMode, toggleQuickMode } =
     useCustomPortfolioStore();
   const [localFilters, setLocalFilters] = useState<FilterValuesTypes>(filters);
@@ -203,13 +203,13 @@ export const FilterDrawerContent = ({ navigation }: FilterDrawerContentProps) =>
   );
 };
 
-interface ToggleChipProps {
+interface ToggleChipPropsTypes {
   label: string;
   isSelected: boolean;
   onPress: () => void;
 }
 
-const ToggleChip = ({ label, isSelected, onPress }: ToggleChipProps) => {
+const ToggleChip = ({ label, isSelected, onPress }: ToggleChipPropsTypes) => {
   return (
     <Pressable
       onPress={onPress}

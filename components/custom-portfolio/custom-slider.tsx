@@ -1,23 +1,24 @@
 import { useCallback, useState } from 'react';
 import { LayoutChangeEvent, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, {
-  runOnJS,
-  useAnimatedStyle,
-  useSharedValue,
-} from 'react-native-reanimated';
+import Animated, { runOnJS, useSharedValue } from 'react-native-reanimated';
 
 const THUMB_SIZE = 20;
 const TRACK_HEIGHT = 4;
 
-interface CustomSliderProps {
+interface CustomSliderPropsTypes {
   value: number;
   onValueChange: (value: number) => void;
   min?: number;
   max?: number;
 }
 
-export const CustomSlider = ({ value, onValueChange, min = 0, max = 100 }: CustomSliderProps) => {
+export const CustomSlider = ({
+  value,
+  onValueChange,
+  min = 0,
+  max = 100,
+}: CustomSliderPropsTypes) => {
   const [trackWidth, setTrackWidth] = useState(0);
   const startX = useSharedValue(0);
 
@@ -45,17 +46,12 @@ export const CustomSlider = ({ value, onValueChange, min = 0, max = 100 }: Custo
       'worklet';
       const newX = Math.min(Math.max(startX.value + e.translationX, 0), trackWidth);
       const newRatio = trackWidth > 0 ? newX / trackWidth : 0;
-      const newValue = Math.round(newRatio * (max - min) + min);
+      const newValue = Math.min(Math.max(Math.round(newRatio * (max - min) + min), min), max);
       runOnJS(handleValueChange)(newValue);
     });
 
-  const thumbStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: thumbPosition }],
-  }));
-
-  const activeTrackStyle = useAnimatedStyle(() => ({
-    width: thumbPosition + THUMB_SIZE / 2,
-  }));
+  const thumbStyle = { transform: [{ translateX: thumbPosition }] };
+  const activeTrackStyle = { width: thumbPosition + THUMB_SIZE / 2 };
 
   return (
     <View
@@ -73,15 +69,13 @@ export const CustomSlider = ({ value, onValueChange, min = 0, max = 100 }: Custo
       />
 
       {/* 활성 트랙 */}
-      <Animated.View
+      <View
         className="bg-success absolute rounded-full"
-        style={[
-          {
-            height: TRACK_HEIGHT,
-            left: THUMB_SIZE / 2,
-          },
-          activeTrackStyle,
-        ]}
+        style={{
+          height: TRACK_HEIGHT,
+          left: THUMB_SIZE / 2,
+          ...activeTrackStyle,
+        }}
       />
 
       {/* 썸 */}

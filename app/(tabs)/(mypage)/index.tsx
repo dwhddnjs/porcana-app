@@ -23,7 +23,7 @@ export default function MypageScreen() {
   };
 
   const handleWithdraw = () => {
-    router.push('/withdraw');
+    router.push('/(settings)/withdraw');
   };
 
   return (
@@ -33,13 +33,13 @@ export default function MypageScreen() {
           <MenuItem
             icon={UserPenIcon}
             label="내정보 변경"
-            onPress={() => router.push('/edit-profile')}
+            onPress={() => router.push('/(settings)/edit-profile')}
           />
           <Spacer isDivider className="mx-4" />
           <MenuItem
             icon={PaletteIcon}
             label="컬러 모드"
-            onPress={() => router.push('/color-mode')}
+            onPress={() => router.push('/(settings)/color-mode')}
           />
         </View>
       </View>

@@ -7,13 +7,13 @@ import { X } from 'lucide-react-native';
 import { AssetLibraryItemTypes } from '@/lib/api/asset';
 import { getRiskStarColor } from '@/lib/constant/function';
 
-interface SelectedAssetItemProps {
+interface SelectedAssetItemPropsTypes {
   asset: AssetLibraryItemTypes;
   index: number;
   onRemove: () => void;
 }
 
-export const SelectedAssetItem = ({ asset, index, onRemove }: SelectedAssetItemProps) => {
+export const SelectedAssetItem = ({ asset, index, onRemove }: SelectedAssetItemPropsTypes) => {
   const colorScheme = useColorScheme() ?? 'light';
 
   return (

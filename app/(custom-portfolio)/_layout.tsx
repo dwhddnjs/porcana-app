@@ -1,19 +1,10 @@
-import { Drawer } from 'expo-router/drawer';
-import { FilterDrawerContent } from '@/components/custom-portfolio/filter-drawer-content';
+import { Stack } from 'expo-router';
 
-export default function CustomPortfolioLayout() {
+export default function CustomPortfolioGroupLayout() {
   return (
-    <Drawer
-      screenOptions={{
-        headerShown: false,
-        drawerPosition: 'right',
-        drawerType: 'front',
-        drawerStyle: {
-          width: 300,
-        },
-      }}
-      drawerContent={(props) => <FilterDrawerContent navigation={props.navigation} />}>
-      <Drawer.Screen name="custom-portfolio" />
-    </Drawer>
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(select-assets)" />
+      <Stack.Screen name="custom-portfolio-detail" />
+    </Stack>
   );
 }
