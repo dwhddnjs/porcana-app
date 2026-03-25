@@ -6,7 +6,7 @@ import { X } from 'lucide-react-native';
 import { AssetLibraryItemTypes } from '@/lib/api/asset';
 import { CustomSlider } from './custom-slider';
 
-interface WeightAssetItemProps {
+interface WeightAssetItemPropsTypes {
   asset: AssetLibraryItemTypes;
   weightPct: number;
   onWeightChange: (value: number) => void;
@@ -18,22 +18,14 @@ export const WeightAssetItem = ({
   weightPct,
   onWeightChange,
   onRemove,
-}: WeightAssetItemProps) => {
-  const marketCode = asset.symbol
-    ? `${asset.symbol} · ${asset.market}`
-    : asset.market;
+}: WeightAssetItemPropsTypes) => {
+  const marketCode = asset.symbol ? `${asset.symbol} · ${asset.market}` : asset.market;
 
   return (
-    <View className="bg-card flex-row items-center gap-3 rounded-xl px-4 py-3">
+    <View className="bg-background border-primary flex-row items-center gap-3 rounded-xl border px-4 py-3">
       {/* 에셋 이미지 */}
       <View className="bg-muted h-10 w-10 items-center justify-center overflow-hidden rounded-full">
-        {asset.imageUrl ? (
-          <Image source={asset.imageUrl} className="h-10 w-10 rounded-full" contentFit="contain" />
-        ) : (
-          <Text className="text-muted-foreground text-sm font-bold">
-            {asset.name.charAt(0).toUpperCase()}
-          </Text>
-        )}
+        <Image source={asset.imageUrl} className="h-10 w-10 rounded-full" contentFit="contain" />
       </View>
 
       {/* 에셋 정보 + 슬라이더 */}
@@ -52,12 +44,6 @@ export const WeightAssetItem = ({
           </Text>
 
           {/* X 버튼 */}
-          <Pressable
-            onPress={onRemove}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            className="ml-2 p-1">
-            <Icon as={X} size={16} className="text-muted-foreground" />
-          </Pressable>
         </View>
 
         {/* 슬라이더 */}

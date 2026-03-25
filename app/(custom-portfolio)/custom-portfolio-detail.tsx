@@ -62,7 +62,7 @@ export default function CustomPortfolioDetail() {
 
   const handleBack = () => {
     clearAssets();
-    router.dismissAll();
+    router.dismissTo('/(tabs)');
   };
 
   const handlePrevious = () => {
@@ -95,7 +95,7 @@ export default function CustomPortfolioDetail() {
 
   return (
     <Container edges={['top', 'bottom']}>
-      <Header onBackPress={handleBack} title="이름 및 비중 설정" />
+      <Header onBackPress={handleBack} title="이름 및 비중 입력" />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -106,15 +106,16 @@ export default function CustomPortfolioDetail() {
           contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 20 }}
           keyboardShouldPersistTaps="handled">
           {/* 포트폴리오 이름 입력 */}
-          <View className="mb-6 gap-2">
+          <View className="mb-6 gap-3">
             <Text className="text-foreground text-base font-bold">포트폴리오 이름</Text>
             <Input
               value={portfolioName}
               onChangeText={setPortfolioName}
               placeholder="포트폴리오 이름을 입력하세요"
-              className="native:h-12"
+              className="native:h-12 border-primary border bg-transparent dark:bg-transparent"
             />
           </View>
+          <Spacer height={12} />
 
           {/* 선택한 종목 헤더 */}
           <View className="mb-3 flex-row items-center justify-between">

@@ -78,17 +78,8 @@ export default function RootLayout() {
                 name="(custom-portfolio)"
                 options={{ headerShown: false }}
               />
-              <Stack.Screen name="custom-portfolio-detail" options={{ headerShown: false }} />
               <Stack.Screen name="component-preview" options={{ headerShown: false }} />
-              <Stack.Screen name="color-mode" options={{ headerShown: false }} />
-              <Stack.Screen name="edit-profile" options={{ headerShown: false }} />
-              <Stack.Screen
-                name="withdraw"
-                options={{
-                  headerShown: false,
-                  animation: 'slide_from_bottom',
-                }}
-              />
+              <Stack.Screen name="(settings)" options={{ headerShown: false }} />
               <Stack.Screen
                 name="(common)"
                 options={{ headerShown: false, gestureEnabled: false, animation: 'fade' }}

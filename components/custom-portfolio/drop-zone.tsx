@@ -5,7 +5,7 @@ import { SelectedAssetItem } from './selected-asset-item';
 import { AssetLibraryItemTypes } from '@/lib/api/asset';
 import Animated, { useAnimatedStyle, SharedValue } from 'react-native-reanimated';
 
-interface DropZoneProps {
+interface DropZonePropsTypes {
   selectedAssets: AssetLibraryItemTypes[];
   onRemoveAsset: (assetId: string) => void;
   isDragOverSV: SharedValue<boolean>;
@@ -17,7 +17,7 @@ export const DropZone = ({
   onRemoveAsset,
   isDragOverSV,
   onLayout,
-}: DropZoneProps) => {
+}: DropZonePropsTypes) => {
   const reversedAssets = useMemo(() => [...selectedAssets].reverse(), [selectedAssets]);
 
   const borderStyle = useAnimatedStyle(() => ({

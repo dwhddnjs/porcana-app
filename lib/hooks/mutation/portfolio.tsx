@@ -103,7 +103,8 @@ export const useDirectCreatePortfolioMutation = () => {
       queryClient.invalidateQueries({ queryKey: ['home'] });
       clearAssets();
       toast.success('포트폴리오가 생성되었습니다');
-      router.replace(`/portfolio/${data.portfolioId}`);
+      router.dismissTo('/(tabs)');
+      router.push(`/portfolio/${data.portfolioId}`);
     },
     onError: (error) => {
       console.error('Direct portfolio creation failed:', error);
