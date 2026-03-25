@@ -289,7 +289,7 @@ export default function CustomPortfolio() {
       className="bg-background flex-1"
       style={{ paddingTop: insets.top, paddingLeft: insets.left, paddingRight: insets.right }}>
       {/* 상단바 */}
-      <View className="border-border flex-row items-center gap-3  pt-3 pr-4 pb-2 pl-3">
+      <View className="border-border flex-row items-center gap-3 pt-3 pr-4 pb-2 pl-3">
         <Pressable onPress={handleBack} className="p-1">
           <Icon as={ChevronLeft} size={24} className="text-primary" />
         </Pressable>
@@ -308,10 +308,9 @@ export default function CustomPortfolio() {
           <Icon as={SlidersHorizontal} size={24} className="text-primary" />
         </Pressable>
 
-        <Button onPress={handleComplete} size="sm" className="bg-primary rounded-lg ">
+        <Button onPress={handleComplete} size="sm" className="bg-primary rounded-lg">
           <Text className="text-primary-foreground text-sm font-semibold">다음</Text>
         </Button>
-       
       </View>
 
       {/* 메인 영역: 6.5:4.5 */}

@@ -14,7 +14,6 @@ import Animated, {
   runOnJS,
   type SharedValue,
 } from 'react-native-reanimated';
-import * as Haptics from 'expo-haptics';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { AssetLibraryItemTypes } from '@/lib/api/asset';
 import { getRiskStarColor } from '@/lib/constant/function';
