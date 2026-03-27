@@ -79,7 +79,7 @@ export default function CreatePortfolio() {
     setSelectedCardIndex(null);
     await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
     router.back();
-  }, [clearAllTimers, resetArena, queryClient]);
+  }, [clearAllTimers, resetArena, queryClient, router]);
 
   // 화면 높이 기준으로 카드 크기 계산 (가로모드)
   // 상단 제목(~60px) + 하단 라운드 표시(~80px) 제외

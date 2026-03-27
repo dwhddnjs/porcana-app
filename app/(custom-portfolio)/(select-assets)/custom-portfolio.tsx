@@ -125,7 +125,10 @@ export default function CustomPortfolio() {
 
   const [detailAssetId, setDetailAssetId] = useState<string | null>(null);
   const hasOpenedPanel = useRef(false);
-  if (detailAssetId) hasOpenedPanel.current = true;
+
+  useEffect(() => {
+    if (detailAssetId) hasOpenedPanel.current = true;
+  }, [detailAssetId]);
 
   // 첫 진입 시 플립 애니메이션 — 초기 카드 렌더 후 비활성화
   useEffect(() => {

@@ -1,4 +1,5 @@
-import { Pressable, View, useColorScheme } from 'react-native';
+import { useCallback } from 'react';
+import { GestureResponderEvent, Pressable, View, useColorScheme } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { Text } from '@/components/ui/text';
 import { Image } from '@/components/ui/image';
@@ -16,6 +17,14 @@ interface SelectedAssetItemPropsTypes {
 
 export const SelectedAssetItem = ({ asset, index, onRemove, onPress }: SelectedAssetItemPropsTypes) => {
   const colorScheme = useColorScheme() ?? 'light';
+
+  const handleRemove = useCallback(
+    (e: GestureResponderEvent) => {
+      e.stopPropagation();
+      onRemove();
+    },
+    [onRemove]
+  );
 
   return (
     <Animated.View entering={FadeIn.duration(200)} exiting={FadeOut.duration(150)}>
@@ -55,7 +64,7 @@ export const SelectedAssetItem = ({ asset, index, onRemove, onPress }: SelectedA
         </View>
 
         <Pressable
-          onPress={onRemove}
+          onPress={handleRemove}
           className="bg-background border-muted-foreground absolute -top-2 -right-2 h-5 w-5 items-center justify-center rounded-full border">
           <Icon as={X} size={12} className="text-muted-foreground" />
         </Pressable>
