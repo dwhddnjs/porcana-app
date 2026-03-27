@@ -79,7 +79,7 @@ export const DraggableAssetCard = ({
       }, flipDelay);
       return () => clearTimeout(timer);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleTap = () => onTap(asset);
@@ -144,9 +144,11 @@ export const DraggableAssetCard = ({
       isDragOverSV.value = false;
     });
 
-  const tap = Gesture.Tap().enabled(!disabled).onEnd(() => {
-    runOnJS(handleTap)();
-  });
+  const tap = Gesture.Tap()
+    .enabled(!disabled)
+    .onEnd(() => {
+      runOnJS(handleTap)();
+    });
 
   const dragGesture = Gesture.Simultaneous(longPress, pan);
   const gesture = Gesture.Exclusive(dragGesture, tap);
@@ -176,10 +178,7 @@ export const DraggableAssetCard = ({
       <Animated.View style={[{ width: CARD_WIDTH, height: CARD_HEIGHT }, scaleStyle]}>
         {/* 카드 뒷면 */}
         <Animated.View
-          style={[
-            { position: 'absolute', width: CARD_WIDTH, height: CARD_HEIGHT },
-            backFaceStyle,
-          ]}
+          style={[{ position: 'absolute', width: CARD_WIDTH, height: CARD_HEIGHT }, backFaceStyle]}
           className="bg-card items-center justify-center rounded-xl shadow-lg shadow-black/25">
           <View className="border-primary h-full w-full items-center justify-center rounded-xl border-4 p-2">
             <Image
@@ -198,21 +197,21 @@ export const DraggableAssetCard = ({
             frontFaceStyle,
           ]}>
           <View
-            className={`bg-card border-primary h-full w-full rounded-xl border px-[11px] py-[7px] shadow-lg shadow-black/25 ${disabled ? 'opacity-40' : isSelected ? 'opacity-50' : ''}`}>
+            className={`bg-card border-primary h-full w-full rounded-xl border px-[10px] py-[8px] shadow-lg shadow-black/25 ${disabled ? 'opacity-40' : isSelected ? 'opacity-50' : ''}`}>
             <View className="flex-row items-center gap-[6px]">
               <Image
                 source={asset.imageUrl}
-                className="bg-background h-9 w-9 rounded-full"
+                className="bg-background h-8 w-8 rounded-full"
                 contentFit="contain"
               />
               <View className="flex-1">
                 <Text
                   numberOfLines={1}
                   ellipsizeMode="tail"
-                  className="text-primary text-sm font-bold text-ellipsis">
+                  className="text-primary text-xs font-bold text-ellipsis">
                   {asset.name}
                 </Text>
-                <Text className="text-muted-foreground text-xs" numberOfLines={1}>
+                <Text className="text-muted-foreground text-[10px]" numberOfLines={1}>
                   {asset.symbol}
                 </Text>
               </View>
@@ -222,14 +221,14 @@ export const DraggableAssetCard = ({
               <View className="mt-1.5 flex-row flex-wrap gap-1">
                 {asset.sector && (
                   <View className="bg-primary/10 items-center justify-center rounded px-1.5 py-0.5">
-                    <Text className="text-primary text-xs font-semibold">
+                    <Text className="text-primary text-[10px] font-semibold">
                       {sectorLabels[asset.sector] || asset.sector}
                     </Text>
                   </View>
                 )}
                 {asset.market && (
                   <View className="border-primary/10 rounded border-2 px-1.5 py-0.5">
-                    <Text className="text-muted-foreground text-xs font-semibold">
+                    <Text className="text-muted-foreground text-[10px] font-semibold">
                       {asset.market}
                     </Text>
                   </View>
@@ -241,15 +240,15 @@ export const DraggableAssetCard = ({
 
             <View className="mt-auto items-center justify-start gap-1.5">
               <View className="flex-row items-center gap-1">
-                <Icon as={TriangleAlert} size={14} className="text-muted-foreground" />
-                <Text className="text-muted-foreground text-xs font-bold">리스크</Text>
+                <Icon as={TriangleAlert} size={12} className="text-muted-foreground" />
+                <Text className="text-muted-foreground text-[10px] font-bold">리스크</Text>
               </View>
-              <View className="flex-row items-center gap-1.5 pb-[3px]">
+              <View className="flex-row items-center gap-1.5 pb-[2px]">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Icon
                     key={i}
                     as={Star}
-                    size={18}
+                    size={14}
                     color={getRiskStarColor(asset.currentRiskLevel, colorScheme)}
                     fill={
                       i < asset.currentRiskLevel

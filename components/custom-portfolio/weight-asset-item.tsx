@@ -47,7 +47,7 @@ export const WeightAssetItem = ({
         </View>
 
         {/* 슬라이더 */}
-        <CustomSlider value={weightPct} onValueChange={onWeightChange} min={0} max={100} />
+        <CustomSlider value={weightPct} onValueChange={onWeightChange} min={0} max={50} />
       </View>
     </View>
   );

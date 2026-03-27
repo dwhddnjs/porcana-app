@@ -8,6 +8,7 @@ import Animated, { useAnimatedStyle, SharedValue } from 'react-native-reanimated
 interface DropZonePropsTypes {
   selectedAssets: AssetLibraryItemTypes[];
   onRemoveAsset: (assetId: string) => void;
+  onAssetPress: (assetId: string) => void;
   isDragOverSV: SharedValue<boolean>;
   onLayout: (event: LayoutChangeEvent) => void;
 }
@@ -15,6 +16,7 @@ interface DropZonePropsTypes {
 export const DropZone = ({
   selectedAssets,
   onRemoveAsset,
+  onAssetPress,
   isDragOverSV,
   onLayout,
 }: DropZonePropsTypes) => {
@@ -37,7 +39,7 @@ export const DropZone = ({
       <View className="z-10 flex-row items-center justify-between px-3 pt-3">
         <Text className="text-primary text-base font-bold">선택한 종목</Text>
         <Text className="text-muted-foreground text-sm font-semibold">
-          {selectedAssets.length} / 10
+          {selectedAssets.length} / 20
         </Text>
       </View>
 
@@ -59,12 +61,14 @@ export const DropZone = ({
           }}>
           {reversedAssets.map((asset, index) => {
             const handleRemove = () => onRemoveAsset(asset.assetId);
+            const handlePress = () => onAssetPress(asset.assetId);
             return (
               <SelectedAssetItem
                 key={asset.assetId}
                 asset={asset}
                 index={index}
                 onRemove={handleRemove}
+                onPress={handlePress}
               />
             );
           })}

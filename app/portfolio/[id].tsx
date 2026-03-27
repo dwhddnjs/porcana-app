@@ -13,6 +13,7 @@ import {
   Platform,
   Pressable,
   View,
+  useColorScheme,
 } from 'react-native';
 import { toast } from 'sonner-native';
 import { DeletePortfolioDialog } from '@/components/portfolio/delete-portfolio-dialog';
@@ -31,6 +32,7 @@ import {
 import {
   DIVERSITY_LEVEL_LABELS,
   getDiversityLevelColor,
+  getRiskStarColor,
   roundToTwoDecimals,
 } from '@/lib/constant/function';
 import { THEME } from '@/lib/theme';
@@ -46,6 +48,7 @@ import { useCallback, useState } from 'react';
 import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 
 export default function PortfolioDetailScreen() {
+  const colorScheme = useColorScheme() ?? 'light';
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { data, isLoading, isError, error } = useGetPortfolioQuery(id);
@@ -236,8 +239,8 @@ export default function PortfolioDetailScreen() {
                       key={`full-${index}`}
                       as={Star}
                       size={16}
-                      className="text-success"
-                      fill={THEME.light.success}
+                      strokeWidth={0}
+                      fill={getRiskStarColor(riskLevel, colorScheme)}
                     />
                   ))}
                   {hasHalfStar && (
@@ -245,8 +248,8 @@ export default function PortfolioDetailScreen() {
                       key="half"
                       as={StarHalf}
                       size={16}
-                      className="text-success"
-                      fill={THEME.light.success}
+                      strokeWidth={0}
+                      fill={getRiskStarColor(riskLevel, colorScheme)}
                     />
                   )}
                 </View>

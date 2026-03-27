@@ -20,6 +20,7 @@ export type HomePositionTypes = {
   returnPct: number;
   ticker: string;
   weightPct: number;
+  targetWeightPct: number;
 };
 
 export type HomeResponseTypes = {

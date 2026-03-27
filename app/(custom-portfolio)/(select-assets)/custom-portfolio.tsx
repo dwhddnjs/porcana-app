@@ -30,6 +30,7 @@ import {
   CARD_GAP,
 } from '@/components/custom-portfolio/draggable-asset-card';
 import { GhostCard } from '@/components/custom-portfolio/ghost-card';
+import { AssetDetailPanel } from '@/components/custom-portfolio/asset-detail-panel';
 import { THEME } from '@/lib/theme';
 import { toast } from 'sonner-native';
 
@@ -119,8 +120,15 @@ export default function CustomPortfolio() {
     [selectedAssets]
   );
 
-  const isMaxReached = selectedAssets.length >= 10;
+  const isMaxReached = selectedAssets.length >= 20;
   const numColumns = 3;
+
+  const [detailAssetId, setDetailAssetId] = useState<string | null>(null);
+  const hasOpenedPanel = useRef(false);
+
+  useEffect(() => {
+    if (detailAssetId) hasOpenedPanel.current = true;
+  }, [detailAssetId]);
 
   // 첫 진입 시 플립 애니메이션 — 초기 카드 렌더 후 비활성화
   useEffect(() => {
@@ -150,8 +158,8 @@ export default function CustomPortfolio() {
       router.push('/login-sheet');
       return;
     }
-    if (selectedAssets.length !== 10) {
-      toast.error('종목을 10개 선택해주세요');
+    if (selectedAssets.length < 5) {
+      toast.error('종목을 최소 5개 선택해주세요');
       return;
     }
     setSkipNextClear(true);
@@ -168,6 +176,14 @@ export default function CustomPortfolio() {
     },
     [removeAsset]
   );
+
+  const handleAssetPress = useCallback((assetId: string) => {
+    setDetailAssetId(assetId);
+  }, []);
+
+  const handleCloseDetail = useCallback(() => {
+    setDetailAssetId(null);
+  }, []);
 
   const handleDropZoneLayout = useCallback(
     (event: LayoutChangeEvent) => {
@@ -191,7 +207,7 @@ export default function CustomPortfolio() {
     (dropped: boolean) => {
       if (dropped && draggingAsset) {
         if (isMaxReached) {
-          toast.error('최대 10개까지 선택할 수 있습니다');
+          toast.error('최대 20개까지 선택할 수 있습니다');
         } else {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
           addAsset(draggingAsset);
@@ -210,7 +226,7 @@ export default function CustomPortfolio() {
       if (selectedAssetIds.has(asset.assetId)) {
         removeAsset(asset.assetId);
       } else if (isMaxReached) {
-        toast.error('최대 10개까지 선택할 수 있습니다');
+        toast.error('최대 20개까지 선택할 수 있습니다');
       } else {
         addAsset(asset);
       }
@@ -348,10 +364,11 @@ export default function CustomPortfolio() {
         </View>
 
         {/* 우측: 드롭존 */}
-        <View style={{ flex: 3.5 }} className="pt-1 py-3">
+        <View style={{ flex: 3.5 }} className="py-3 pt-1">
           <DropZone
             selectedAssets={selectedAssets}
             onRemoveAsset={handleRemoveAsset}
+            onAssetPress={handleAssetPress}
             isDragOverSV={isDragOverSV}
             onLayout={handleDropZoneLayout}
           />
@@ -362,7 +379,11 @@ export default function CustomPortfolio() {
       <Animated.View style={ghostAnimatedStyle} pointerEvents="none">
         {draggingAsset && <GhostCard asset={draggingAsset} colorScheme={colorScheme} />}
       </Animated.View>
+
+      {/* 에셋 상세 패널 — 한 번이라도 열린 후에만 마운트 */}
+      {hasOpenedPanel.current && (
+        <AssetDetailPanel assetId={detailAssetId} onClose={handleCloseDetail} />
+      )}
     </View>
   );
 }
-

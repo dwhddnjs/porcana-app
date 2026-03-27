@@ -73,7 +73,7 @@ export default function AddModal() {
               placeholder="포트폴리오 이름을 입력하세요"
               value={portfolioName}
               onChangeText={handleNameChange}
-              className="border-primary self-center rounded-xl bg-transparent text-sm dark:bg-transparent"
+              className="border-primary text-md self-center rounded-xl bg-transparent dark:bg-transparent"
             />
           </View>
           <View className="gap-y-[20px]">

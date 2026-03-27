@@ -8,6 +8,7 @@ export type PositionTypes = {
   returnPct: number;
   ticker: string;
   weightPct: number;
+  targetWeightPct: number;
 };
 
 export type RiskDistributionTypes = Record<string, number>;

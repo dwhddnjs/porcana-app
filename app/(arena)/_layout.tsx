@@ -12,11 +12,11 @@ function CustomDrawerContent() {
   const colorScheme = useColorScheme() ?? 'light';
 
   return (
-    <View className="bg-background flex-1 px-4 pt-12">
-      <View className="gap-y-2">
+    <View className="bg-background flex-1 px-4 pt-5">
+      <View className="gap-y-1">
         <Text className="text-primary text-xl font-bold">선택된 카드 덱</Text>
         <Text className="text-muted-foreground mb-4 text-sm">
-          {selectedCards.length}개의 카드가 선택됨
+          {selectedCards.length} / 10개의 카드가 선택
         </Text>
       </View>
 

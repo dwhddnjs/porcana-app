@@ -9,6 +9,19 @@ export type ChartPointTypes = {
   volume: number;
 };
 
+export type AssetPersonalityTypes = {
+  role: string;
+  roleDisplayName: string;
+  roleDescription: string;
+  riskLevel: number;
+  exposureType: string;
+  exposureTypeDisplayName: string;
+  persona: string;
+  personaDisplayName: string;
+  dividendProfile: string;
+  dividendProfileDisplayName: string;
+};
+
 export type AssetDetailTypes = {
   assetId: string;
   ticker: string;
@@ -19,6 +32,7 @@ export type AssetDetailTypes = {
   currency: string;
   imageUrl: string | null;
   description: string | null;
+  personality: AssetPersonalityTypes | null;
 };
 
 export type AssetChartTypes = {
