@@ -1,4 +1,10 @@
-import { ActivityIndicator, Platform, View, useColorScheme, useWindowDimensions } from 'react-native';
+import {
+  ActivityIndicator,
+  Platform,
+  View,
+  useColorScheme,
+  useWindowDimensions,
+} from 'react-native';
 import { Text } from '@/components/ui/text';
 import { FlipCard } from '@/components/portfolio/flip-card';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
@@ -11,6 +17,7 @@ import { useGetArenaSessionRoundsQuery } from '@/lib/hooks/query/arena';
 import { usePickArenaSessionAssetMutation } from '@/lib/hooks/mutation/arena';
 import { useArenaStore, AssetTypes } from '@/lib/hooks/zustand/use-arena-store';
 import { THEME } from '@/lib/theme';
+import { useQueryClient } from '@tanstack/react-query';
 
 const MAX_ROUNDS = 10;
 
@@ -18,7 +25,8 @@ export default function CreatePortfolio() {
   const colorScheme = useColorScheme() ?? 'light';
   const { height: screenHeight } = useWindowDimensions();
   const navigation = useNavigation();
-  const { selectedCards, addCard, clearCards } = useArenaStore();
+  const { selectedCards, addCard, clearCards, resetArena } = useArenaStore();
+  const queryClient = useQueryClient();
 
   const [round, setRound] = useState(1);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -30,7 +38,12 @@ export default function CreatePortfolio() {
   // 타이머 정리를 위한 ref (React Native에서는 setTimeout이 number 반환)
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
-  const { data: arenaSessionRounds, refetch, isLoading, isPending } = useGetArenaSessionRoundsQuery();
+  const {
+    data: arenaSessionRounds,
+    refetch,
+    isLoading,
+    isPending,
+  } = useGetArenaSessionRoundsQuery();
   const { mutate: pickAsset } = usePickArenaSessionAssetMutation();
 
   // 서버에서 받아온 assets (3장) - useMemo로 불필요한 재생성 방지
@@ -53,6 +66,20 @@ export default function CreatePortfolio() {
   const openDrawer = useCallback(() => {
     navigation.dispatch(DrawerActions.openDrawer());
   }, [navigation]);
+
+  const handleBack = useCallback(async () => {
+    clearAllTimers();
+    resetArena();
+    queryClient.removeQueries({ queryKey: ['arena-session-rounds'] });
+    setHasInitialFlip(false);
+    setRound(1);
+    setIsFlipped(false);
+    setShowCards(true);
+    setIsTransitioning(false);
+    setSelectedCardIndex(null);
+    await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+    router.back();
+  }, [clearAllTimers, resetArena, queryClient]);
 
   // 화면 높이 기준으로 카드 크기 계산 (가로모드)
   // 상단 제목(~60px) + 하단 라운드 표시(~80px) 제외
@@ -197,13 +224,17 @@ export default function CreatePortfolio() {
         )}
       </View>
       <View className="flex-row items-center justify-center gap-[18px] pb-[20px]">
+        <Button variant="outline" size="default" onPress={handleBack}>
+          <Text>돌아가기</Text>
+        </Button>
         <View className="items-center justify-center">
           <Text className="text-muted-foreground text-xl font-semibold">
             {round} / {MAX_ROUNDS}
           </Text>
           <Text className="text-md text-muted-foreground">라운드</Text>
         </View>
-        <Button onPress={openDrawer}>
+
+        <Button size="default" onPress={openDrawer}>
           <Text>덱 보기</Text>
         </Button>
       </View>

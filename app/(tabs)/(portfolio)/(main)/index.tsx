@@ -12,6 +12,7 @@ import { AssetItem } from '@/components/portfolio/asset-item';
 import { useEffect } from 'react';
 import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { useRouter } from 'expo-router';
+import { roundToTwoDecimals } from '@/lib/constant/function';
 
 export default function PortfolioScreen() {
   const navigation = useNavigation();
@@ -43,6 +44,15 @@ export default function PortfolioScreen() {
     <View className="flex-1">
       <LargeHeader
         title={data?.mainPortfolio?.name as string}
+        titleRight={
+          <Text
+            className={`text-lg font-bold ${
+              (data?.mainPortfolio?.totalReturnPct ?? 0) >= 0 ? 'text-link' : 'text-destructive'
+            }`}>
+            {(data?.mainPortfolio?.totalReturnPct ?? 0) >= 0 ? '+' : ''}
+            {roundToTwoDecimals(data?.mainPortfolio?.totalReturnPct ?? 0)}%
+          </Text>
+        }
         headerRight={
           <Pressable onPress={openDrawer} hitSlop={8}>
             <Icon as={MenuIcon} size={24} className="text-foreground" />

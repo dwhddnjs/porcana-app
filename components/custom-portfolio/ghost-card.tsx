@@ -50,15 +50,15 @@ export const GhostCard = ({ asset, colorScheme }: GhostCardPropsTypes) => {
 
       <View className="mt-auto items-center justify-start gap-1.5">
         <View className="flex-row items-center gap-1">
-          <Icon as={TriangleAlert} size={14} className="text-muted-foreground" />
-          <Text className="text-muted-foreground text-xs font-bold">리스크</Text>
+          <Icon as={TriangleAlert} size={12} className="text-muted-foreground" />
+          <Text className="text-muted-foreground text-[10px] font-bold">리스크</Text>
         </View>
-        <View className="flex-row items-center gap-1.5 pb-[3px]">
+        <View className="flex-row items-center gap-1.5 pb-[2px]">
           {Array.from({ length: 5 }).map((_, i) => (
             <Icon
               key={i}
               as={Star}
-              size={18}
+              size={14}
               color={getRiskStarColor(asset.currentRiskLevel, colorScheme)}
               fill={
                 i < asset.currentRiskLevel
