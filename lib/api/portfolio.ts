@@ -8,6 +8,7 @@ export type PositionTypes = {
   returnPct: number;
   ticker: string;
   weightPct: number;
+  targetWeightPct: number;
 };
 
 export type RiskDistributionTypes = Record<string, number>;
@@ -100,6 +101,39 @@ export const updatePortfolioWeights = async ({
 export const deletePortfolio = async ({ portfolioId }: { portfolioId: string }) => {
   try {
     const response = await api.delete(`/portfolios/${portfolioId}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export type DirectCreatePortfolioAssetTypes = {
+  assetId: string;
+  weightPct?: number;
+};
+
+export type DirectCreatePortfolioRequestTypes = {
+  name: string;
+  assets: DirectCreatePortfolioAssetTypes[];
+};
+
+export type DirectCreatePortfolioResponseTypes = {
+  portfolioId: string;
+  name: string;
+  status: string;
+  createdAt: string;
+};
+
+export const directCreatePortfolio = async ({
+  name,
+  assets,
+}: DirectCreatePortfolioRequestTypes): Promise<DirectCreatePortfolioResponseTypes> => {
+  try {
+    const response = await api.post<DirectCreatePortfolioResponseTypes>('/portfolios/direct', {
+      name,
+      assets,
+    });
     return response.data;
   } catch (error) {
     console.error(error);

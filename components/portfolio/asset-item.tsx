@@ -11,6 +11,7 @@ export type AssetItemDataTypes = {
   name: string;
   ticker: string;
   weightPct: number;
+  targetWeightPct: number;
   returnPct: number;
 };
 
@@ -57,7 +58,7 @@ export const AssetItem = ({
         <View className="flex-1 gap-[2px]">
           <View className="flex-row items-center gap-[4px]">
             <Text
-              className="max-w-[160px] min-w-[160px] text-base font-semibold text-ellipsis"
+              className="max-w-[140px] min-w-[140px] text-base font-semibold text-ellipsis"
               numberOfLines={1}
               ellipsizeMode="tail">
               {item.name}
@@ -82,7 +83,10 @@ export const AssetItem = ({
                 />
               </Pressable>
             ) : (
-              <Text className="text-success text-sm font-semibold"> {item.weightPct}%</Text>
+              <Text className="text-success text-sm font-semibold">
+                {' '}
+                {item.weightPct} / {item.targetWeightPct}%
+              </Text>
             )}
           </View>
           <Text className="text-muted-foreground text-md line-clamp-1 max-w-[200px] text-ellipsis">

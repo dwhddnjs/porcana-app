@@ -1,8 +1,15 @@
+---
+name: api-spec
+description: OpenAPI 스펙을 조회하여 API 엔드포인트의 상세 정보를 확인합니다. API 스펙 조회, 엔드포인트 확인, swagger 시 사용.
+argument-hint: "[검색어]"
+allowed-tools: Read, WebFetch, Grep
+---
+
 # API Spec
 
 OpenAPI 스펙을 조회하여 특정 엔드포인트의 상세 정보를 확인합니다.
 
-**사용법**: `/api-spec [검색어]`
+검색어: $ARGUMENTS
 
 예시:
 - `/api-spec portfolios` → portfolios 관련 엔드포인트 목록과 스펙 조회

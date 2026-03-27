@@ -74,16 +74,12 @@ export default function RootLayout() {
                   sheetGrabberVisible: false,
                 }}
               />
-              <Stack.Screen name="component-preview" options={{ headerShown: false }} />
-              <Stack.Screen name="color-mode" options={{ headerShown: false }} />
-              <Stack.Screen name="edit-profile" options={{ headerShown: false }} />
               <Stack.Screen
-                name="withdraw"
-                options={{
-                  headerShown: false,
-                  animation: 'slide_from_bottom',
-                }}
+                name="(custom-portfolio)"
+                options={{ headerShown: false }}
               />
+              <Stack.Screen name="component-preview" options={{ headerShown: false }} />
+              <Stack.Screen name="(settings)" options={{ headerShown: false }} />
               <Stack.Screen
                 name="(common)"
                 options={{ headerShown: false, gestureEnabled: false, animation: 'fade' }}
@@ -102,7 +98,10 @@ export default function RootLayout() {
               />
             </Stack>
             <PortalHost />
-            <Toaster theme={theme ?? 'light'} />
+            <Toaster
+              theme={theme ?? 'light'}
+              positionerStyle={{ maxWidth: 400, width: '100%', alignSelf: 'center' }}
+            />
             <LoadingOverlay />
           </ThemeProvider>
         </GestureHandlerRootView>

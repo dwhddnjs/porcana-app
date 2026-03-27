@@ -1,24 +1,19 @@
-import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { Text } from '@/components/ui/text';
+import { Button } from '@/components/ui/button';
 import Container from '@/components/container';
 import { Header } from '@/components/ui/header';
 import { ImageCarousel } from '@/components/ui/image-carousel';
-import { CreatePortfolioDialog } from '@/components/portfolio/create-portfolio-dialog';
 import { Link, useRouter } from 'expo-router';
 import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
-import { useCreatePortfolioMutation } from '@/lib/hooks/mutation/portfolio';
 import { CAROUSEL_ITEMS } from '@/lib/constant/variables';
 
 export default function LandingScreen() {
   const { accessToken, refreshToken, user, reset } = useUserStore();
+  const router = useRouter();
 
-  const [open, setOpen] = useState(false);
-  const { mutate } = useCreatePortfolioMutation();
-
-  const handleSubmit = (portfolioName: string) => {
-    setOpen(false);
-    mutate?.(portfolioName);
+  const handleStart = () => {
+    router.push('/add-modal');
   };
 
   return (
@@ -32,7 +27,9 @@ export default function LandingScreen() {
           <Link href="/login">
             <Text className="text-link text-center text-sm">이미 가입된 계정이 있으신가요?</Text>
           </Link>
-          <CreatePortfolioDialog open={open} onOpenChange={setOpen} onSubmit={handleSubmit} />
+          <Button size="lg" onPress={handleStart}>
+            <Text>시작하기</Text>
+          </Button>
         </View>
       </View>
     </Container>

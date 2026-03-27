@@ -1,8 +1,15 @@
+---
+name: create-api
+description: lib/api/에 API 엔드포인트 파일을 생성하거나 기존 파일에 엔드포인트를 추가합니다. API 함수 만들기, 엔드포인트 추가 시 사용.
+argument-hint: "<리소스명> [설명]"
+allowed-tools: Read, Write, Edit, Glob, Grep, WebFetch
+---
+
 # Create API
 
 주어진 인수를 바탕으로 `lib/api/` 에 API 엔드포인트 파일을 생성하거나, 기존 파일에 엔드포인트를 추가합니다.
 
-**사용법**: `/create-api <리소스명> [설명]`
+인수: $ARGUMENTS
 
 예시:
 - `/create-api notification` → `lib/api/notification.ts` 생성
@@ -14,6 +21,7 @@
 
 1. OpenAPI 스펙 조회 (`https://api.porcana.co.kr/v3/api-docs`) 로 정확한 request/response 타입 확인
 2. 기존 `lib/api/` 파일들을 읽어 Axios 클라이언트 임포트 방식과 패턴을 맞춤
+3. 파일 생성 또는 기존 파일에 추가
 
 ## 출력 예시
 

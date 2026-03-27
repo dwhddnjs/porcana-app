@@ -9,6 +9,19 @@ export type ChartPointTypes = {
   volume: number;
 };
 
+export type AssetPersonalityTypes = {
+  role: string;
+  roleDisplayName: string;
+  roleDescription: string;
+  riskLevel: number;
+  exposureType: string;
+  exposureTypeDisplayName: string;
+  persona: string;
+  personaDisplayName: string;
+  dividendProfile: string;
+  dividendProfileDisplayName: string;
+};
+
 export type AssetDetailTypes = {
   assetId: string;
   ticker: string;
@@ -19,6 +32,7 @@ export type AssetDetailTypes = {
   currency: string;
   imageUrl: string | null;
   description: string | null;
+  personality: AssetPersonalityTypes | null;
 };
 
 export type AssetChartTypes = {
@@ -28,6 +42,56 @@ export type AssetChartTypes = {
 };
 
 export type ChartRangeTypes = '1M' | '3M' | '1Y';
+
+export type MarketTypes = 'US' | 'KR';
+
+export type AssetTypeTypes = 'STOCK' | 'ETF';
+
+export type GetAssetLibraryRequestTypes = {
+  market?: MarketTypes;
+  type?: AssetTypeTypes;
+  sectors?: string[];
+  assetClasses?: string[];
+  riskLevels?: number[];
+  query?: string;
+  sortBy?: 'name' | 'symbol' | 'riskLevel';
+  sortDirection?: 'asc' | 'desc';
+  page?: number;
+  size?: number;
+};
+
+export type AssetLibraryItemTypes = {
+  assetId: string;
+  symbol: string;
+  name: string;
+  market: MarketTypes;
+  type: AssetTypeTypes;
+  sector: string | null;
+  assetClass: string | null;
+  currentRiskLevel: number;
+  imageUrl: string | null;
+};
+
+export type GetAssetLibraryResponseTypes = {
+  assets: AssetLibraryItemTypes[];
+  totalCount: number;
+  totalPages: number;
+  currentPage: number;
+  pageSize: number;
+  hasNext: boolean;
+};
+
+export const getAssetLibrary = async (
+  params: GetAssetLibraryRequestTypes
+): Promise<GetAssetLibraryResponseTypes> => {
+  try {
+    const response = await api.get<GetAssetLibraryResponseTypes>('/assets/library', { params });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
 
 export const getAsset = async ({ assetId }: { assetId: string }): Promise<AssetDetailTypes> => {
   try {

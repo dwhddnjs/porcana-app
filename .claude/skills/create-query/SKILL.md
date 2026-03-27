@@ -1,14 +1,27 @@
+---
+name: create-query
+description: lib/hooks/query/에 React Query 쿼리 훅을 생성합니다. 쿼리 훅 만들기, 데이터 조회 훅, useQuery 생성 시 사용.
+argument-hint: "<리소스명> [설명]"
+allowed-tools: Read, Write, Glob, Grep
+---
+
 # Create Query Hook
 
 주어진 인수를 바탕으로 `lib/hooks/query/` 에 React Query 쿼리 훅을 생성합니다.
 
-**사용법**: `/create-query <리소스명> [설명]`
+인수: $ARGUMENTS
 
 예시:
 - `/create-query portfolios` → `useGetPortfoliosQuery` 훅 생성
 - `/create-query asset-chart 에셋 차트 데이터 조회` → `useGetAssetChartQuery` 훅 생성
 
 > 네이밍, 타입 등 일반 규칙은 CLAUDE.md를 따릅니다.
+
+## 절차
+
+1. 기존 `lib/hooks/query/` 파일들을 읽어 패턴 파악
+2. 대응하는 API 함수(`lib/api/`)의 타입 확인
+3. 쿼리 훅 생성
 
 ## 쿼리 훅 전용 규칙
 
@@ -52,5 +65,3 @@ export const useGetPortfolioQuery = ({ id }: UseGetPortfolioQueryTypes) => {
   });
 };
 ```
-
-생성 전에 기존 `lib/hooks/query/` 파일들을 읽어 패턴을 파악하세요.

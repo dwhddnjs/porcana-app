@@ -15,12 +15,19 @@ const LARGE_HEADER_HEIGHT = 52;
 
 interface LargeHeaderProps {
   title: string;
+  titleRight?: ReactNode;
   children: ReactNode;
   headerLeft?: ReactNode;
   headerRight?: ReactNode;
 }
 
-export function LargeHeader({ title, children, headerLeft, headerRight }: LargeHeaderProps) {
+export function LargeHeader({
+  title,
+  titleRight,
+  children,
+  headerLeft,
+  headerRight,
+}: LargeHeaderProps) {
   const insets = useSafeAreaInsets();
   const scrollY = useSharedValue(0);
   const colorScheme = useColorScheme();
@@ -60,9 +67,7 @@ export function LargeHeader({ title, children, headerLeft, headerRight }: LargeH
   return (
     <View className="bg-background flex-1">
       {/* Fixed Header */}
-      <View
-        style={{ paddingTop: insets.top }}
-        className="absolute top-0 right-0 left-0 z-10">
+      <View style={{ paddingTop: insets.top }} className="absolute top-0 right-0 left-0 z-10">
         {/* Blur Background */}
         <Animated.View style={[StyleSheet.absoluteFill, blurAnimatedStyle]}>
           <BlurView
@@ -74,7 +79,7 @@ export function LargeHeader({ title, children, headerLeft, headerRight }: LargeH
 
         <View style={{ height: HEADER_HEIGHT }} className="flex-row items-center justify-center">
           {headerLeft && <View className="absolute left-4 z-10">{headerLeft}</View>}
-          <Animated.View style={headerTitleAnimatedStyle}>
+          <Animated.View style={headerTitleAnimatedStyle} className="flex-row items-center gap-2">
             <Text className="text-base font-semibold">{title}</Text>
           </Animated.View>
           {headerRight && <View className="absolute right-4">{headerRight}</View>}
@@ -92,8 +97,9 @@ export function LargeHeader({ title, children, headerLeft, headerRight }: LargeH
           paddingBottom: insets.bottom,
         }}>
         {/* Large Title */}
-        <Animated.View style={largeTitleAnimatedStyle} className="px-4 pt-2 pb-2">
+        <Animated.View style={largeTitleAnimatedStyle} className="flex-row items-end gap-3 p-4">
           <Text className="text-3xl font-bold">{title}</Text>
+          {titleRight}
         </Animated.View>
 
         {/* Content */}

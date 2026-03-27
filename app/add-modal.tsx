@@ -1,27 +1,28 @@
-import { Platform, Pressable, View } from 'react-native';
+import { Keyboard, Pressable, ScrollView, View } from 'react-native';
 import { Text } from '@/components/ui/text';
-import { router, Link } from 'expo-router';
+import { router } from 'expo-router';
 import { Button } from '@/components/ui/button';
-import * as ScreenOrientation from 'expo-screen-orientation';
+import { Input } from '@/components/ui/input';
 import Container from '@/components/container';
 import { Icon } from '@/components/ui/icon';
 import { HandFistIcon, ShieldIcon, ScaleIcon } from 'lucide-react-native';
 import { SectorTag } from '@/components/portfolio/sector-tag';
 import { SECTOR_OPTIONS, SECTOR_OPTIONS_KO } from '@/lib/constant/variables';
 import { useState } from 'react';
-import { useArenaStore } from '@/lib/hooks/zustand/use-arena-store';
-import { usePickArenaSessionPreferenceMutation } from '@/lib/hooks/mutation/portfolio';
+import { useCreatePortfolioMutation } from '@/lib/hooks/mutation/portfolio';
+import { Spacer } from '@/components/spacer';
+import { ActivityIndicator, useColorScheme } from 'react-native';
+import { THEME } from '@/lib/theme';
 
 export type RiskProfileTypes = 'AGGRESSIVE' | 'BALANCED' | 'SAFE' | null;
 
 export default function AddModal() {
-  const isPresented = router.canGoBack();
-
+  const [portfolioName, setPortfolioName] = useState('');
   const [selectedRiskProfile, setSelectedRiskProfile] = useState<RiskProfileTypes>(null);
   const [selectedSector, setSelectedSector] = useState<string[]>([]);
-  const { name, portfolioId, sessionId, status, currentRound } = useArenaStore();
 
-  const { mutate: pickArenaSessionPreference } = usePickArenaSessionPreferenceMutation();
+  const colorScheme = useColorScheme() ?? 'light';
+  const { mutate: createPortfolio, isPending } = useCreatePortfolioMutation();
 
   const handleRiskProfileSelect = (profile: RiskProfileTypes) => {
     setSelectedRiskProfile((prev) => (prev === profile ? null : profile));
@@ -33,26 +34,48 @@ export default function AddModal() {
     );
   };
 
-  const handleCreatePortfolio = async () => {
-    if (!selectedRiskProfile || selectedSector.length === 0) {
+  const handleNameChange = (text: string) => {
+    setPortfolioName(text);
+  };
+
+  const handleCreatePortfolio = () => {
+    if (!portfolioName.trim() || !selectedRiskProfile || selectedSector.length === 0) {
       return;
     }
 
-    pickArenaSessionPreference({
+    createPortfolio({
+      name: portfolioName.trim(),
       riskProfile: selectedRiskProfile.toUpperCase(),
       sectors: selectedSector,
     });
   };
 
+  const handleDismissKeyboard = () => {
+    Keyboard.dismiss();
+  };
+
   return (
     <Container edges={['bottom']}>
-      {Platform.OS === 'android' && (
-        <View className="items-center pt-3">
+      <Pressable onPress={handleDismissKeyboard}>
+        <View className="items-center py-3">
           <View className="bg-muted-foreground/40 h-1 w-10 rounded-full" />
         </View>
-      )}
-      <View className="flex-1 justify-between px-[20px] pt-[120px]">
-        <View className="gap-y-[64px]">
+      </Pressable>
+      <ScrollView
+        contentContainerClassName="px-[20px] pt-[40px] pb-[20px]"
+        keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}>
+        <View className="gap-y-[48px]">
+          <View className="items-center gap-y-[20px] px-5">
+            <Text className="text-center text-2xl font-bold">포트폴리오 이름</Text>
+            <Input
+              placeholder="포트폴리오 이름을 입력하세요"
+              value={portfolioName}
+              onChangeText={handleNameChange}
+              className="border-primary text-md self-center rounded-xl bg-transparent dark:bg-transparent"
+            />
+          </View>
           <View className="gap-y-[20px]">
             <Text className="text-center text-2xl font-bold">당신은 리스크 프로필은 ?</Text>
             <View className="flex-row justify-center gap-x-[24px]">
@@ -111,11 +134,16 @@ export default function AddModal() {
               })}
             </View>
           </View>
+          <Spacer height={140} />
         </View>
-      </View>
+      </ScrollView>
       <View className="px-[20px]">
-        <Button onPress={handleCreatePortfolio} size={'lg'}>
-          <Text>생성하기</Text>
+        <Button onPress={handleCreatePortfolio} size={'lg'} disabled={isPending}>
+          {isPending ? (
+            <ActivityIndicator color={THEME[colorScheme].primaryForeground} />
+          ) : (
+            <Text>생성하기</Text>
+          )}
         </Button>
       </View>
     </Container>

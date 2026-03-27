@@ -1,15 +1,18 @@
 import { Icon } from '@/components/ui/icon';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
-import { useCreatePortfolioMutation } from '@/lib/hooks/mutation/portfolio';
 import { THEME } from '@/lib/theme';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
-import { Tabs } from 'expo-router';
-import { PieChartIcon, PlusIcon, UserIcon } from 'lucide-react-native';
-import { useRef, useState } from 'react';
-import { Keyboard, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Tabs, useRouter } from 'expo-router';
+import {
+  PieChartIcon,
+  PlusIcon,
+  UserIcon,
+  SwordsIcon,
+  SlidersHorizontalIcon,
+} from 'lucide-react-native';
+import { useEffect, useState } from 'react';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
   FadeIn,
@@ -23,11 +26,9 @@ import { PressableScale } from 'pressto';
 
 export default function TabLayout() {
   const { theme } = useUniwind();
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const { mutate } = useCreatePortfolioMutation();
+  const [overlayOpen, setOverlayOpen] = useState(false);
   const rotation = useSharedValue(0);
-  const inputRef = useRef<TextInput>(null);
-  const portfolioNameRef = useRef('');
+  const router = useRouter();
 
   const iconAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ rotate: `${rotation.value}deg` }],
@@ -35,34 +36,30 @@ export default function TabLayout() {
 
   const handleAddButtonPress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    if (dialogOpen) {
-      Keyboard.dismiss();
+    if (overlayOpen) {
       rotation.value = withTiming(0, { duration: 300, easing: Easing.out(Easing.cubic) });
-      setDialogOpen(false);
+      setOverlayOpen(false);
     } else {
       rotation.value = withTiming(45, { duration: 300, easing: Easing.out(Easing.cubic) });
-      setDialogOpen(true);
+      setOverlayOpen(true);
     }
   };
 
   const handleOverlayPress = () => {
-    Keyboard.dismiss();
     rotation.value = withTiming(0, { duration: 300, easing: Easing.out(Easing.cubic) });
-    setDialogOpen(false);
+    setOverlayOpen(false);
   };
 
-  const handleChangeText = (text: string) => {
-    portfolioNameRef.current = text;
+  const handleArenaMode = () => {
+    rotation.value = withTiming(0, { duration: 300, easing: Easing.out(Easing.cubic) });
+    setOverlayOpen(false);
+    router.push('/add-modal');
   };
 
-  const handleStart = () => {
-    const name = portfolioNameRef.current.trim();
-    if (!name) return;
+  const handleCustomMode = () => {
     rotation.value = withTiming(0, { duration: 300, easing: Easing.out(Easing.cubic) });
-    setDialogOpen(false);
-    portfolioNameRef.current = '';
-    inputRef.current?.clear();
-    mutate(name);
+    setOverlayOpen(false);
+    router.push('/(custom-portfolio)/(select-assets)/custom-portfolio');
   };
 
   return (
@@ -135,29 +132,53 @@ export default function TabLayout() {
           }}
         />
       </Tabs>
-      {dialogOpen && (
-        <CreatePortfolioOverlay
+      {overlayOpen && (
+        <ModeSelectOverlay
           onOverlayPress={handleOverlayPress}
-          onChangeText={handleChangeText}
-          onStart={handleStart}
-          inputRef={inputRef}
+          onArenaMode={handleArenaMode}
+          onCustomMode={handleCustomMode}
         />
       )}
     </>
   );
 }
 
-const CreatePortfolioOverlay = ({
+const SPREAD_X = 60;
+const SPREAD_Y = 50;
+
+const ModeSelectOverlay = ({
   onOverlayPress,
-  onChangeText,
-  onStart,
-  inputRef,
+  onArenaMode,
+  onCustomMode,
 }: {
   onOverlayPress: () => void;
-  onChangeText: (text: string) => void;
-  onStart: () => void;
-  inputRef: React.RefObject<TextInput | null>;
+  onArenaMode: () => void;
+  onCustomMode: () => void;
 }) => {
+  const progress = useSharedValue(0);
+
+  useEffect(() => {
+    progress.value = withTiming(1, { duration: 350, easing: Easing.out(Easing.back(1.4)) });
+  }, []);
+
+  const arenaStyle = useAnimatedStyle(() => ({
+    opacity: progress.value,
+    transform: [
+      { translateX: (1 - progress.value) * SPREAD_X },
+      { translateY: (1 - progress.value) * SPREAD_Y },
+      { scale: 0.2 + progress.value * 0.8 },
+    ],
+  }));
+
+  const customStyle = useAnimatedStyle(() => ({
+    opacity: progress.value,
+    transform: [
+      { translateX: -(1 - progress.value) * SPREAD_X },
+      { translateY: (1 - progress.value) * SPREAD_Y },
+      { scale: 0.2 + progress.value * 0.8 },
+    ],
+  }));
+
   return (
     <Animated.View
       entering={FadeIn.duration(200)}
@@ -165,19 +186,30 @@ const CreatePortfolioOverlay = ({
       style={[StyleSheet.absoluteFill, { zIndex: 50 }]}>
       <Pressable onPress={onOverlayPress} style={StyleSheet.absoluteFill} className="bg-black/50" />
       <View
-        style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 16 }}
+        style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 110 }}
         pointerEvents="box-none">
-        <Animated.View
-          entering={FadeIn.delay(50)}
-          className="bg-background border-border w-[320px] gap-4 rounded-lg border p-6 shadow-lg shadow-black/5">
-          <Text className="text-foreground text-lg font-semibold">
-            새 포트폴리오 이름을 적어주세요
-          </Text>
-          <Input ref={inputRef} placeholder="포트폴리오 이름" onChangeText={onChangeText} />
-          <Button size="lg" onPress={onStart}>
-            <Text>시작하기</Text>
-          </Button>
-        </Animated.View>
+        <View className="flex-row items-center gap-x-8">
+          <Animated.View style={arenaStyle}>
+            <PressableScale onPress={onArenaMode}>
+              <View className="items-center gap-y-1">
+                <View className="border-primary h-[48px] w-[48px] items-center justify-center rounded-full border-[1.6px]">
+                  <Icon as={SwordsIcon} className="text-primary size-6" />
+                </View>
+                <Text className="text-primary text-xs font-semibold">아레나 모드</Text>
+              </View>
+            </PressableScale>
+          </Animated.View>
+          <Animated.View style={customStyle}>
+            <PressableScale onPress={onCustomMode}>
+              <View className="items-center gap-y-1">
+                <View className="border-primary h-[48px] w-[48px] items-center justify-center rounded-full border-[1.6px]">
+                  <Icon as={SlidersHorizontalIcon} className="text-primary size-6" />
+                </View>
+                <Text className="text-primary text-xs font-semibold">커스텀 모드</Text>
+              </View>
+            </PressableScale>
+          </Animated.View>
+        </View>
       </View>
     </Animated.View>
   );

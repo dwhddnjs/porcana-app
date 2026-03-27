@@ -24,12 +24,20 @@ type CandleDataTypes = {
 type AssetCandlestickChartProps = {
   points?: ChartPointTypes[];
   isLoading?: boolean;
+  containerHeight?: number;
 };
 
-export const AssetCandlestickChart = ({ points, isLoading }: AssetCandlestickChartProps) => {
+export const AssetCandlestickChart = ({
+  points,
+  isLoading,
+  containerHeight,
+}: AssetCandlestickChartProps) => {
   const { theme } = useUniwind();
   const colors = theme === 'dark' ? THEME.dark : THEME.light;
   const [width, setWidth] = useState(0);
+
+  const resolvedContainerHeight = containerHeight ?? CONTAINER_HEIGHT;
+  const resolvedChartHeight = resolvedContainerHeight - LEGEND_PADDING;
 
   // API points 데이터를 wagmi 캔들스틱 포맷으로 변환
   const chartData: CandleDataTypes[] = useMemo(
@@ -51,7 +59,7 @@ export const AssetCandlestickChart = ({ points, isLoading }: AssetCandlestickCha
 
   if (isLoading) {
     return (
-      <View className="items-center justify-center" style={{ height: CONTAINER_HEIGHT }}>
+      <View className="items-center justify-center" style={{ height: resolvedContainerHeight }}>
         <ActivityIndicator size="small" />
       </View>
     );
@@ -59,7 +67,7 @@ export const AssetCandlestickChart = ({ points, isLoading }: AssetCandlestickCha
 
   if (chartData.length === 0) {
     return (
-      <View className="items-center justify-center" style={{ height: CONTAINER_HEIGHT }}>
+      <View className="items-center justify-center" style={{ height: resolvedContainerHeight }}>
         <Text className="text-muted-foreground">차트 데이터가 없습니다</Text>
       </View>
     );
@@ -68,11 +76,11 @@ export const AssetCandlestickChart = ({ points, isLoading }: AssetCandlestickCha
   const hasSize = width > 0;
 
   return (
-    <View className="w-full py-4" style={{ height: CONTAINER_HEIGHT }} onLayout={onLayout}>
+    <View className="w-full py-4" style={{ height: resolvedContainerHeight }} onLayout={onLayout}>
       <Spacer height={12} />
       {hasSize && (
         <CandlestickChart.Provider data={chartData}>
-          <CandlestickChart width={width} height={CHART_HEIGHT}>
+          <CandlestickChart width={width} height={resolvedChartHeight}>
             <CandlestickChart.Candles
               positiveColor={colors.link}
               negativeColor={colors.destructive}
