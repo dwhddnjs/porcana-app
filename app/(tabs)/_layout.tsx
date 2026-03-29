@@ -192,20 +192,20 @@ const ModeSelectOverlay = ({
           <Animated.View style={arenaStyle}>
             <PressableScale onPress={onArenaMode}>
               <View className="items-center gap-y-1">
-                <View className="border-primary h-[48px] w-[48px] items-center justify-center rounded-full border-[1.6px]">
-                  <Icon as={SwordsIcon} className="text-primary size-6" />
+                <View className="border-primary-foreground dark:border-primary h-[48px] w-[48px] items-center justify-center rounded-full border-[1.6px]">
+                  <Icon as={SwordsIcon} className="text-primary-foreground dark:text-primary size-6" />
                 </View>
-                <Text className="text-primary text-xs font-semibold">아레나 모드</Text>
+                <Text className="text-primary-foreground dark:text-primary text-xs font-semibold">아레나 모드</Text>
               </View>
             </PressableScale>
           </Animated.View>
           <Animated.View style={customStyle}>
             <PressableScale onPress={onCustomMode}>
               <View className="items-center gap-y-1">
-                <View className="border-primary h-[48px] w-[48px] items-center justify-center rounded-full border-[1.6px]">
-                  <Icon as={SlidersHorizontalIcon} className="text-primary size-6" />
+                <View className="border-primary-foreground dark:border-primary h-[48px] w-[48px] items-center justify-center rounded-full border-[1.6px]">
+                  <Icon as={SlidersHorizontalIcon} className="text-primary-foreground dark:text-primary size-6" />
                 </View>
-                <Text className="text-primary text-xs font-semibold">커스텀 모드</Text>
+                <Text className="text-primary-foreground dark:text-primary text-xs font-semibold">커스텀 모드</Text>
               </View>
             </PressableScale>
           </Animated.View>

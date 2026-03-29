@@ -38,8 +38,15 @@ export const GhostCard = ({ asset, colorScheme }: GhostCardPropsTypes) => {
         <View className="mt-1.5 flex-row flex-wrap gap-1">
           {asset.sector && (
             <View className="bg-primary/10 items-center justify-center rounded px-1.5 py-0.5">
-              <Text className="text-primary text-xs font-semibold">
+              <Text className="text-primary text-[10px] font-semibold">
                 {sectorLabels[asset.sector] || asset.sector}
+              </Text>
+            </View>
+          )}
+          {asset.market && (
+            <View className="border-primary/10 rounded border px-1.5 py-0.5">
+              <Text className="text-muted-foreground text-[10px] font-semibold">
+                {asset.market}
               </Text>
             </View>
           )}

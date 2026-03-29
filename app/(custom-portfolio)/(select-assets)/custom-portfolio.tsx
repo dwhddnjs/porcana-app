@@ -124,11 +124,6 @@ export default function CustomPortfolio() {
   const numColumns = 3;
 
   const [detailAssetId, setDetailAssetId] = useState<string | null>(null);
-  const hasOpenedPanel = useRef(false);
-
-  useEffect(() => {
-    if (detailAssetId) hasOpenedPanel.current = true;
-  }, [detailAssetId]);
 
   // 첫 진입 시 플립 애니메이션 — 초기 카드 렌더 후 비활성화
   useEffect(() => {
@@ -310,13 +305,13 @@ export default function CustomPortfolio() {
           <Icon as={ChevronLeft} size={24} className="text-primary" />
         </Pressable>
 
-        <View className="bg-muted border-muted flex-1 flex-row items-center rounded-full border-2 pl-3">
+        <View className="bg-muted border-border flex-1 flex-row items-center rounded-full border pl-3 dark:border-0">
           <Icon as={Search} size={20} className="text-primary mr-2" />
           <Input
             value={searchQuery}
             onChangeText={handleSearchChange}
             placeholder="자산 종목 검색"
-            className="native:h-10 dark:bg-background ml-2 flex-1 rounded-full border-0 bg-transparent p-0 pl-3 text-sm"
+            className="native:h-9 dark:bg-background bg-card my-[2px] mr-[2px] ml-2 flex-1 rounded-full p-0 pl-3 text-sm shadow-none"
           />
         </View>
 
@@ -380,10 +375,8 @@ export default function CustomPortfolio() {
         {draggingAsset && <GhostCard asset={draggingAsset} colorScheme={colorScheme} />}
       </Animated.View>
 
-      {/* 에셋 상세 패널 — 한 번이라도 열린 후에만 마운트 */}
-      {hasOpenedPanel.current && (
-        <AssetDetailPanel assetId={detailAssetId} onClose={handleCloseDetail} />
-      )}
+      {/* 에셋 상세 패널 */}
+      <AssetDetailPanel assetId={detailAssetId} onClose={handleCloseDetail} />
     </View>
   );
 }

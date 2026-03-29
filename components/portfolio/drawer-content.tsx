@@ -83,7 +83,7 @@ export function PortfolioDrawerContent(props: DrawerContentComponentProps) {
               value={search}
               onChangeText={setSearch}
               placeholder="포트폴리오 검색"
-              className="h-10 pl-9"
+              className="bg-card dark:bg-background h-10 pl-9 shadow-none"
             />
           </View>
         </View>
