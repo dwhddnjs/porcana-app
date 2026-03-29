@@ -227,7 +227,7 @@ export const DraggableAssetCard = ({
                   </View>
                 )}
                 {asset.market && (
-                  <View className="border-primary/10 rounded border-2 px-1.5 py-0.5">
+                  <View className="border-primary/10 rounded border px-1.5 py-0.5">
                     <Text className="text-muted-foreground text-[10px] font-semibold">
                       {asset.market}
                     </Text>

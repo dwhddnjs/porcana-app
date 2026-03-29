@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { View, Pressable, ScrollView, ActivityIndicator, Dimensions, useColorScheme } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -42,11 +42,14 @@ export const AssetDetailPanel = ({ assetId, onClose }: AssetDetailPanelPropsType
     chartRange
   );
 
+  const hasEverOpened = useRef(false);
+
   useEffect(() => {
     if (assetId) {
+      hasEverOpened.current = true;
       translateX.value = withTiming(0, { duration: 500, easing: Easing.out(Easing.cubic) });
       backdropOpacity.value = withTiming(1, { duration: 500, easing: Easing.out(Easing.cubic) });
-    } else {
+    } else if (hasEverOpened.current) {
       translateX.value = withTiming(-panelWidth, {
         duration: 400,
         easing: Easing.in(Easing.cubic),
@@ -55,6 +58,8 @@ export const AssetDetailPanel = ({ assetId, onClose }: AssetDetailPanelPropsType
         duration: 400,
         easing: Easing.in(Easing.cubic),
       });
+    } else {
+      translateX.value = -panelWidth;
     }
   }, [assetId, panelWidth, translateX, backdropOpacity]);
 

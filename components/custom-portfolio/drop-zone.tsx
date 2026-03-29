@@ -27,12 +27,14 @@ export const DropZone = ({
   }));
 
   return (
-    <View onLayout={onLayout} className="border-border flex-1 overflow-hidden rounded-xl border-[1.5px]">
+    <View
+      onLayout={onLayout}
+      className="border-border flex-1 overflow-hidden rounded-xl border-[1.5px]">
       {/* 드래그 오버 하이라이트 오버레이 */}
       <Animated.View
         style={borderStyle}
         pointerEvents="none"
-        className="bg-primary/10 border-primary absolute inset-0 z-0 rounded-xl border-2"
+        className="bg-primary/10 border-primary absolute inset-0 z-0 rounded-xl border-2 border-dashed"
       />
 
       {/* 헤더 */}

@@ -3,18 +3,19 @@ import { Text } from '@/components/ui/text';
 import { useGetAssetChartQuery, useGetAssetQuery } from '@/lib/hooks/query/asset';
 import { useLoadingStore } from '@/lib/hooks/zustand/use-loading-store';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from '@/components/ui/image';
 import { Spacer } from '@/components/spacer';
 import { ChartRangeTypes } from '@/lib/api/asset';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { SECTOR_KO_MAP } from '@/lib/constant/variables';
-import Container from '@/components/container';
 
 export default function AssetDetailScreen() {
   const { assetId } = useLocalSearchParams<{ assetId: string }>();
+  const insets = useSafeAreaInsets();
   const router = useRouter();
   const { show, hide } = useLoadingStore();
   const { data, isLoading, isError, error } = useGetAssetQuery(assetId);
@@ -26,19 +27,21 @@ export default function AssetDetailScreen() {
     error: chartError,
   } = useGetAssetChartQuery(assetId, chartRange);
 
-  console.log(chartData);
-
   useEffect(() => {
     if (isLoading) {
       show('자산 불러오는 중...');
     } else {
       hide();
     }
-  }, [isLoading]);
+  }, [isLoading, show, hide]);
 
   const goBack = () => {
     router.back();
   };
+
+  const handleSelectRange1M = useCallback(() => setChartRange('1M'), []);
+  const handleSelectRange3M = useCallback(() => setChartRange('3M'), []);
+  const handleSelectRange1Y = useCallback(() => setChartRange('1Y'), []);
 
   if (!assetId) {
     return (
@@ -71,7 +74,7 @@ export default function AssetDetailScreen() {
   }
 
   return (
-    <Container className="flex-1" edges={['bottom']}>
+    <View className="bg-background flex-1" style={{ paddingBottom: insets.bottom }}>
       {/* 커스텀 그리퍼 핸들 */}
       <View className="items-center py-3">
         <View className="bg-muted-foreground/40 h-1 w-10 rounded-full" />
@@ -126,7 +129,7 @@ export default function AssetDetailScreen() {
                   'h-8 w-9 items-center justify-center rounded-md',
                   chartRange === '1M' && 'bg-primary/10'
                 )}
-                onPress={() => setChartRange('1M')}>
+                onPress={handleSelectRange1M}>
                 <Text
                   className={cn(
                     'text-muted-foreground text-sm',
@@ -140,7 +143,7 @@ export default function AssetDetailScreen() {
                   'h-8 w-9 items-center justify-center rounded-md bg-none',
                   chartRange === '3M' && 'bg-primary/10'
                 )}
-                onPress={() => setChartRange('3M')}>
+                onPress={handleSelectRange3M}>
                 <Text
                   className={cn(
                     'text-muted-foreground text-sm',
@@ -154,7 +157,7 @@ export default function AssetDetailScreen() {
                   'h-8 w-9 items-center justify-center rounded-md bg-none',
                   chartRange === '1Y' && 'bg-primary/10'
                 )}
-                onPress={() => setChartRange('1Y')}>
+                onPress={handleSelectRange1Y}>
                 <Text
                   className={cn(
                     'text-muted-foreground text-sm',
@@ -173,6 +176,6 @@ export default function AssetDetailScreen() {
           <Text className="font-semibold">차트 닫기</Text>
         </Button>
       </View>
-    </Container>
+    </View>
   );
 }

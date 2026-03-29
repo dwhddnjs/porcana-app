@@ -60,7 +60,7 @@ export const CustomSlider = ({
       style={{ height: THUMB_SIZE, paddingHorizontal: THUMB_SIZE / 2 }}>
       {/* 트랙 배경 */}
       <View
-        className="bg-muted absolute rounded-full"
+        className="bg-border absolute rounded-full"
         style={{
           height: TRACK_HEIGHT,
           left: THUMB_SIZE / 2,
