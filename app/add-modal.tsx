@@ -28,20 +28,25 @@ export default function AddModal() {
     setSelectedRiskProfile((prev) => (prev === profile ? null : profile));
   };
 
+  const isSectorMaxed = selectedSector.length >= 3;
+
   const handleSectorSelect = (sector: string) => {
-    setSelectedSector((prev) =>
-      prev.includes(sector) ? prev.filter((s) => s !== sector) : [...prev, sector]
-    );
+    setSelectedSector((prev) => {
+      if (prev.includes(sector)) return prev.filter((s) => s !== sector);
+      if (prev.length >= 3) return prev;
+      return [...prev, sector];
+    });
   };
 
   const handleNameChange = (text: string) => {
     setPortfolioName(text);
   };
 
+  const isFormValid =
+    portfolioName.trim().length > 0 && selectedRiskProfile !== null && selectedSector.length > 0;
+
   const handleCreatePortfolio = () => {
-    if (!portfolioName.trim() || !selectedRiskProfile || selectedSector.length === 0) {
-      return;
-    }
+    if (!isFormValid) return;
 
     createPortfolio({
       name: portfolioName.trim(),
@@ -128,6 +133,7 @@ export default function AddModal() {
                     sectorType={sectorType}
                     label={sectorKo}
                     isSelected={selectedSector.includes(sectorType)}
+                    disabled={isSectorMaxed && !selectedSector.includes(sectorType)}
                     onPress={() => handleSectorSelect(sectorType)}
                   />
                 );
@@ -138,7 +144,7 @@ export default function AddModal() {
         </View>
       </ScrollView>
       <View className="px-[20px]">
-        <Button onPress={handleCreatePortfolio} size={'lg'} disabled={isPending}>
+        <Button onPress={handleCreatePortfolio} size={'lg'} disabled={!isFormValid || isPending}>
           {isPending ? (
             <ActivityIndicator color={THEME[colorScheme].primaryForeground} />
           ) : (

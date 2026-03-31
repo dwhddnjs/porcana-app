@@ -26,7 +26,8 @@ export default function ArenaComplete() {
     }
     queryClient.invalidateQueries({ queryKey: ['portfolios'] });
     resetArena();
-    router.replace(`/portfolio/${portfolioId}`);
+    router.dismissTo('/(tabs)');
+    router.push(`/portfolio/${portfolioId}`);
   };
 
   // useEffect(() => {

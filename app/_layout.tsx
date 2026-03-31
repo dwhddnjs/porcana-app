@@ -78,6 +78,7 @@ export default function RootLayout() {
                 name="(custom-portfolio)"
                 options={{ headerShown: false }}
               />
+              <Stack.Screen name="(arena)" options={{ headerShown: false }} />
               <Stack.Screen name="component-preview" options={{ headerShown: false }} />
               <Stack.Screen name="(settings)" options={{ headerShown: false }} />
               <Stack.Screen
