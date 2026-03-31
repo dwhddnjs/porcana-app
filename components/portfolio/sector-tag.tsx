@@ -34,14 +34,26 @@ interface SectorTagPropsTypes {
   sectorType: string;
   label: string;
   isSelected: boolean;
+  disabled?: boolean;
   onPress: () => void;
 }
 
-export const SectorTag = ({ sectorType, label, isSelected, onPress }: SectorTagPropsTypes) => {
+export const SectorTag = ({
+  sectorType,
+  label,
+  isSelected,
+  disabled,
+  onPress,
+}: SectorTagPropsTypes) => {
   return (
     <Pressable
       onPress={onPress}
-      className={`border-primary flex-row items-center justify-center gap-x-[6px] rounded-full border-2 px-[12px] py-[4px] ${isSelected ? 'bg-primary' : ''}`}>
+      disabled={disabled}
+      className={cn(
+        'border-primary flex-row items-center justify-center gap-x-[6px] rounded-full border-2 px-[12px] py-[4px]',
+        isSelected && 'bg-primary',
+        disabled && !isSelected && 'opacity-40'
+      )}>
       <Icon
         as={SECTOR_ICON[sectorType as keyof typeof SECTOR_ICON]}
         className={cn('size-4', isSelected ? 'text-primary-foreground' : 'text-foreground')}

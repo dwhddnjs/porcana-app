@@ -14,6 +14,7 @@ import { useCustomPortfolioStore } from '../zustand/use-custom-portfolio-store';
 import { toast } from 'sonner-native';
 import { useArenaStore } from '../zustand/use-arena-store';
 import { useRouter } from 'expo-router';
+import { InteractionManager } from 'react-native';
 import { createArenaSessions, pickArenaSessionPreference } from '@/lib/api/arena';
 import { createGuestSession } from '@/lib/api/auth';
 import { setGuestSessionId } from '@/lib/api';
@@ -70,7 +71,9 @@ export const useCreatePortfolioMutation = () => {
       });
       setPicked(preference.picked, preference.currentRound);
       router.dismiss();
-      router.push('/start-arena');
+      InteractionManager.runAfterInteractions(() => {
+        router.push('/start-arena');
+      });
     },
     onError: (error) => {
       console.error('Portfolio creation failed:', error);
@@ -136,7 +139,9 @@ export const usePickArenaSessionPreferenceMutation = () => {
     onSuccess: (data) => {
       setPicked(data.picked, data.currentRound);
       router.dismiss();
-      router.push('/start-arena');
+      InteractionManager.runAfterInteractions(() => {
+        router.push('/start-arena');
+      });
     },
     onError: (error) => {
       console.error('Arena session preference picking failed:', error);

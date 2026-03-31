@@ -18,6 +18,7 @@ import { usePickArenaSessionAssetMutation } from '@/lib/hooks/mutation/arena';
 import { useArenaStore, AssetTypes } from '@/lib/hooks/zustand/use-arena-store';
 import { THEME } from '@/lib/theme';
 import { useQueryClient } from '@tanstack/react-query';
+import * as Haptics from 'expo-haptics';
 
 const MAX_ROUNDS = 10;
 
@@ -136,6 +137,7 @@ export default function CreatePortfolio() {
 
       const selectedAsset = currentAssets[cardIndex];
 
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       addCard(selectedAsset);
       setSelectedCardIndex(cardIndex);
       setIsTransitioning(true);

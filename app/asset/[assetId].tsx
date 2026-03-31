@@ -89,8 +89,13 @@ export default function AssetDetailScreen() {
                 contentFit="contain"
               />
               <View className="flex-1">
-                <View className="flex-row items-center gap-2">
-                  <Text className="text-lg font-semibold">{data.name}</Text>
+                <View className="flex-row items-center justify-between gap-2">
+                  <Text
+                    className="max-w-[250px] text-lg font-semibold"
+                    ellipsizeMode="tail"
+                    numberOfLines={1}>
+                    {data.name}
+                  </Text>
                   <Text className="text-success text-sm">{data.exchange}</Text>
                 </View>
                 <Text className="text-muted-foreground text-base">{data.ticker}</Text>
@@ -99,14 +104,14 @@ export default function AssetDetailScreen() {
 
             <View className="flex-row flex-wrap gap-2">
               {data.sector ? (
-                <View className="bg-muted border-primary/10 rounded-md border px-2 py-1">
+                <View className="bg-background border-primary/10 items-center justify-center rounded-md border-2 px-2 py-1">
                   <Text className="text-muted-foreground text-xs">
                     {SECTOR_KO_MAP[data.sector] ?? data.sector}
                   </Text>
                 </View>
               ) : null}
               {data.currency ? (
-                <View className="bg-muted border-primary/10 rounded-md border px-2 py-1">
+                <View className="bg-muted border-primary/10 items-center justify-center rounded-md px-2 py-1">
                   <Text className="text-muted-foreground text-xs">{data.currency}</Text>
                 </View>
               ) : null}
