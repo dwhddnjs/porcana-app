@@ -212,9 +212,9 @@ export default function PortfolioDetailScreen() {
       }>
       <View className="px-[12px]">
         {/* 수익률 요약 카드 */}
-        <Spacer height={12} />
-        <Card className="py-[18px]">
-          <CardContent className="gap-y-[24px] px-[24px]">
+
+        <View className="py-[18px]">
+          <View className="gap-y-[24px] px-[8px]">
             <View>
               <View className="flex-row items-center gap-2">
                 <Icon as={TrendingUp} size={20} className="text-primary" />
@@ -265,8 +265,8 @@ export default function PortfolioDetailScreen() {
               </View>
             </View>
             <RiskDistributionChart data={data.riskDistribution} />
-          </CardContent>
-        </Card>
+          </View>
+        </View>
         <Spacer height={36} />
         <View>
           <View className="flex-row items-center justify-between pb-[12px]">

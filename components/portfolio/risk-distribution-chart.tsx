@@ -7,7 +7,7 @@ import { ChartNoAxesColumn } from 'lucide-react-native';
 import { Icon } from '../ui/icon';
 
 const BAR_HEIGHT = 160;
-const BAR_WIDTH = 36;
+const BAR_WIDTH = 46;
 const BAR_RADIUS = 16;
 
 type RiskDistributionChartProps = {
@@ -28,10 +28,13 @@ const CapsuleBar = ({ level, fillRatio, fillColor, bgColor }: CapsuleBarProps) =
   const riskValue = (Math.round(fillRatio * 1000) / 10).toFixed(1);
 
   return (
-    <View className="items-center gap-2">
+    <View className="items-center gap-1">
+      <View className="border-primary/20 items-center justify-center rounded-full">
+        <Text className="text-primary/80 text-lg font-semibold">{level}</Text>
+      </View>
       {/* 캡슐 바 */}
       <View
-        className="border-primary/10 rounded-full border"
+        className="border-success/20 rounded-full border"
         style={{
           width: BAR_WIDTH,
           height: BAR_HEIGHT,
@@ -43,11 +46,11 @@ const CapsuleBar = ({ level, fillRatio, fillColor, bgColor }: CapsuleBarProps) =
         {/* 채워지는 부분 */}
         {fillRatio > 0 && (
           <View>
-            <Text className="text-primary/70 py-2 text-center text-xs font-semibold">
+            <Text className="text-success py-1.5 text-center text-xs font-semibold">
               {riskValue}
             </Text>
             <View
-              className="bg-primary/70 rounded-full"
+              className="bg-success rounded-full"
               style={{
                 width: '100%',
                 height: fillHeight,
@@ -56,10 +59,6 @@ const CapsuleBar = ({ level, fillRatio, fillColor, bgColor }: CapsuleBarProps) =
             />
           </View>
         )}
-      </View>
-      {/* 레벨 라벨 */}
-      <View className="border-primary/80 h-7 w-7 items-center justify-center rounded-full border">
-        <Text className="text-primary/80 font-semibold">{level}</Text>
       </View>
     </View>
   );
