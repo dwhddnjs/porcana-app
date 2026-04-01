@@ -22,6 +22,10 @@ export {
 } from 'expo-router';
 
 SplashScreen.preventAutoHideAsync();
+SplashScreen.setOptions({
+  fade: true,
+  duration: 500,
+});
 
 export default function RootLayout() {
   const { theme } = useUniwind();

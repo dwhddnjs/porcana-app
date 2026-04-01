@@ -90,7 +90,7 @@ export default function Login() {
         <Button
           // variant="outline"
           size="lg"
-          className="bg-foreground/10 border-muted-foreground/50 w-full flex-row items-center justify-center gap-3 border-[0.5px]"
+          className="bg-foreground/10 active:bg-foreground/20 border-muted-foreground/50 w-full flex-row items-center justify-center gap-3 border-[0.5px]"
           onPress={handleEmailLogin}>
           <Icon as={Mail} className="text-foreground size-5" />
           <Text className="text-foreground font-semibold">이메일 로그인</Text>

@@ -78,8 +78,8 @@ export default function CreatePortfolio() {
     setShowCards(true);
     setIsTransitioning(false);
     setSelectedCardIndex(null);
-    await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
     router.back();
+    await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
   }, [clearAllTimers, resetArena, queryClient, router]);
 
   // 화면 높이 기준으로 카드 크기 계산 (가로모드)
@@ -91,22 +91,11 @@ export default function CreatePortfolio() {
   const cardHeight = Math.min(availableHeight * 0.72, maxCardHeight);
   const cardWidth = cardHeight * (2 / 3); // 2:3 비율 유지
 
-  // 화면 진입 시 가로모드로 고정, 떠날 때 원래대로 복원
+  // 화면 진입 시 가로모드로 고정 + 상태 초기화
+  // cleanup에서 orientation 복원하지 않음 (handleBack, complete 이동 시 명시적으로 처리)
   useFocusEffect(
     useCallback(() => {
-      // 가로모드로 고정
       ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
-
-      // cleanup: 화면 떠날 때 기본 방향으로 복원
-      return () => {
-        ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
-      };
-    }, [])
-  );
-
-  // 화면 포커스 시 초기화 (재방문 시에도 실행)
-  useFocusEffect(
-    useCallback(() => {
       clearAllTimers();
       clearCards();
       setHasInitialFlip(false);
