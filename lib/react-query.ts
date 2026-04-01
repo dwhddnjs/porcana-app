@@ -30,12 +30,14 @@ export const queryClient = new QueryClient({
 
 // Online status management (네트워크 상태 관리)
 // https://tanstack.com/query/v5/docs/framework/react/react-native#online-status-management
-onlineManager.setEventListener((setOnline) => {
-  const eventSubscription = Network.addNetworkStateListener((state) => {
-    setOnline(!!state.isConnected);
+if (Platform.OS !== 'web') {
+  onlineManager.setEventListener((setOnline) => {
+    const eventSubscription = Network.addNetworkStateListener((state) => {
+      setOnline(!!state.isConnected);
+    });
+    return eventSubscription.remove;
   });
-  return eventSubscription.remove;
-});
+}
 
 // App focus 상태 변경 핸들러
 function onAppStateChange(status: AppStateStatus) {
