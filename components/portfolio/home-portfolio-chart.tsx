@@ -39,11 +39,11 @@ export const HomePortfolioChart = ({ data, totalReturnPct = 0 }: HomePortfolioCh
     return format(new Date(dateStr), 'M월d일', { locale: ko });
   };
 
-  if (chartData.length === 0) {
+  if (chartData.length < 3) {
     return (
       <View className="h-[200px] flex-row items-center justify-center gap-2">
         <Icon as={ChartSpline} size={24} className="text-muted-foreground" />
-        <Text className="text-muted-foreground text-sm">차트 데이터가 없습니다</Text>
+        <Text className="text-muted-foreground text-sm">차트 데이터가 부족합니다</Text>
       </View>
     );
   }
