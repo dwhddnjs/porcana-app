@@ -62,7 +62,8 @@ export default function CustomPortfolioDetail() {
 
   const handleBack = () => {
     clearAssets();
-    router.dismissTo('/(tabs)');
+    // router.replace('/(tabs)');
+    router.back();
   };
 
   const handlePrevious = () => {
