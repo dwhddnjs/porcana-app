@@ -3,13 +3,14 @@ import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { SectorTag } from '@/components/portfolio/sector-tag';
 import { SECTOR_OPTIONS, SECTOR_KO_MAP } from '@/lib/constant/variables';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { MarketTypes, AssetTypeTypes } from '@/lib/api/asset';
 import {
   useCustomPortfolioStore,
   FilterValuesTypes,
 } from '@/lib/hooks/zustand/use-custom-portfolio-store';
 import type { DrawerContentComponentProps } from '@react-navigation/drawer';
+import { useDrawerStatus } from '@react-navigation/drawer';
 import { Spacer } from '../spacer';
 
 interface FilterDrawerContentPropsTypes {
@@ -17,9 +18,12 @@ interface FilterDrawerContentPropsTypes {
 }
 
 export const FilterDrawerContent = ({ navigation }: FilterDrawerContentPropsTypes) => {
+  const drawerStatus = useDrawerStatus();
   const { filters, setFilters, resetFilters, quickMode, toggleQuickMode } =
     useCustomPortfolioStore();
   const [localFilters, setLocalFilters] = useState<FilterValuesTypes>(filters);
+
+  if (drawerStatus === 'closed') return <View />;
 
   const handleToggleMarket = (market: MarketTypes) => {
     setLocalFilters((prev) => ({

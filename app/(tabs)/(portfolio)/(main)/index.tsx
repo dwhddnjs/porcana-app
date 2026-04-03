@@ -28,7 +28,7 @@ export default function PortfolioScreen() {
     } else {
       hide();
     }
-  }, [isLoading]);
+  }, [isLoading, show, hide]);
 
   if (isLoading || !data) {
     return null;

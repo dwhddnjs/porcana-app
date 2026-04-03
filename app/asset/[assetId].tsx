@@ -104,14 +104,14 @@ export default function AssetDetailScreen() {
 
             <View className="flex-row flex-wrap gap-2">
               {data.sector ? (
-                <View className="bg-background border-primary/10 items-center justify-center rounded-md border-2 px-2 py-1">
+                <View className="bg-muted border-primary/10 items-center justify-center rounded-md px-2 py-1">
                   <Text className="text-muted-foreground text-xs">
                     {SECTOR_KO_MAP[data.sector] ?? data.sector}
                   </Text>
                 </View>
               ) : null}
               {data.currency ? (
-                <View className="bg-muted border-primary/10 items-center justify-center rounded-md px-2 py-1">
+                <View className="bg-background border-primary/10 items-center justify-center rounded-md border-2 px-2 py-1">
                   <Text className="text-muted-foreground text-xs">{data.currency}</Text>
                 </View>
               ) : null}

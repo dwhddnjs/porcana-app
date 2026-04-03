@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { View, Pressable, ScrollView, ActivityIndicator, Dimensions, useColorScheme } from 'react-native';
+import {
+  View,
+  Pressable,
+  ScrollView,
+  ActivityIndicator,
+  Dimensions,
+  useColorScheme,
+} from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -134,7 +141,7 @@ export const AssetDetailPanel = ({ assetId, onClose }: AssetDetailPanelPropsType
             {/* 뱃지 */}
             <View className="mt-3 flex-row flex-wrap gap-2">
               {data.sector ? (
-                <View className="border-border rounded-md border px-2 py-1">
+                <View className="bg-muted border-primary/10 items-center justify-center rounded-md px-2 py-1">
                   <Text className="text-muted-foreground text-xs">
                     {SECTOR_KO_MAP[data.sector] ?? data.sector}
                   </Text>
@@ -143,11 +150,6 @@ export const AssetDetailPanel = ({ assetId, onClose }: AssetDetailPanelPropsType
               {data.currency ? (
                 <View className="border-border rounded-md border px-2 py-1">
                   <Text className="text-muted-foreground text-xs">{data.currency}</Text>
-                </View>
-              ) : null}
-              {data.country ? (
-                <View className="border-border rounded-md border px-2 py-1">
-                  <Text className="text-muted-foreground text-xs">{data.country}</Text>
                 </View>
               ) : null}
             </View>

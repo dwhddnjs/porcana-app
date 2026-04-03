@@ -42,11 +42,13 @@ export const useSignupMutation = () => {
     },
     onSuccess: async (data) => {
       setGuestSessionId(null);
-      loginMutate({
-        email,
-        password,
-      });
+      const currentEmail = email;
+      const currentPassword = password;
       reset();
+      loginMutate({
+        email: currentEmail,
+        password: currentPassword,
+      });
     },
     onError: (error) => {
       console.error('Signup failed:', error);

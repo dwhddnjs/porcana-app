@@ -49,7 +49,7 @@ export default function EnterPasswordScreen() {
   };
 
   return (
-    <Container isKeyboardAvioding>
+    <Container isKeyboardAvoiding>
       <Header title="" />
       <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
         <View className="flex-1 px-[20px]">

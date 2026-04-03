@@ -14,8 +14,10 @@ import { useRouter } from 'expo-router';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import { Spacer } from '../spacer';
+import { useDrawerStatus } from '@react-navigation/drawer';
 
 export function PortfolioDrawerContent(props: DrawerContentComponentProps) {
+  const drawerStatus = useDrawerStatus();
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -23,6 +25,8 @@ export function PortfolioDrawerContent(props: DrawerContentComponentProps) {
 
   const { data: portfolios, isLoading } = useGetPortfoliosQuery();
   const { mutate: setMainPortfolio } = useSetMainPortfolioMutation();
+
+  if (drawerStatus === 'closed') return <View />;
 
   const handleSelectPortfolio = (portfolioId: string) => {
     props.navigation.closeDrawer();
