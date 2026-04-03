@@ -38,16 +38,8 @@ export default function CustomPortfolio() {
   const colorScheme = useColorScheme() ?? 'light';
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
-  const {
-    selectedAssets,
-    filters,
-    quickMode,
-    skipNextClear,
-    addAsset,
-    removeAsset,
-    clearAssets,
-    setSkipNextClear,
-  } = useCustomPortfolioStore();
+  const { selectedAssets, filters, quickMode, addAsset, removeAsset, setSkipNextClear } =
+    useCustomPortfolioStore();
 
   const { user } = useUserStore();
 
@@ -86,12 +78,13 @@ export default function CustomPortfolio() {
   // 포커스 시 에셋 초기화 (디테일 화면에서 복귀 시 스킵)
   useFocusEffect(
     useCallback(() => {
-      if (skipNextClear) {
-        setSkipNextClear(false);
+      const state = useCustomPortfolioStore.getState();
+      if (state.skipNextClear) {
+        state.setSkipNextClear(false);
         return;
       }
-      clearAssets();
-    }, [skipNextClear, setSkipNextClear, clearAssets])
+      state.clearAssets();
+    }, [])
   );
 
   // Infinite query
