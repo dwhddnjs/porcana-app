@@ -76,12 +76,10 @@ export default function CustomPortfolio() {
   const dropZoneH = useSharedValue(0);
 
   // 가로모드 고정
+  // cleanup에서 orientation 복원하지 않음 (handleBack, handleComplete 시 명시적으로 처리)
   useFocusEffect(
     useCallback(() => {
       ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
-      return () => {
-        ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
-      };
     }, [])
   );
 
@@ -144,11 +142,12 @@ export default function CustomPortfolio() {
     }, 300);
   }, []);
 
-  const handleBack = () => {
+  const handleBack = async () => {
     router.back();
+    await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     if (!user?.userId) {
       router.push('/login-sheet');
       return;
@@ -158,6 +157,7 @@ export default function CustomPortfolio() {
       return;
     }
     setSkipNextClear(true);
+    await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
     router.push('/(custom-portfolio)/custom-portfolio-detail');
   };
 

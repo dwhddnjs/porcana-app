@@ -40,7 +40,7 @@ export const useCustomPortfolioStore = create<CustomPortfolioStateTypes>((set) =
   setPortfolioName: (name) => set({ portfolioName: name }),
   addAsset: (asset) =>
     set((state) => {
-      if (state.selectedAssets.length >= 10) return state;
+      if (state.selectedAssets.length >= 20) return state;
       if (state.selectedAssets.some((a) => a.assetId === asset.assetId)) return state;
       return { selectedAssets: [...state.selectedAssets, asset] };
     }),
