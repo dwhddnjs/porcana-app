@@ -13,17 +13,17 @@ const Container = ({
   children,
   className,
   edges = ['top', 'bottom'],
-  isKeyboardAvioding = false,
+  isKeyboardAvoiding = false,
 }: {
   children: React.ReactNode;
   className?: string;
   edges?: Edges;
-  isKeyboardAvioding?: boolean;
+  isKeyboardAvoiding?: boolean;
 }) => {
   const backgroundColor = useCSSVariable('--color-background');
   const needsAndroidBottomPadding = Platform.OS === 'android' && hasBottomEdge(edges);
 
-  if (isKeyboardAvioding) {
+  if (isKeyboardAvoiding) {
     // TODO: Keyboard avoiding view
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>

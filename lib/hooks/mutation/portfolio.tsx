@@ -18,6 +18,7 @@ import { InteractionManager } from 'react-native';
 import { createArenaSessions, pickArenaSessionPreference } from '@/lib/api/arena';
 import { createGuestSession } from '@/lib/api/auth';
 import { setGuestSessionId } from '@/lib/api';
+import * as ScreenOrientation from 'expo-screen-orientation';
 
 export const useCreatePortfolioMutation = () => {
   const { user } = useUserStore((state) => state);
@@ -71,8 +72,19 @@ export const useCreatePortfolioMutation = () => {
       });
       setPicked(preference.picked, preference.currentRound);
       router.dismiss();
+
+      if (user) {
+        InteractionManager.runAfterInteractions(() => {
+          router.push('/start-arena');
+        }).then(() => {
+          ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+        });
+        return;
+      }
+
       InteractionManager.runAfterInteractions(() => {
         router.push('/start-arena');
+        ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
       });
     },
     onError: (error) => {
@@ -80,6 +92,8 @@ export const useCreatePortfolioMutation = () => {
     },
     onSettled: () => {
       hide();
+      queryClient.invalidateQueries({ queryKey: ['portfolios'] });
+      queryClient.invalidateQueries({ queryKey: ['home'] });
     },
   });
 };

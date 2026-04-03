@@ -1,12 +1,10 @@
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
-import { useMutation } from '@tanstack/react-query';
-import { UserStateTypes, useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { useLoadingStore } from '@/lib/hooks/zustand/use-loading-store';
 import { router } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
-import { useLoginMutation, useSignupMutation } from './auth';
+import { useLoginMutation } from './auth';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -29,10 +27,8 @@ const getClientId = () => {
 };
 
 export const useGoogleAuth = () => {
-  const { setTokens, setUser } = useUserStore((state) => state);
   const { show, hide } = useLoadingStore();
   const { mutate: login } = useLoginMutation();
-  const { mutate: signup } = useSignupMutation();
 
   const isProcessingRef = useRef(false);
 
@@ -50,10 +46,17 @@ export const useGoogleAuth = () => {
     if (!response || !isProcessingRef.current) return;
 
     if (response.type === 'success' && response.params?.id_token) {
-      login({
-        provider: 'GOOGLE',
-        code: response.params.id_token,
-      });
+      login(
+        {
+          provider: 'GOOGLE',
+          code: response.params.id_token,
+        },
+        {
+          onSettled: () => {
+            isProcessingRef.current = false;
+          },
+        }
+      );
     } else {
       isProcessingRef.current = false;
       hide();

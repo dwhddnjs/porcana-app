@@ -56,7 +56,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <Container isKeyboardAvioding>
+    <Container isKeyboardAvoiding>
       <Header title="이메일 로그인" onBackPress={handleBackPress} />
       <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
         <Spacer height={48} />

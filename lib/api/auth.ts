@@ -130,7 +130,9 @@ type CheckEmailResponseTypes = {
 
 export const checkEmail = async ({ email }: { email: string }) => {
   try {
-    const response = await api.get<CheckEmailResponseTypes>(`auth/check-email?email=${email}`);
+    const response = await api.get<CheckEmailResponseTypes>('auth/check-email', {
+      params: { email },
+    });
     return response.data;
   } catch (error: any) {
     console.error('Check Email Error:', error);

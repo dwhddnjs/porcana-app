@@ -78,8 +78,9 @@ export default function CreatePortfolio() {
     setShowCards(true);
     setIsTransitioning(false);
     setSelectedCardIndex(null);
-    router.back();
+
     await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+    router.back();
   }, [clearAllTimers, resetArena, queryClient, router]);
 
   // 화면 높이 기준으로 카드 크기 계산 (가로모드)
@@ -95,7 +96,7 @@ export default function CreatePortfolio() {
   // cleanup에서 orientation 복원하지 않음 (handleBack, complete 이동 시 명시적으로 처리)
   useFocusEffect(
     useCallback(() => {
-      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+      // ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
       clearAllTimers();
       clearCards();
       setHasInitialFlip(false);
@@ -135,35 +136,38 @@ export default function CreatePortfolio() {
       pickAsset(
         { pickedAssetId: selectedAsset.assetId },
         {
-          onSuccess: async () => {
+          onSuccess: () => {
             // 1초 동안 선택된 카드가 커진 상태 유지
-            const timer1 = setTimeout(async () => {
+            const timer1 = setTimeout(() => {
               setShowCards(false);
               setSelectedCardIndex(null);
 
               if (round < MAX_ROUNDS) {
                 // 새 데이터를 먼저 fetch
-                await refetch();
+                refetch().then(() => {
+                  // 데이터 로드 후 카드 표시
+                  const timer2 = setTimeout(() => {
+                    setRound((prev) => prev + 1);
+                    setIsFlipped(false);
+                    setShowCards(true);
 
-                // 데이터 로드 후 카드 표시
-                const timer2 = setTimeout(() => {
-                  setRound((prev) => prev + 1);
-                  setIsFlipped(false);
-                  setShowCards(true);
-
-                  // 새 카드가 나타난 후 뒤집기
-                  const timer3 = setTimeout(() => {
-                    setIsFlipped(true);
-                    setIsTransitioning(false);
-                  }, 300);
-                  timersRef.current.push(timer3);
-                }, 100);
-                timersRef.current.push(timer2);
+                    // 새 카드가 나타난 후 뒤집기
+                    const timer3 = setTimeout(() => {
+                      setIsFlipped(true);
+                      setIsTransitioning(false);
+                    }, 300);
+                    timersRef.current.push(timer3);
+                  }, 100);
+                  timersRef.current.push(timer2);
+                });
               } else {
                 // 10라운드 완료 - 세로 모드로 전환 후 완료 페이지로 이동
                 clearAllTimers();
-                await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
-                router.replace('/(arena)/complete');
+                ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).then(
+                  () => {
+                    router.replace('/(arena)/complete');
+                  }
+                );
               }
             }, 1000);
             timersRef.current.push(timer1);

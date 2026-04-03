@@ -16,6 +16,10 @@ export default function LandingScreen() {
     router.push('/add-modal');
   };
 
+  // console.log('accessToken', accessToken);
+  // console.log('refreshToken', refreshToken);
+  // console.log('user', user);
+
   return (
     <Container>
       <Header title="" showBackButton={false} />

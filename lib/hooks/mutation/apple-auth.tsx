@@ -1,6 +1,6 @@
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { useMutation } from '@tanstack/react-query';
-import { UserStateTypes, useUserStore } from '@/lib/hooks/zustand/use-user-store';
+import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { useLoadingStore } from '@/lib/hooks/zustand/use-loading-store';
 import { router } from 'expo-router';
 import { useRef } from 'react';
@@ -9,7 +9,7 @@ import { appleLogin } from '@/lib/api/auth';
 import { parseEmailFromIdentityToken } from '@/lib/constant/function';
 
 export const useAppleAuth = () => {
-  const { setTokens, setUser } = useUserStore((state) => state);
+  const { setTokens } = useUserStore((state) => state);
   const { show, hide } = useLoadingStore();
   const isProcessingRef = useRef(false);
 
@@ -21,7 +21,6 @@ export const useAppleAuth = () => {
     onSuccess: (data) => {
       if (data?.accessToken && data?.refreshToken) {
         setTokens(data.accessToken, data.refreshToken);
-        setUser(data as UserStateTypes);
       }
       router.replace('/(tabs)');
       isProcessingRef.current = false;
@@ -65,8 +64,6 @@ export const useAppleAuth = () => {
           AppleAuthentication.AppleAuthenticationScope.EMAIL,
         ],
       });
-
-      console.log('credential', credential);
 
       // credential이 없으면 취소된 것으로 간주
       if (!credential) {
