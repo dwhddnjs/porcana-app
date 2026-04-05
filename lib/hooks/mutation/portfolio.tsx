@@ -73,15 +73,6 @@ export const useCreatePortfolioMutation = () => {
       setPicked(preference.picked, preference.currentRound);
       router.dismiss();
 
-      if (user) {
-        InteractionManager.runAfterInteractions(() => {
-          router.push('/start-arena');
-        }).then(() => {
-          ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
-        });
-        return;
-      }
-
       InteractionManager.runAfterInteractions(() => {
         router.push('/start-arena');
         ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
