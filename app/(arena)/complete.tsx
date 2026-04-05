@@ -6,7 +6,7 @@ import { router } from 'expo-router';
 import { useArenaStore } from '@/lib/hooks/zustand/use-arena-store';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { Building2, CheckCircle, TrendingUp } from 'lucide-react-native';
-import Container from '@/components/container';
+import Container from '@/components/ui/container';
 import { Image } from '@/components/ui/image';
 import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { useQueryClient } from '@tanstack/react-query';
@@ -21,7 +21,7 @@ export default function ArenaComplete() {
 
   const handleOpenLoginSheet = () => {
     if (!user) {
-      router.push('/login-sheet');
+      router.push('/modal/login-sheet');
       return;
     }
     queryClient.invalidateQueries({ queryKey: ['portfolios'] });

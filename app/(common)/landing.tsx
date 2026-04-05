@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
-import Container from '@/components/container';
+import Container from '@/components/ui/container';
 import { Header } from '@/components/ui/header';
 import { ImageCarousel } from '@/components/ui/image-carousel';
 import { Link, useRouter } from 'expo-router';
@@ -13,7 +13,7 @@ export default function LandingScreen() {
   const router = useRouter();
 
   const handleStart = () => {
-    router.push('/add-modal');
+    router.push('/modal/pick-preferences');
   };
 
   // console.log('accessToken', accessToken);

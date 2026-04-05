@@ -142,7 +142,7 @@ export default function CustomPortfolio() {
 
   const handleComplete = async () => {
     if (!user?.userId) {
-      router.push('/login-sheet');
+      router.push('/modal/login-sheet');
       return;
     }
     if (selectedAssets.length < 5) {

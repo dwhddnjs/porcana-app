@@ -11,7 +11,7 @@ import {
 } from '@/lib/hooks/zustand/use-custom-portfolio-store';
 import type { DrawerContentComponentProps } from '@react-navigation/drawer';
 import { useDrawerStatus } from '@react-navigation/drawer';
-import { Spacer } from '../spacer';
+import { Spacer } from '@/components/ui/spacer';
 
 interface FilterDrawerContentPropsTypes {
   navigation: DrawerContentComponentProps['navigation'];

@@ -17,13 +17,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import Container from '@/components/container';
+import Container from '@/components/ui/container';
 import { WeightAssetItem } from '@/components/custom-portfolio/weight-asset-item';
 import { useCustomPortfolioStore } from '@/lib/hooks/zustand/use-custom-portfolio-store';
 import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { useDirectCreatePortfolioMutation } from '@/lib/hooks/mutation/portfolio';
 import { toast } from 'sonner-native';
-import { Spacer } from '@/components/spacer';
+import { Spacer } from '@/components/ui/spacer';
 
 const buildEqualWeights = (assetIds: string[]): Record<string, number> => {
   const count = assetIds.length;
@@ -90,7 +90,7 @@ export default function CustomPortfolioDetail() {
 
   const handleCreate = () => {
     if (!user?.userId) {
-      router.push('/login-sheet');
+      router.push('/modal/login-sheet');
       return;
     }
     if (!portfolioName.trim()) {

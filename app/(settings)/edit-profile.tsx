@@ -1,4 +1,4 @@
-import Container from '@/components/container';
+import Container from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/ui/header';
 import { Input } from '@/components/ui/input';

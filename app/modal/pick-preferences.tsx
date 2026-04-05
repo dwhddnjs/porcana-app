@@ -3,20 +3,22 @@ import { Text } from '@/components/ui/text';
 import { router } from 'expo-router';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import Container from '@/components/container';
+
 import { Icon } from '@/components/ui/icon';
 import { HandFistIcon, ShieldIcon, ScaleIcon } from 'lucide-react-native';
 import { SectorTag } from '@/components/portfolio/sector-tag';
 import { SECTOR_OPTIONS, SECTOR_OPTIONS_KO } from '@/lib/constant/variables';
 import { useState } from 'react';
 import { useCreatePortfolioMutation } from '@/lib/hooks/mutation/portfolio';
-import { Spacer } from '@/components/spacer';
+
 import { ActivityIndicator, useColorScheme } from 'react-native';
 import { THEME } from '@/lib/theme';
+import Container from '@/components/ui/container';
+import { Spacer } from '@/components/ui/spacer';
 
 export type RiskProfileTypes = 'AGGRESSIVE' | 'BALANCED' | 'SAFE' | null;
 
-export default function AddModal() {
+export default function PickPreferences() {
   const [portfolioName, setPortfolioName] = useState('');
   const [selectedRiskProfile, setSelectedRiskProfile] = useState<RiskProfileTypes>(null);
   const [selectedSector, setSelectedSector] = useState<string[]>([]);

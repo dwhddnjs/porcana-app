@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Header } from '@/components/ui/header';
 import { Text } from '@/components/ui/text';
 import { useDeleteAccountMutation } from '@/lib/hooks/mutation/user';
-import Container from '@/components/container';
+import Container from '@/components/ui/container';
 import { useState } from 'react';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

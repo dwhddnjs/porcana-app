@@ -1,6 +1,6 @@
-import { LargeHeader } from '@/components/large-header';
+import { LargeHeader } from '@/components/ui/large-header';
 import { MenuItem } from '@/components/mypage/menu-item';
-import { Spacer } from '@/components/spacer';
+import { Spacer } from '@/components/ui/spacer';
 import { Text } from '@/components/ui/text';
 import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { queryClient } from '@/lib/react-query';
@@ -18,7 +18,9 @@ export default function MypageScreen() {
     queryClient.clear();
     logout();
     toast.success('로그아웃 되었습니다.');
-    router.dismissAll();
+    if (router.canDismiss()) {
+      router.dismissAll();
+    }
     router.replace('/(auth)/login');
   };
 

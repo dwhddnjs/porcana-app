@@ -24,10 +24,9 @@ app/                          # Expo Router 파일 기반 라우팅
 │   ├── (portfolio)/(main)/   # 포트폴리오 홈, 상세([id]), 에셋 상세(asset/[assetId])
 │   └── (mypage)/             # 마이페이지
 ├── (auth)/                   # 인증 플로우 (login, signup, enter-email/password/nickname)
-├── (arena)/                  # 아레나 게임 세션 (start-arena, complete)
+├── (arena)/                  # 아레나 게임 세션 (index, complete)
 ├── (common)/                 # 공통 라우트 (landing)
-├── add-modal.tsx             # 포트폴리오 생성 모달
-└── login-sheet.tsx           # 로그인 폼 시트
+└── modal/                    # 모달 시트 (login-sheet, pick-preferences)
 components/
 ├── ui/                       # 공통 UI 컴포넌트 (Button, Text, Input, Card, Dialog 등)
 └── portfolio/                # 포트폴리오 전용 컴포넌트

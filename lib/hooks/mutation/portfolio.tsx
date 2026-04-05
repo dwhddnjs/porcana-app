@@ -74,7 +74,7 @@ export const useCreatePortfolioMutation = () => {
       router.dismiss();
 
       InteractionManager.runAfterInteractions(() => {
-        router.push('/start-arena');
+        router.push('/(arena)');
         ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
       });
     },
@@ -145,7 +145,7 @@ export const usePickArenaSessionPreferenceMutation = () => {
       setPicked(data.picked, data.currentRound);
       router.dismiss();
       InteractionManager.runAfterInteractions(() => {
-        router.push('/start-arena');
+        router.push('/(arena)');
       });
     },
     onError: (error) => {
