@@ -1,4 +1,4 @@
-import { LargeHeader } from '@/components/large-header';
+import { LargeHeader } from '@/components/ui/large-header';
 import { Card, CardContent } from '@/components/ui/card';
 import { Text } from '@/components/ui/text';
 import { format, isValid } from 'date-fns';
@@ -37,7 +37,7 @@ import {
 } from '@/lib/constant/function';
 import { THEME } from '@/lib/theme';
 import RiskDistributionChart from '@/components/portfolio/risk-distribution-chart';
-import { Spacer } from '@/components/spacer';
+import { Spacer } from '@/components/ui/spacer';
 import { AssetItem } from '@/components/portfolio/asset-item';
 import {
   useDeletePortfolioMutation,

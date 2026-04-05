@@ -1,4 +1,4 @@
-import { Spacer } from '@/components/spacer';
+import { Spacer } from '@/components/ui/spacer';
 import { Header } from '@/components/ui/header';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';

@@ -1,10 +1,9 @@
-import { LargeHeader } from '@/components/large-header';
 import { Text } from '@/components/ui/text';
 import { Pressable, View } from 'react-native';
 import { MenuIcon } from 'lucide-react-native';
 import { Icon } from '@/components/ui/icon';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
-import { Spacer } from '@/components/spacer';
+
 import { useGetHomeQuery } from '@/lib/hooks/query/home';
 import { useLoadingStore } from '@/lib/hooks/zustand/use-loading-store';
 import HomePortfolioChart from '@/components/portfolio/home-portfolio-chart';
@@ -13,6 +12,8 @@ import { useEffect } from 'react';
 import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { useRouter } from 'expo-router';
 import { roundToTwoDecimals } from '@/lib/constant/function';
+import { LargeHeader } from '@/components/ui/large-header';
+import { Spacer } from '@/components/ui/spacer';
 
 export default function PortfolioScreen() {
   const navigation = useNavigation();

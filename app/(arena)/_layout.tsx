@@ -91,7 +91,7 @@ export default function CreatePortfolioLayout() {
         },
       }}
       drawerContent={() => <CustomDrawerContent />}>
-      <Drawer.Screen name="start-arena" />
+      <Drawer.Screen name="index" />
       <Drawer.Screen
         name="complete"
         options={{

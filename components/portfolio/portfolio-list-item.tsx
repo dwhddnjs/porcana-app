@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { Star, TrendingUp } from 'lucide-react-native';
 import { Icon } from '@/components/ui/icon';
 import { PortfolioTypes } from '@/lib/api/portfolio';
-import { Spacer } from '../spacer';
+import { Spacer } from '@/components/ui/spacer';
 
 type PortfolioListItemProps = {
   portfolio: PortfolioTypes;

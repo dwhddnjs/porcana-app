@@ -55,17 +55,7 @@ export default function RootLayout() {
                   gestureEnabled: false,
                 }}
               />
-              <Stack.Screen
-                name="add-modal"
-                options={{
-                  presentation: Platform.OS === 'ios' ? 'modal' : 'formSheet',
-                  headerShown: false,
-                  gestureEnabled: true,
-                  sheetAllowedDetents: [0.96],
-                  sheetCornerRadius: 36,
-                  sheetGrabberVisible: false,
-                }}
-              />
+
               <Stack.Screen name="portfolio/[id]" options={{ headerShown: false }} />
               <Stack.Screen
                 name="asset/[assetId]"
@@ -80,9 +70,12 @@ export default function RootLayout() {
               />
               <Stack.Screen
                 name="(custom-portfolio)"
-                options={{ headerShown: false }}
+                options={{ headerShown: false, gestureEnabled: false }}
               />
-              <Stack.Screen name="(arena)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="(arena)"
+                options={{ headerShown: false, gestureEnabled: false }}
+              />
               <Stack.Screen name="component-preview" options={{ headerShown: false }} />
               <Stack.Screen name="(settings)" options={{ headerShown: false }} />
               <Stack.Screen
@@ -91,12 +84,23 @@ export default function RootLayout() {
               />
               <Stack.Screen name="(auth)" options={{ headerShown: false, animation: 'fade' }} />
               <Stack.Screen
-                name="login-sheet"
+                name="modal/login-sheet"
                 options={{
                   presentation: 'formSheet',
                   headerShown: false,
                   gestureEnabled: true,
                   sheetAllowedDetents: [0.32],
+                  sheetCornerRadius: 36,
+                  sheetGrabberVisible: false,
+                }}
+              />
+              <Stack.Screen
+                name="modal/pick-preferences"
+                options={{
+                  presentation: Platform.OS === 'ios' ? 'modal' : 'formSheet',
+                  headerShown: false,
+                  gestureEnabled: true,
+                  sheetAllowedDetents: [0.96],
                   sheetCornerRadius: 36,
                   sheetGrabberVisible: false,
                 }}

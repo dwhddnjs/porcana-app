@@ -4,7 +4,7 @@ import { CandlestickChart } from 'react-native-wagmi-charts';
 import { useMemo, useState } from 'react';
 import { useUniwind } from 'uniwind';
 import { Text } from '../ui/text';
-import { Spacer } from '../spacer';
+import { Spacer } from '@/components/ui/spacer';
 import { ChartPointTypes } from '@/lib/api/asset';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');

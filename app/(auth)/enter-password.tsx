@@ -9,9 +9,9 @@ import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { z } from 'zod';
 import { useRouter } from 'expo-router';
 import { useSignupStore } from '@/lib/hooks/zustand/use-signup-store';
-import Container from '@/components/container';
+import Container from '@/components/ui/container';
 import { Header } from '@/components/ui/header';
-import { Spacer } from '@/components/spacer';
+import { Spacer } from '@/components/ui/spacer';
 import { useSignupMutation } from '@/lib/hooks/mutation/auth';
 import { PasswordFormDataTypes, passwordSchema } from '@/lib/validations/auth';
 

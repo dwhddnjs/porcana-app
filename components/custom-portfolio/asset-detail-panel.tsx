@@ -22,7 +22,7 @@ import { AssetCandlestickChart } from '@/components/portfolio/asset-candlestick-
 import { SECTOR_KO_MAP } from '@/lib/constant/variables';
 import { getRiskStarColor } from '@/lib/constant/function';
 import { cn } from '@/lib/utils';
-import { Spacer } from '../spacer';
+import { Spacer } from '@/components/ui/spacer';
 
 const PANEL_WIDTH_RATIO = 0.55;
 const CHART_CONTAINER_HEIGHT = 200;

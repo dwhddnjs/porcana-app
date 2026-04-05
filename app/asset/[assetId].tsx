@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from '@/components/ui/image';
-import { Spacer } from '@/components/spacer';
+import { Spacer } from '@/components/ui/spacer';
 import { ChartRangeTypes } from '@/lib/api/asset';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';

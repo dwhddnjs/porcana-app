@@ -1,4 +1,4 @@
-import Container from '@/components/container';
+import Container from '@/components/ui/container';
 import { Header } from '@/components/ui/header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';

@@ -1,6 +1,5 @@
-import Container from '@/components/container';
-import { SignInForm } from '@/components/sign-in-form';
-import { Spacer } from '@/components/spacer';
+import Container from '@/components/ui/container';
+import { Spacer } from '@/components/ui/spacer';
 import { Header } from '@/components/ui/header';
 import { Input } from '@/components/ui/input';
 import { KeyboardStickyButton } from '@/components/ui/keyboard-sticky-button';

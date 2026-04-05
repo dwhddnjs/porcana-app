@@ -22,7 +22,7 @@ import * as Haptics from 'expo-haptics';
 
 const MAX_ROUNDS = 10;
 
-export default function CreatePortfolio() {
+export default function Arena() {
   const colorScheme = useColorScheme() ?? 'light';
   const { height: screenHeight } = useWindowDimensions();
   const navigation = useNavigation();
@@ -219,8 +219,8 @@ export default function CreatePortfolio() {
         )}
       </View>
       <View className="flex-row items-center justify-center gap-[18px] pb-[20px]">
-        <Button variant="outline" size="default" onPress={handleBack}>
-          <Text>돌아가기</Text>
+        <Button variant="outline" size="default" onPress={handleBack} className="shadow-none">
+          <Text className="text-md">돌아가기</Text>
         </Button>
         <View className="items-center justify-center">
           <Text className="text-muted-foreground text-xl font-semibold">
@@ -230,7 +230,7 @@ export default function CreatePortfolio() {
         </View>
 
         <Button size="default" onPress={openDrawer}>
-          <Text>덱 보기</Text>
+          <Text className="text-md">덱 보기</Text>
         </Button>
       </View>
     </View>

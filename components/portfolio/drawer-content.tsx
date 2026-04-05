@@ -13,7 +13,7 @@ import Animated, { LinearTransition } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
-import { Spacer } from '../spacer';
+import { Spacer } from '@/components/ui/spacer';
 import { useDrawerStatus } from '@react-navigation/drawer';
 
 export function PortfolioDrawerContent(props: DrawerContentComponentProps) {

@@ -1,4 +1,4 @@
-import Container from '@/components/container';
+import Container from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { useAppleAuth } from '@/lib/hooks/mutation/apple-auth';
@@ -9,7 +9,7 @@ import { ActivityIndicator, Platform, View, Text, useColorScheme } from 'react-n
 import { AntDesign } from '@expo/vector-icons';
 import { Image } from '@/components/ui/image';
 import { Header } from '@/components/ui/header';
-import { Spacer } from '@/components/spacer';
+import { Spacer } from '@/components/ui/spacer';
 import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 
 const logoWhite = require('@/assets/images/logo-white.png');
@@ -22,7 +22,7 @@ export default function Login() {
   const { user, reset } = useUserStore();
 
   const handleEmailLogin = () => {
-    router.replace('/email-login');
+    router.push('/email-login');
   };
 
   const handleBackPress = () => {
