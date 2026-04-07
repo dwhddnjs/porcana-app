@@ -2,9 +2,9 @@ import type { DiversityLevelTypes } from '@/lib/api/portfolio';
 import { THEME } from '@/lib/theme';
 
 export const getRiskStarColor = (level: number, theme: 'light' | 'dark' = 'light') => {
-  if (level <= 2) return THEME[theme].stockDown;
-  if (level <= 3) return THEME[theme].weight;
-  return THEME[theme].stockUp;
+  if (level <= 2) return THEME[theme].link;
+  if (level <= 3) return THEME[theme].success;
+  return THEME[theme].destructive;
 };
 
 /**
@@ -20,9 +20,9 @@ export const DIVERSITY_LEVEL_LABELS: Record<DiversityLevelTypes, string> = {
  * DiversityLevelTypes에 따른 텍스트 색상 클래스 반환
  */
 export const getDiversityLevelColor = (level?: DiversityLevelTypes): string => {
-  if (level === 'HIGH') return 'text-destructive';
+  if (level === 'HIGH') return 'text-link';
   if (level === 'MEDIUM') return 'text-success';
-  return 'text-link';
+  return 'text-destructive';
 };
 
 /**
