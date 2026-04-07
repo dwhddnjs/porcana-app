@@ -31,6 +31,12 @@ export const THEME = {
     chart4: 'hsl(43 74% 66%)',
     chart5: 'hsl(27 87% 67%)',
     link: 'hsl(220 70% 55%)',
+    stockUp: 'hsl(0 84.2% 60.2%)',
+    stockUpMuted: 'hsla(0 84.2% 60.2% / 0.2)',
+    stockDown: 'hsl(220 70% 55%)',
+    stockDownMuted: 'hsla(220 70% 55% / 0.2)',
+    weight: 'hsl(142 71% 45%)',
+    weightMuted: 'hsla(142 71% 45% / 0.2)',
   },
   dark: {
     background: 'hsl(0 0% 3.9%)',
@@ -62,6 +68,12 @@ export const THEME = {
     chart4: 'hsl(280 65% 60%)',
     chart5: 'hsl(340 75% 55%)',
     link: 'hsl(220 70% 65%)',
+    stockUp: 'hsl(0 70.9% 59.4%)',
+    stockUpMuted: 'hsla(0 70.9% 59.4% / 0.3)',
+    stockDown: 'hsl(220 70% 65%)',
+    stockDownMuted: 'hsla(220 70% 65% / 0.3)',
+    weight: 'hsl(160 60% 45%)',
+    weightMuted: 'hsla(160 60% 45% / 0.3)',
   },
 };
 

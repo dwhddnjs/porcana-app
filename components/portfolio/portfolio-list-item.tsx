@@ -31,8 +31,8 @@ export const PortfolioListItem = ({ portfolio, onSelect, onSetMain }: PortfolioL
 
               <Text
                 className={cn(
-                  'text-sm',
-                  portfolio.totalReturnPct >= 0 ? 'text-link' : 'text-destructive'
+                  'text-sm font-semibold',
+                  portfolio.totalReturnPct >= 0 ? 'text-stock-up' : 'text-stock-down'
                 )}>
                 {portfolio.totalReturnPct >= 0 ? '+' : ''}
                 {portfolio.totalReturnPct.toFixed(2)}%
@@ -69,9 +69,7 @@ export const PortfolioListItem = ({ portfolio, onSelect, onSetMain }: PortfolioL
                     </Text>
                     <Text className="text-muted-foreground text-xs">{asset.symbol}</Text>
                   </View>
-                  <Text className="text-success ml-auto text-sm font-semibold">
-                    {asset.weight}%
-                  </Text>
+                  <Text className="text-weight ml-auto text-sm font-semibold">{asset.weight}%</Text>
                 </View>
               ))}
             </View>

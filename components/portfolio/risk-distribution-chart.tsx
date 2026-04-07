@@ -34,7 +34,7 @@ const CapsuleBar = ({ level, fillRatio, fillColor, bgColor }: CapsuleBarProps) =
       </View>
       {/* 캡슐 바 */}
       <View
-        className="border-success/20 rounded-full border"
+        className="border-weight/20 rounded-full border"
         style={{
           width: BAR_WIDTH,
           height: BAR_HEIGHT,
@@ -46,11 +46,11 @@ const CapsuleBar = ({ level, fillRatio, fillColor, bgColor }: CapsuleBarProps) =
         {/* 채워지는 부분 */}
         {fillRatio > 0 && (
           <View>
-            <Text className="text-success py-1.5 text-center text-xs font-semibold">
+            <Text className="text-weight py-1.5 text-center text-xs font-semibold">
               {riskValue}
             </Text>
             <View
-              className="bg-success rounded-full"
+              className="bg-weight rounded-full"
               style={{
                 width: '100%',
                 height: fillHeight,
