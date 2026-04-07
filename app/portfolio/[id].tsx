@@ -221,7 +221,7 @@ export default function PortfolioDetailScreen() {
                 <Text className="text-lg font-semibold">수익률</Text>
               </View>
               <Text
-                className={cn('text-3xl font-bold', isPositive ? 'text-link' : 'text-destructive')}>
+                className={cn('text-3xl font-bold', isPositive ? 'text-stock-up' : 'text-stock-down')}>
                 {isPositive ? '+' : ''}
                 {data.totalReturnPct.toFixed(2)}%
               </Text>
@@ -275,7 +275,7 @@ export default function PortfolioDetailScreen() {
               <Text
                 className={cn(
                   'text-sm font-semibold',
-                  Math.round(totalWeight * 100) / 100 === 100 ? 'text-success' : 'text-destructive'
+                  Math.round(totalWeight * 100) / 100 === 100 ? 'text-weight' : 'text-destructive'
                 )}>
                 합계: {totalWeight.toFixed(2)}%
               </Text>

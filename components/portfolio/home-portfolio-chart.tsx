@@ -30,8 +30,7 @@ export const HomePortfolioChart = ({ data, totalReturnPct = 0 }: HomePortfolioCh
   const isPositive = totalReturnPct >= 0;
 
   const colors = theme === 'dark' ? THEME.dark : THEME.light;
-  const lineColor = isPositive ? colors.success : colors.destructive;
-  const gradientColor = isPositive ? colors.successMuted : colors.destructiveMuted;
+  const lineColor = isPositive ? colors.stockUp : colors.stockDown;
   const rulesColor = colors.borderMuted;
 
   const formatDateKorean = (dateStr: string | undefined): string => {
@@ -60,8 +59,10 @@ export const HomePortfolioChart = ({ data, totalReturnPct = 0 }: HomePortfolioCh
         curved
         areaChart
         color={lineColor}
-        startFillColor={gradientColor}
-        endFillColor="transparent"
+        startFillColor={lineColor}
+        endFillColor={lineColor}
+        startOpacity={theme === 'dark' ? 0.5 : 0.3}
+        endOpacity={0}
         thickness={2}
         hideDataPoints
         hideYAxisText
@@ -97,6 +98,7 @@ export const HomePortfolioChart = ({ data, totalReturnPct = 0 }: HomePortfolioCh
               <View
                 style={{
                   backgroundColor: colors.primary,
+                  zIndex: 10000000,
                   // paddingHorizontal: 8,
                   paddingVertical: 2,
                   borderRadius: 8,

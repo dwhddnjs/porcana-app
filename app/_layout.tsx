@@ -15,6 +15,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { Toaster } from 'sonner-native';
 import { useUniwind } from 'uniwind';
+import { useThemeSync } from '@/lib/hooks/use-theme-sync';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -29,6 +30,7 @@ SplashScreen.setOptions({
 
 export default function RootLayout() {
   const { theme } = useUniwind();
+  useThemeSync();
 
   // React Query - 앱 포커스시 refetch 활성화
   useAppState();

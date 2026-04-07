@@ -6,8 +6,6 @@ import { ThemeModeTypes, useUserStore } from '@/lib/hooks/zustand/use-user-store
 import { CheckIcon } from 'lucide-react-native';
 import { Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Uniwind } from 'uniwind';
-import { useColorScheme } from 'react-native';
 
 const THEME_OPTIONS: { mode: ThemeModeTypes; label: string }[] = [
   { mode: 'dark', label: '다크 모드' },
@@ -17,14 +15,12 @@ const THEME_OPTIONS: { mode: ThemeModeTypes; label: string }[] = [
 
 export default function ColorModeScreen() {
   const insets = useSafeAreaInsets();
-  const systemColorScheme = useColorScheme();
   const themeMode = useUserStore((s) => s.themeMode);
   const setThemeMode = useUserStore((s) => s.setThemeMode);
 
   const handleSelect = (mode: ThemeModeTypes) => {
     if (mode === themeMode) return;
     setThemeMode(mode);
-    Uniwind.setTheme(mode === 'system' ? (systemColorScheme ?? 'light') : mode);
   };
 
   return (
