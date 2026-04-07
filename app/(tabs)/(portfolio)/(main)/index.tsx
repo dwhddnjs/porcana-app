@@ -46,7 +46,7 @@ export default function PortfolioScreen() {
         titleRight={
           <Text
             className={`text-lg font-bold ${
-              (data?.mainPortfolio?.totalReturnPct ?? 0) >= 0 ? 'text-link' : 'text-destructive'
+              (data?.mainPortfolio?.totalReturnPct ?? 0) >= 0 ? 'text-stock-up' : 'text-stock-down'
             }`}>
             {(data?.mainPortfolio?.totalReturnPct ?? 0) >= 0 ? '+' : ''}
             {roundToTwoDecimals(data?.mainPortfolio?.totalReturnPct ?? 0)}%
@@ -63,8 +63,6 @@ export default function PortfolioScreen() {
             data={data?.chart ?? []}
             totalReturnPct={data?.mainPortfolio?.totalReturnPct}
           />
-          <Spacer height={12} />
-
           <View className="px-[12px]">
             <Text className="text-muted-foreground text-md mb-[12px] font-bold">주요 자산</Text>
             {data?.positions?.map((item, index) => (

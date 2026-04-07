@@ -13,7 +13,7 @@
       "supportsTablet": false,
       "bundleIdentifier": "com.porcana",
       "icon": {
-        "light": "./assets/images/logo/ios-light.png",
+        "light": "./assets/images/logo/ios-dark.png",
         "dark": "./assets/images/logo/ios-dark.png"
       },
       "usesAppleSignIn": true,
@@ -39,7 +39,7 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo/adaptive-icon.png",
         "monochromeImage": "./assets/images/logo/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#000000"
       }
     },
     "web": {

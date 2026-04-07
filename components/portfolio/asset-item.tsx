@@ -58,7 +58,7 @@ export const AssetItem = ({
         <View className="flex-1 gap-[2px]">
           <View className="flex-row items-center gap-[4px]">
             <Text
-              className="max-w-[140px] min-w-[140px] text-base font-semibold text-ellipsis"
+              className="max-w-[150px] min-w-[150px] text-base font-semibold text-ellipsis"
               numberOfLines={1}
               ellipsizeMode="tail">
               {item.name}
@@ -78,12 +78,12 @@ export const AssetItem = ({
                     onWeightChange?.(formatted);
                   }}
                   keyboardType="decimal-pad"
-                  className="text-success border-b-primary/40 min-w-[40px] border-b px-2 pb-1 text-center text-sm font-semibold"
+                  className="text-weight border-b-primary/40 min-w-[40px] border-b px-2 pb-1 text-center text-sm font-semibold"
                   selectTextOnFocus
                 />
               </Pressable>
             ) : (
-              <Text className="text-success text-sm font-semibold">
+              <Text className="text-weight text-sm font-semibold">
                 {' '}
                 {item.weightPct} / {item.targetWeightPct}%
               </Text>
@@ -98,7 +98,7 @@ export const AssetItem = ({
         <Text
           className={cn(
             'text-md font-semibold',
-            item.returnPct > 0 ? 'text-link' : 'text-destructive'
+            item.returnPct > 0 ? 'text-stock-up' : 'text-stock-down'
           )}>
           {roundToTwoDecimals(item.returnPct)}%
         </Text>

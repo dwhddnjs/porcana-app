@@ -39,7 +39,7 @@ export const WeightAssetItem = ({
           </View>
 
           {/* 퍼센트 표시 */}
-          <Text className="text-success ml-2 min-w-[40px] text-right text-sm font-bold">
+          <Text className="text-weight ml-2 min-w-[40px] text-right text-sm font-bold">
             {weightPct}%
           </Text>
 

@@ -81,7 +81,9 @@ export default function ArenaComplete() {
                       {card.name}
                     </Text>
                     <View className="bg-muted rounded px-1.5 py-0.5">
-                      <Text className="text-muted-foreground text-xs">{card.market}</Text>
+                      <Text className="text-muted-foreground text-xs font-semibold">
+                        {card.market}
+                      </Text>
                     </View>
                   </View>
                   <Text className="text-muted-foreground text-xs" numberOfLines={1}>
@@ -91,7 +93,7 @@ export default function ArenaComplete() {
 
                 {/* 리스크 */}
                 <View className="items-center gap-1">
-                  <Text className="text-muted-foreground text-xs">리스크</Text>
+                  <Text className="text-muted-foreground text-xs font-semibold">리스크</Text>
                   <View
                     className="h-6 w-6 items-center justify-center rounded-full border-[1.5px]"
                     style={{ borderColor: getRiskStarColor(card.currentRiskLevel, colorScheme) }}>

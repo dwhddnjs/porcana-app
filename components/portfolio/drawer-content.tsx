@@ -94,7 +94,10 @@ export function PortfolioDrawerContent(props: DrawerContentComponentProps) {
       </View>
 
       {/* 스크롤 가능한 포트폴리오 목록 */}
-      <ScrollView className="flex-1 px-[12px]" contentContainerStyle={{ paddingBottom: 24 }}>
+      <ScrollView
+        className="flex-1 px-[12px]"
+        contentContainerStyle={{ paddingBottom: 24 }}
+        showsVerticalScrollIndicator={false}>
         {isLoading ? (
           <View className="flex-1 items-center justify-center py-8">
             <ActivityIndicator />

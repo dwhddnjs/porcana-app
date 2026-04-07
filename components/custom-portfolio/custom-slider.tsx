@@ -70,7 +70,7 @@ export const CustomSlider = ({
 
       {/* 활성 트랙 */}
       <View
-        className="bg-success absolute rounded-full"
+        className="bg-weight absolute rounded-full"
         style={{
           height: TRACK_HEIGHT,
           left: THUMB_SIZE / 2,
@@ -91,7 +91,7 @@ export const CustomSlider = ({
             },
             thumbStyle,
           ]}
-          className="bg-success shadow-sm shadow-black/25"
+          className="bg-weight shadow-sm shadow-black/25"
         />
       </GestureDetector>
     </View>

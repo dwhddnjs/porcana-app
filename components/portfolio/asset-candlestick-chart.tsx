@@ -82,8 +82,8 @@ export const AssetCandlestickChart = ({
         <CandlestickChart.Provider data={chartData}>
           <CandlestickChart width={width} height={resolvedChartHeight}>
             <CandlestickChart.Candles
-              positiveColor={colors.link}
-              negativeColor={colors.destructive}
+              positiveColor={colors.stockUp}
+              negativeColor={colors.stockDown}
             />
             <CandlestickChart.Crosshair>
               <CandlestickChart.Tooltip
@@ -137,14 +137,14 @@ export const AssetCandlestickChart = ({
               <Text className="text-muted-foreground text-xs">고가</Text>
               <CandlestickChart.PriceText
                 type="high"
-                style={{ color: colors.success, fontSize: 12, fontWeight: '600', minWidth: 42 }}
+                style={{ color: colors.stockUp, fontSize: 12, fontWeight: '600', minWidth: 42 }}
               />
             </View>
             <View className="items-center">
               <Text className="text-muted-foreground text-xs">저가</Text>
               <CandlestickChart.PriceText
                 type="low"
-                style={{ color: colors.destructive, fontSize: 12, fontWeight: '600', minWidth: 42 }}
+                style={{ color: colors.stockDown, fontSize: 12, fontWeight: '600', minWidth: 42 }}
               />
             </View>
             <View className="items-center">
