@@ -91,7 +91,7 @@ export default function RootLayout() {
                   presentation: 'formSheet',
                   headerShown: false,
                   gestureEnabled: true,
-                  sheetAllowedDetents: [0.32],
+                  sheetAllowedDetents: Platform.OS === 'ios' ? [0.32] : [0.24],
                   sheetCornerRadius: 36,
                   sheetGrabberVisible: false,
                 }}

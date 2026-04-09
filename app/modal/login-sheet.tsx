@@ -1,4 +1,4 @@
-import { View, Image, ActivityIndicator } from 'react-native';
+import { View, Image, ActivityIndicator, Platform } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
@@ -46,24 +46,26 @@ export default function LoginSheet() {
         </Button>
 
         {/* 애플 로그인 */}
-        <Button
-          size="lg"
-          className="border-primary w-full flex-row items-center justify-center gap-3 border-[0.5px] bg-black active:bg-black/30"
-          onPress={handleAppleLogin}
-          disabled={isAppleLoading}>
-          {isAppleLoading ? (
-            <ActivityIndicator size="small" color="#fff" />
-          ) : (
-            <>
-              <Image
-                source={{ uri: 'https://img.clerk.com/static/apple.png?width=160' }}
-                className="size-5"
-                tintColor="white"
-              />
-              <Text className="font-semibold text-white">애플로 로그인</Text>
-            </>
-          )}
-        </Button>
+        {Platform.OS === 'ios' && (
+          <Button
+            size="lg"
+            className="border-primary w-full flex-row items-center justify-center gap-3 border-[0.5px] bg-black active:bg-black/30"
+            onPress={handleAppleLogin}
+            disabled={isAppleLoading}>
+            {isAppleLoading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <>
+                <Image
+                  source={{ uri: 'https://img.clerk.com/static/apple.png?width=160' }}
+                  className="size-5"
+                  tintColor="white"
+                />
+                <Text className="font-semibold text-white">애플로 로그인</Text>
+              </>
+            )}
+          </Button>
+        )}
 
         {/* 이메일 로그인 */}
         <Button
