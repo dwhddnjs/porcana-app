@@ -3,28 +3,9 @@ import * as WebBrowser from 'expo-web-browser';
 import { useLoadingStore } from '@/lib/hooks/zustand/use-loading-store';
 import { router } from 'expo-router';
 import { useEffect, useRef } from 'react';
-import { Platform } from 'react-native';
 import { useLoginMutation } from './auth';
 
 WebBrowser.maybeCompleteAuthSession();
-
-const getClientId = () => {
-  // 웹 클라이언트 ID (Expo Go 및 웹에서 사용)
-  const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
-  // iOS 클라이언트 ID
-  const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
-  // Android 클라이언트 ID
-  const androidClientId = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID;
-
-  if (Platform.OS === 'ios' && iosClientId) {
-    return iosClientId;
-  }
-  if (Platform.OS === 'android' && androidClientId) {
-    return androidClientId;
-  }
-  // Expo Go 또는 웹에서는 웹 클라이언트 ID 사용
-  return webClientId;
-};
 
 export const useGoogleAuth = () => {
   const { show, hide } = useLoadingStore();
@@ -33,11 +14,9 @@ export const useGoogleAuth = () => {
   const isProcessingRef = useRef(false);
 
   const [request, response, promptAsync] = Google.useAuthRequest({
-    clientId: getClientId(),
+    clientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
     iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
-    androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
     webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
-
     scopes: ['openid', 'profile', 'email'],
   });
 
