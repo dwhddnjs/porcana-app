@@ -18,18 +18,6 @@
       },
       "usesAppleSignIn": true,
       "infoPlist": {
-        "CFBundleURLTypes": [
-          {
-            "CFBundleURLSchemes": [
-              "com.googleusercontent.apps.265152231870-3c6ep7jleluv9eubu2k9nufr3hfv2nt6"
-            ]
-          },
-          {
-            "CFBundleURLSchemes": [
-              "com.googleusercontent.apps.265152231870-3c6ep7jleluv9eubu2k9nufr3hfv2nt6"
-            ]
-          }
-        ],
         "ITSAppUsesNonExemptEncryption": false
       }
     },
@@ -51,6 +39,12 @@
       "expo-router",
       "expo-web-browser",
       "expo-apple-authentication",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.265152231870-3c6ep7jleluv9eubu2k9nufr3hfv2nt6"
+        }
+      ],
       [
         "expo-splash-screen",
         {
