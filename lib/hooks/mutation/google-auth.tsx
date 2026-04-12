@@ -8,7 +8,6 @@ import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 import { useLoadingStore } from '@/lib/hooks/zustand/use-loading-store';
 import { useEffect, useRef } from 'react';
-import { Platform } from 'react-native';
 import { useLoginMutation } from './auth';
 
 WebBrowser.maybeCompleteAuthSession();
