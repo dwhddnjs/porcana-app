@@ -141,6 +141,163 @@ export const directCreatePortfolio = async ({
   }
 };
 
+export type BaselineItemTypes = {
+  assetId: string;
+  symbol: string;
+  name: string;
+  market: string;
+  quantity: number;
+  avgPrice: number;
+  targetWeightPct: number;
+  currentPrice: number;
+  currentValue: number;
+};
+
+export type BaselineResponseTypes = {
+  exists: boolean;
+  baselineId: string;
+  portfolioId: string;
+  sourceType: string;
+  baseCurrency: string;
+  seedMoney: number;
+  totalValue: number;
+  cashAmount: number;
+  confirmedAt: string;
+  items: BaselineItemTypes[];
+};
+
+export type SetSeedRequestTypes = {
+  seedMoney: number;
+  baseCurrency?: string;
+};
+
+export const setSeed = async ({
+  portfolioId,
+  seedMoney,
+  baseCurrency,
+}: {
+  portfolioId: string;
+} & SetSeedRequestTypes): Promise<BaselineResponseTypes> => {
+  try {
+    const response = await api.put<BaselineResponseTypes>(
+      `/portfolios/${portfolioId}/seed`,
+      { seedMoney, baseCurrency }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const getHoldingBaseline = async ({
+  portfolioId,
+}: {
+  portfolioId: string;
+}): Promise<BaselineResponseTypes> => {
+  try {
+    const response = await api.get<BaselineResponseTypes>(
+      `/portfolios/${portfolioId}/holding-baseline`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export type RebalanceStatusItemTypes = {
+  assetId: string;
+  symbol: string;
+  name: string;
+  targetWeightPct: number;
+  currentWeightPct: number;
+  deviationPct: number;
+  overThreshold: boolean;
+};
+
+export type RebalanceStatusSummaryTypes = {
+  totalAssets: number;
+  overThresholdCount: number;
+};
+
+export type RebalanceStatusResponseTypes = {
+  portfolioId: string;
+  hasBaseline: boolean;
+  needsRebalancing: boolean;
+  checkedAt: string;
+  thresholdPct: number;
+  baseCurrency: string;
+  summary: RebalanceStatusSummaryTypes;
+  items: RebalanceStatusItemTypes[];
+};
+
+export const getRebalanceStatus = async ({
+  portfolioId,
+  thresholdPct,
+}: {
+  portfolioId: string;
+  thresholdPct?: number;
+}): Promise<RebalanceStatusResponseTypes> => {
+  try {
+    const response = await api.get<RebalanceStatusResponseTypes>(
+      `/portfolios/${portfolioId}/rebalance-status`,
+      { params: thresholdPct !== undefined ? { thresholdPct } : undefined }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export type RebalancingPlanActionTypes = {
+  assetId: string;
+  symbol: string;
+  name: string;
+  action: string;
+  quantity: number;
+  price: number;
+  amount: number;
+  fromWeightPct: number;
+  toWeightPct: number;
+};
+
+export type RebalancingPlanSummaryTypes = {
+  totalBuyAmount: number;
+  totalSellAmount: number;
+  netAmount: number;
+};
+
+export type RebalancingPlanResponseTypes = {
+  portfolioId: string;
+  baselineId: string;
+  needsRebalancing: boolean;
+  thresholdPct: number;
+  baseCurrency: string;
+  summary: RebalancingPlanSummaryTypes;
+  actions: RebalancingPlanActionTypes[];
+};
+
+export const getRebalancingPlan = async ({
+  portfolioId,
+  thresholdPct,
+}: {
+  portfolioId: string;
+  thresholdPct?: number;
+}): Promise<RebalancingPlanResponseTypes> => {
+  try {
+    const response = await api.post<RebalancingPlanResponseTypes>(
+      `/portfolios/${portfolioId}/rebalancing-plan`,
+      thresholdPct !== undefined ? { thresholdPct } : undefined
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
 export const setMainPortfolio = async ({
   portfolioId,
 }: {

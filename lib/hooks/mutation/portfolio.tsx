@@ -5,7 +5,9 @@ import {
   createPortfolio,
   directCreatePortfolio,
   deletePortfolio,
+  getRebalancingPlan,
   setMainPortfolio,
+  setSeed,
   updatePortfolioWeights,
   type PortfolioTypes,
   type UpdateWeightItemTypes,
@@ -213,6 +215,50 @@ export const useDeletePortfolioMutation = () => {
     onSettled: () => {
       hide();
     },
+  });
+};
+
+export const useSetSeedMutation = () => {
+  const queryClient = useQueryClient();
+  const { show, hide } = useLoadingStore();
+
+  return useMutation({
+    mutationFn: ({
+      portfolioId,
+      seedMoney,
+      baseCurrency,
+    }: {
+      portfolioId: string;
+      seedMoney: number;
+      baseCurrency?: string;
+    }) => setSeed({ portfolioId, seedMoney, baseCurrency }),
+    onMutate: () => {
+      show('시드 금액 설정 중...');
+    },
+    onSuccess: (_data, { portfolioId }) => {
+      queryClient.invalidateQueries({ queryKey: ['holding-baseline', portfolioId] });
+      queryClient.invalidateQueries({ queryKey: ['portfolios', portfolioId] });
+      queryClient.invalidateQueries({ queryKey: ['portfolios'] });
+      queryClient.invalidateQueries({ queryKey: ['home'] });
+    },
+    onError: (error) => {
+      console.error('Set seed failed:', error);
+    },
+    onSettled: () => {
+      hide();
+    },
+  });
+};
+
+export const useGetRebalancingPlanMutation = () => {
+  return useMutation({
+    mutationFn: ({
+      portfolioId,
+      thresholdPct,
+    }: {
+      portfolioId: string;
+      thresholdPct?: number;
+    }) => getRebalancingPlan({ portfolioId, thresholdPct }),
   });
 };
 
