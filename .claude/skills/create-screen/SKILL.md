@@ -26,7 +26,10 @@ allowed-tools: Read, Write, Glob, Grep
 ## 스크린 전용 규칙
 
 - 스크린은 **`export default` 함수 선언식** (`export default function MyScreen() {}`)
-- **Safe Area 처리** 필수 (SafeAreaView 또는 useSafeAreaInsets)
+- **레이아웃은 `Container` 컴포넌트** (`components/ui/container.tsx`)를 사용할 것 — SafeAreaView를 직접 쓰지 않고 Container로 감싼다
+  - `Container`는 SafeAreaView + 배경색 + Android bottom padding을 자동 처리
+  - `edges` prop으로 Safe Area 방향 제어 (기본값: `['top', 'bottom']`)
+  - `isKeyboardAvoiding` prop으로 키보드 dismiss 처리 가능
 - 데이터 패칭은 `useGet[Resource]Query()` 훅 사용
 - 뮤테이션은 `use[Action]Mutation()` 훅 사용
 
@@ -34,16 +37,16 @@ allowed-tools: Read, Write, Glob, Grep
 
 ```tsx
 // app/(tabs)/(portfolio)/detail.tsx
-import { SafeAreaView } from 'react-native-safe-area-context';
+import Container from '@/components/ui/container';
 import { Text, View } from 'react-native';
 
 export default function DetailScreen() {
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <Container>
       <View className="flex-1 p-4">
         <Text className="text-foreground text-xl font-bold">상세 화면</Text>
       </View>
-    </SafeAreaView>
+    </Container>
   );
 }
 ```
