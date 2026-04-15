@@ -21,6 +21,7 @@ import { Icon } from '@/components/ui/icon';
 import {
   Check,
   ChevronLeft,
+  Play,
   Split,
   Star,
   StarHalf,
@@ -121,6 +122,11 @@ export default function PortfolioDetailScreen() {
     if (!data?.portfolioId || data.isMain) return;
     setMainPortfolio(data.portfolioId);
   }, [data?.portfolioId, data?.isMain, setMainPortfolio]);
+
+  const handleSimulation = useCallback(() => {
+    if (!id) return;
+    router.push(`/portfolio/simulation/${id}`);
+  }, [id, router]);
 
   const goBack = () => {
     if (isEditMode) return;
@@ -268,6 +274,15 @@ export default function PortfolioDetailScreen() {
           </View>
         </View>
         <Spacer height={36} />
+        {!isEditMode && (
+          <Pressable
+            onPress={handleSimulation}
+            className="bg-primary mb-[16px] flex-row items-center justify-center gap-2 rounded-lg py-[14px]"
+            style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
+            <Icon as={Play} size={18} className="text-primary-foreground" />
+            <Text className="text-primary-foreground font-semibold">모의투자 시작</Text>
+          </Pressable>
+        )}
         <View>
           <View className="flex-row items-center justify-between pb-[12px]">
             <Text className="text-muted-foreground text-md font-bold">주요 자산</Text>

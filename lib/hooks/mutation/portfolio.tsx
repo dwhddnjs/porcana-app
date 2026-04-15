@@ -262,6 +262,31 @@ export const useGetRebalancingPlanMutation = () => {
   });
 };
 
+export const useSimulationSeedMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      portfolioId,
+      seedMoney,
+      baseCurrency,
+    }: {
+      portfolioId: string;
+      seedMoney: number;
+      baseCurrency?: string;
+    }) => setSeed({ portfolioId, seedMoney, baseCurrency }),
+    onSuccess: (_data, { portfolioId }) => {
+      queryClient.invalidateQueries({ queryKey: ['holding-baseline', portfolioId] });
+      queryClient.invalidateQueries({ queryKey: ['portfolios', portfolioId] });
+      queryClient.invalidateQueries({ queryKey: ['portfolios'] });
+      queryClient.invalidateQueries({ queryKey: ['home'] });
+    },
+    onError: (error) => {
+      console.error('Simulation set seed failed:', error);
+    },
+  });
+};
+
 export const useSetMainPortfolioMutation = () => {
   const queryClient = useQueryClient();
 
