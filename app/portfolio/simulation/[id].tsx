@@ -31,10 +31,6 @@ const formatWithComma = (value: string): string => {
   return num.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
 
-const parseComma = (value: string): number => {
-  return parseInt(value.replace(/,/g, ''), 10) || 0;
-};
-
 const formatKoreanUnit = (value: number): string => {
   if (value === 0) return '0';
   const eok = Math.floor(value / 100_000_000);
@@ -58,6 +54,7 @@ export default function SimulationScreen() {
   const [seedMoney, setSeedMoney] = useState('');
   const [baseCurrency, setBaseCurrency] = useState<Option>({ value: 'KRW', label: 'KRW' });
   const [baselineData, setBaselineData] = useState<BaselineResponseTypes | null>(null);
+  const hasResultRef = useRef(false);
 
   // 애니메이션 shared values
   const titleOpacity = useSharedValue(0);
@@ -111,10 +108,9 @@ export default function SimulationScreen() {
     }
 
     // Phase 3: 시드 변경 시 리스트 fade out
-    if (baselineData) {
+    if (hasResultRef.current) {
       listOpacity.value = withTiming(0, { duration: 200 });
     }
-
 
     setSeed(
       { portfolioId: id, seedMoney: amount, baseCurrency: baseCurrency?.value },
@@ -122,7 +118,8 @@ export default function SimulationScreen() {
         onSuccess: (data) => {
           setBaselineData(data);
 
-          if (!baselineData) {
+          if (!hasResultRef.current) {
+            hasResultRef.current = true;
             // Phase 2: 최초 설정 - 헤더 위로 이동 + 리스트 등장
             headerTranslateY.value = withTiming(-120, {
               duration: 500,
@@ -138,22 +135,13 @@ export default function SimulationScreen() {
         },
         onError: () => {
           toast.error('시드 설정에 실패했습니다');
-          if (baselineData) {
+          if (hasResultRef.current) {
             listOpacity.value = withTiming(1, { duration: 200 });
           }
         },
       }
     );
-  }, [
-    id,
-    seedMoney,
-    baseCurrency,
-    baselineData,
-    setSeed,
-    headerTranslateY,
-    listOpacity,
-    listTranslateY,
-  ]);
+  }, [id, seedMoney, baseCurrency, setSeed, headerTranslateY, listOpacity, listTranslateY]);
 
   const handleGoBack = useCallback(() => {
     if (router.canGoBack()) {
@@ -162,6 +150,7 @@ export default function SimulationScreen() {
   }, [router]);
 
   const hasResult = baselineData !== null;
+  const currencyUnit = baseCurrency?.value === 'USD' ? '$' : '원';
 
   return (
     <Container isKeyboardAvoiding>
@@ -245,26 +234,26 @@ export default function SimulationScreen() {
               <View className="items-center gap-[4px]">
                 <Text className="text-muted-foreground text-xs">시드머니</Text>
                 <Text className="text-base font-bold">
-                  {baselineData.seedMoney.toLocaleString()}원
+                  {baselineData.seedMoney.toLocaleString()}{currencyUnit}
                 </Text>
               </View>
               <View className="items-center gap-[4px]">
                 <Text className="text-muted-foreground text-xs">총 자산가치</Text>
                 <Text className="text-base font-bold">
-                  {Math.round(baselineData.totalValue).toLocaleString()}원
+                  {Math.round(baselineData.totalValue).toLocaleString()}{currencyUnit}
                 </Text>
               </View>
               <View className="items-center gap-[4px]">
                 <Text className="text-muted-foreground text-xs">현금 잔고</Text>
                 <Text className="text-base font-bold">
-                  {Math.round(baselineData.cashAmount).toLocaleString()}원
+                  {Math.round(baselineData.cashAmount).toLocaleString()}{currencyUnit}
                 </Text>
               </View>
             </View>
 
             <Text className="text-muted-foreground mb-[8px] text-sm font-bold">자산 배분</Text>
             {baselineData.items.map((item, index) => (
-              <BaselineItem key={item.assetId} item={item} showTopBorder={index === 0} />
+              <BaselineItem key={item.assetId} item={item} currencyUnit={currencyUnit} showTopBorder={index === 0} />
             ))}
 
             <View className="h-[120px]" />

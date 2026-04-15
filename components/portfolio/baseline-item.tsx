@@ -5,6 +5,7 @@ import { type BaselineItemTypes } from '@/lib/api/portfolio';
 
 type BaselineItemPropsTypes = {
   item: BaselineItemTypes;
+  currencyUnit?: string;
   showTopBorder?: boolean;
   showBottomBorder?: boolean;
 };
@@ -17,6 +18,7 @@ const formatCurrency = (value: number): string => {
 
 export const BaselineItem = ({
   item,
+  currencyUnit = '원',
   showTopBorder = false,
   showBottomBorder = true,
 }: BaselineItemPropsTypes) => {
@@ -48,9 +50,9 @@ export const BaselineItem = ({
         </View>
       </View>
       <View className="items-end gap-[2px]">
-        <Text className="text-md font-semibold">{formatCurrency(item.currentValue)}원</Text>
+        <Text className="text-md font-semibold">{formatCurrency(item.currentValue)}{currencyUnit}</Text>
         <Text className="text-muted-foreground text-xs">
-          {item.quantity}주 · {formatCurrency(item.avgPrice)}원
+          {item.quantity}주 · {formatCurrency(item.avgPrice)}{currencyUnit}
         </Text>
       </View>
     </View>
