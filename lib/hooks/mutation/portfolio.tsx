@@ -6,6 +6,7 @@ import {
   directCreatePortfolio,
   deletePortfolio,
   getRebalancingPlan,
+  getSeedPreview,
   setMainPortfolio,
   setSeed,
   updatePortfolioWeights,
@@ -250,21 +251,7 @@ export const useSetSeedMutation = () => {
   });
 };
 
-export const useGetRebalancingPlanMutation = () => {
-  return useMutation({
-    mutationFn: ({
-      portfolioId,
-      thresholdPct,
-    }: {
-      portfolioId: string;
-      thresholdPct?: number;
-    }) => getRebalancingPlan({ portfolioId, thresholdPct }),
-  });
-};
-
-export const useSimulationSeedMutation = () => {
-  const queryClient = useQueryClient();
-
+export const useSeedPreviewMutation = () => {
   return useMutation({
     mutationFn: ({
       portfolioId,
@@ -274,16 +261,22 @@ export const useSimulationSeedMutation = () => {
       portfolioId: string;
       seedMoney: number;
       baseCurrency?: string;
-    }) => setSeed({ portfolioId, seedMoney, baseCurrency }),
-    onSuccess: (_data, { portfolioId }) => {
-      queryClient.invalidateQueries({ queryKey: ['holding-baseline', portfolioId] });
-      queryClient.invalidateQueries({ queryKey: ['portfolios', portfolioId] });
-      queryClient.invalidateQueries({ queryKey: ['portfolios'] });
-      queryClient.invalidateQueries({ queryKey: ['home'] });
-    },
+    }) => getSeedPreview({ portfolioId, seedMoney, baseCurrency }),
     onError: (error) => {
-      console.error('Simulation set seed failed:', error);
+      console.error('Seed preview failed:', error);
     },
+  });
+};
+
+export const useGetRebalancingPlanMutation = () => {
+  return useMutation({
+    mutationFn: ({
+      portfolioId,
+      thresholdPct,
+    }: {
+      portfolioId: string;
+      thresholdPct?: number;
+    }) => getRebalancingPlan({ portfolioId, thresholdPct }),
   });
 };
 

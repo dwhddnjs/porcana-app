@@ -190,6 +190,25 @@ export const setSeed = async ({
   }
 };
 
+export const getSeedPreview = async ({
+  portfolioId,
+  seedMoney,
+  baseCurrency,
+}: {
+  portfolioId: string;
+} & SetSeedRequestTypes): Promise<BaselineResponseTypes> => {
+  try {
+    const response = await api.get<BaselineResponseTypes>(
+      `/portfolios/${portfolioId}/seed/preview`,
+      { params: { seedMoney, baseCurrency } }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
 export const getHoldingBaseline = async ({
   portfolioId,
 }: {
