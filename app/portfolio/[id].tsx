@@ -21,7 +21,7 @@ import { Icon } from '@/components/ui/icon';
 import {
   Check,
   ChevronLeft,
-  Play,
+  FlaskConical,
   Split,
   Star,
   StarHalf,
@@ -227,7 +227,10 @@ export default function PortfolioDetailScreen() {
                 <Text className="text-lg font-semibold">수익률</Text>
               </View>
               <Text
-                className={cn('text-3xl font-bold', isPositive ? 'text-stock-up' : 'text-stock-down')}>
+                className={cn(
+                  'text-3xl font-bold',
+                  isPositive ? 'text-stock-up' : 'text-stock-down'
+                )}>
                 {isPositive ? '+' : ''}
                 {data.totalReturnPct.toFixed(2)}%
               </Text>
@@ -273,16 +276,17 @@ export default function PortfolioDetailScreen() {
             <RiskDistributionChart data={data.riskDistribution} />
           </View>
         </View>
-        <Spacer height={36} />
+
         {!isEditMode && (
           <Pressable
             onPress={handleSimulation}
-            className="bg-primary mb-[16px] flex-row items-center justify-center gap-2 rounded-lg py-[14px]"
+            className="bg-primary mb-[16px] flex-row items-center justify-center gap-1 rounded-full py-[14px]"
             style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
-            <Icon as={Play} size={18} className="text-primary-foreground" />
-            <Text className="text-primary-foreground font-semibold">모의투자 시작</Text>
+            <Icon as={FlaskConical} size={20} className="text-primary-foreground" />
+            <Text className="text-primary-foreground font-bold">모의투자 시작</Text>
           </Pressable>
         )}
+        <Spacer height={24} />
         <View>
           <View className="flex-row items-center justify-between pb-[12px]">
             <Text className="text-muted-foreground text-md font-bold">주요 자산</Text>
