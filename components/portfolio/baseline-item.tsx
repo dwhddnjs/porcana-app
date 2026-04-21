@@ -1,5 +1,6 @@
 import { View } from 'react-native';
 import { Text } from '@/components/ui/text';
+import { Image } from '@/components/ui/image';
 import { cn } from '@/lib/utils';
 import { type BaselineItemTypes } from '@/lib/api/portfolio';
 
@@ -30,13 +31,15 @@ export const BaselineItem = ({
         showBottomBorder && 'border-primary/10 border-b'
       )}>
       <View className="flex-1 flex-row items-center gap-3">
-        <View className="bg-primary/10 h-10 w-10 items-center justify-center rounded-full">
-          <Text className="text-primary text-base font-bold">{item.symbol.charAt(0)}</Text>
-        </View>
+        <Image
+          source={item.imageUrl}
+          className="bg-background border-primary/10 h-10 w-10 rounded-full border"
+          contentFit="contain"
+        />
         <View className="flex-1 gap-[2px]">
           <View className="flex-row items-center gap-[4px]">
             <Text
-              className="max-w-[150px] text-base font-semibold"
+              className="max-w-[160px] min-w-[160px] text-base font-semibold"
               numberOfLines={1}
               ellipsizeMode="tail">
               {item.name}
@@ -44,15 +47,21 @@ export const BaselineItem = ({
             <Text className="text-weight text-sm font-semibold">{item.targetWeightPct}%</Text>
           </View>
           <View className="flex-row items-center gap-[4px]">
-            <Text className="text-muted-foreground text-md">{item.symbol}</Text>
-            <Text className="text-muted-foreground text-xs">· {item.market}</Text>
+            <Text className="text-muted-foreground text-md">{item.symbol} ·</Text>
+            <Text className="text-muted-foreground border-muted rounded-full border-[1.5px] px-1.5 text-xs">
+              {item.market}
+            </Text>
           </View>
         </View>
       </View>
       <View className="items-end gap-[2px]">
-        <Text className="text-md font-semibold">{formatCurrency(item.currentValue)}{currencyUnit}</Text>
+        <Text className="text-md font-semibold">
+          {formatCurrency(item.currentValue)}
+          {currencyUnit}
+        </Text>
         <Text className="text-muted-foreground text-xs">
-          {item.quantity}주 · {formatCurrency(item.avgPrice)}{currencyUnit}
+          {item.quantity}주 · {formatCurrency(item.avgPrice)}
+          {currencyUnit}
         </Text>
       </View>
     </View>
