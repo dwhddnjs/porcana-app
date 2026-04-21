@@ -1,4 +1,5 @@
 import '@/global.css';
+import '@/lib/global-log';
 
 import { LoadingOverlay } from '@/components/ui/loading-overlay';
 import { queryClient, useAppState } from '@/lib/react-query';

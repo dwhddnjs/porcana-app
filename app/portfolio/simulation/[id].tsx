@@ -15,7 +15,7 @@ import { type BaselineItemTypes } from '@/lib/api/portfolio';
 import { FlashList } from '@shopify/flash-list';
 import { ChevronLeft } from 'lucide-react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Keyboard, NativeScrollEvent, NativeSyntheticEvent, Platform, Pressable, TextInput, View } from 'react-native';
+import { Keyboard, Platform, Pressable, TextInput, View } from 'react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner-native';
 import Animated, {
@@ -77,6 +77,8 @@ export default function SimulationScreen() {
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
   const { mutate: fetchSeedPreview, data: baselineData, isPending } = useSeedPreviewMutation();
+
+  print('baselineData', baselineData);
 
   const titleOpacity = useSharedValue(0);
   const inputOpacity = useSharedValue(0);
@@ -148,24 +150,6 @@ export default function SimulationScreen() {
     }
   }, [router]);
 
-  const isAtTop = useSharedValue(true);
-
-  const handleScroll = useCallback(
-    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const y = e.nativeEvent.contentOffset.y;
-      isAtTop.value = y <= 0;
-    },
-    [isAtTop]
-  );
-
-  const summaryBoxStyle = useAnimatedStyle(() => ({
-    opacity: withTiming(isAtTop.value ? 1 : 0, { duration: 250 }),
-    transform: [{ translateY: withTiming(isAtTop.value ? 0 : -20, { duration: 250 }) }],
-    height: withTiming(isAtTop.value ? 72 : 0, { duration: 250 }),
-    marginBottom: withTiming(isAtTop.value ? 16 : 0, { duration: 250 }),
-    overflow: 'hidden' as const,
-  }));
-
   const handleShouldSetResponder = useCallback(() => true, []);
 
   const handleResponderRelease = useCallback(() => {
@@ -199,12 +183,11 @@ export default function SimulationScreen() {
         </Pressable>
       </View>
 
-      <View
-        className="flex-1 px-[16px] pt-[12px]"
-        onStartShouldSetResponder={handleShouldSetResponder}
-        onResponderRelease={handleResponderRelease}>
+      <View className="flex-1 px-[16px] pt-[12px]">
         <Animated.View
           layout={LinearTransition.duration(800)}
+          onStartShouldSetResponder={handleShouldSetResponder}
+          onResponderRelease={handleResponderRelease}
           className={
             hasExpanded
               ? ''
@@ -212,97 +195,102 @@ export default function SimulationScreen() {
                 ? 'flex-1 justify-center'
                 : 'flex-1 justify-center pb-[80px]'
           }>
-            <Animated.View style={titleAnimatedStyle}>
-              <Text className="text-2xl font-bold">시드머니를 설정하세요</Text>
-              <Text className="text-muted-foreground mt-[8px] text-sm">
-                투자할 금액을 입력하면 자산별 매수 수량을 계산합니다
-              </Text>
-            </Animated.View>
+          <Animated.View style={titleAnimatedStyle}>
+            <Text className="text-2xl font-bold">시드머니를 설정하세요</Text>
+            <Text className="text-muted-foreground mt-[8px] text-sm">
+              투자할 금액을 입력하면 자산별 매수 수량을 계산합니다
+            </Text>
+          </Animated.View>
 
-            <Animated.View style={inputAnimatedStyle} className="mt-[24px]">
-              <View className="items-center py-[24px]">
-                <TextInput
-                  ref={inputRef}
-                  value={seedMoney}
-                  onChangeText={handleSeedMoneyChange}
-                  keyboardType="numeric"
-                  style={{ position: 'absolute', opacity: 0, height: 0 }}
-                />
-                <View className="w-full">
-                  <Pressable onPress={handleInputFocus} className="px-[16px]">
-                    {seedMoney && parseInt(seedMoney, 10) >= 10000 && (
-                      <Text
-                        className="text-muted-foreground text-right text-sm font-semibold"
-                        style={{ position: 'absolute', top: -26, right: 16 }}>
-                        {formatKoreanUnit(parseInt(seedMoney, 10))}
-                        {baseCurrency?.value === 'USD' ? '달러' : '원'}
-                      </Text>
-                    )}
+          <Animated.View style={inputAnimatedStyle} className="mt-[24px]">
+            <View className="items-center py-[24px]">
+              <TextInput
+                ref={inputRef}
+                value={seedMoney}
+                onChangeText={handleSeedMoneyChange}
+                keyboardType="numeric"
+                style={{ position: 'absolute', opacity: 0, height: 0 }}
+              />
+              <View className="w-full">
+                <Pressable onPress={handleInputFocus} className="px-[16px]">
+                  {seedMoney && parseInt(seedMoney, 10) >= 10000 && (
                     <Text
-                      className={`text-center text-5xl font-bold ${seedMoney ? 'text-foreground' : 'text-muted'}`}
-                      adjustsFontSizeToFit
-                      numberOfLines={1}>
-                      {seedMoney ? formatWithComma(seedMoney) : '0'}
-                      <Text className="text-2xl">
-                        {baseCurrency?.value === 'USD' ? ' $' : ' 원'}
-                      </Text>
+                      className="text-muted-foreground text-right text-sm font-semibold"
+                      style={{ position: 'absolute', top: -26, right: 16 }}>
+                      {formatKoreanUnit(parseInt(seedMoney, 10))}
+                      {baseCurrency?.value === 'USD' ? '달러' : '원'}
                     </Text>
-                  </Pressable>
-                </View>
-                <View className="mt-[12px] h-[32px] min-w-[80px]">
-                  <Select value={baseCurrency} onValueChange={handleCurrencyChange}>
-                    <SelectTrigger className="bg-card border-muted h-[34px] rounded-full border px-3">
-                      <SelectValue
-                        className="text-muted-foreground text-md font-semibold"
-                        placeholder="통화"
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="KRW" label="KRW" />
-                      <SelectItem value="USD" label="USD" />
-                    </SelectContent>
-                  </Select>
-                </View>
+                  )}
+                  <Text
+                    className={`text-center text-5xl font-bold ${seedMoney ? 'text-foreground' : 'text-muted'}`}
+                    adjustsFontSizeToFit
+                    numberOfLines={1}>
+                    {seedMoney ? formatWithComma(seedMoney) : '0'}
+                    <Text className="text-2xl">{baseCurrency?.value === 'USD' ? ' $' : ' 원'}</Text>
+                  </Text>
+                </Pressable>
               </View>
+              <View className="mt-[12px] h-[32px] min-w-[80px]">
+                <Select value={baseCurrency} onValueChange={handleCurrencyChange}>
+                  <SelectTrigger className="bg-card border-muted h-[34px] rounded-full border px-3">
+                    <SelectValue
+                      className="text-muted-foreground text-md font-semibold"
+                      placeholder="통화"
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="KRW" label="KRW" />
+                    <SelectItem value="USD" label="USD" />
+                  </SelectContent>
+                </Select>
+              </View>
+            </View>
 
-              <Pressable
-                onPress={handleSetSeed}
-                disabled={isPending}
-                className="bg-primary mt-[8px] items-center rounded-full py-[12px]"
-                style={({ pressed }) => ({ opacity: pressed || isPending ? 0.7 : 1 })}>
-                <Text className="text-primary-foreground text-lg font-semibold">미리보기</Text>
-              </Pressable>
-              {/* <Spacer height={120} /> */}
-            </Animated.View>
+            <Pressable
+              onPress={handleSetSeed}
+              disabled={isPending}
+              className="bg-primary mt-[8px] items-center rounded-full py-[12px]"
+              style={({ pressed }) => ({ opacity: pressed || isPending ? 0.7 : 1 })}>
+              <Text className="text-primary-foreground text-lg font-semibold">미리보기</Text>
+            </Pressable>
+            {/* <Spacer height={120} /> */}
+          </Animated.View>
         </Animated.View>
 
         {baselineData && (
           <Animated.View entering={FadeInDown.duration(400)} className="mt-[24px] flex-1">
-            <Animated.View
-              style={summaryBoxStyle}
-              className="bg-primary/5 flex-row justify-between rounded-xl px-[16px] py-[14px]">
-              <View className="items-center gap-[4px]">
+            <View className="bg-primary/5 mb-[12px] flex-row rounded-xl px-[12px] py-[14px]">
+              <View className="flex-1 items-center gap-[4px]">
                 <Text className="text-muted-foreground text-xs">시드머니</Text>
-                <Text className="text-base font-bold">
+                <Text
+                  className="text-base font-bold"
+                  adjustsFontSizeToFit
+                  numberOfLines={1}>
                   {baselineData.seedMoney.toLocaleString()}
                   {currencyUnit}
                 </Text>
               </View>
-              <View className="items-center gap-[4px]">
+              <View className="flex-1 items-center gap-[4px]">
                 <Text className="text-muted-foreground text-xs">총 자산가치</Text>
-                <Text className="text-base font-bold">
+                <Text
+                  className="text-base font-bold"
+                  adjustsFontSizeToFit
+                  numberOfLines={1}>
                   {Math.round(baselineData.totalValue).toLocaleString()}
                   {currencyUnit}
                 </Text>
               </View>
-              <View className="items-center gap-[4px]">
+              <View className="flex-1 items-center gap-[4px]">
                 <Text className="text-muted-foreground text-xs">현금 잔고</Text>
-                <Text className="text-base font-bold">
+                <Text
+                  className="text-base font-bold"
+                  adjustsFontSizeToFit
+                  numberOfLines={1}>
                   {Math.round(baselineData.cashAmount).toLocaleString()}
                   {currencyUnit}
                 </Text>
               </View>
-            </Animated.View>
+            </View>
 
             <FlashList
               data={baselineData.items}
@@ -311,10 +299,8 @@ export default function SimulationScreen() {
               showsVerticalScrollIndicator={false}
               keyboardDismissMode="on-drag"
               keyboardShouldPersistTaps="handled"
-              onScroll={handleScroll}
-              scrollEventThrottle={16}
               ListHeaderComponent={
-                <Text className="text-muted-foreground mb-[8px] text-sm font-bold">
+                <Text className="text-muted-foreground mt-[12px] mb-[8px] text-sm font-bold">
                   자산 배분
                 </Text>
               }
@@ -323,7 +309,6 @@ export default function SimulationScreen() {
           </Animated.View>
         )}
       </View>
-      {/* <Spacer height={120} /> */}
     </Container>
   );
 }

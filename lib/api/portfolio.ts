@@ -151,6 +151,7 @@ export type BaselineItemTypes = {
   targetWeightPct: number;
   currentPrice: number;
   currentValue: number;
+  imageUrl?: string | null;
 };
 
 export type BaselineResponseTypes = {
