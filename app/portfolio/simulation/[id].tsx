@@ -15,7 +15,7 @@ import { type BaselineItemTypes } from '@/lib/api/portfolio';
 import { FlashList } from '@shopify/flash-list';
 import { ChevronLeft } from 'lucide-react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Keyboard, Platform, Pressable, TextInput, View } from 'react-native';
+import { Keyboard, NativeScrollEvent, NativeSyntheticEvent, Platform, Pressable, TextInput, View } from 'react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner-native';
 import Animated, {
@@ -148,7 +148,27 @@ export default function SimulationScreen() {
     }
   }, [router]);
 
-  const handleDismissKeyboard = useCallback(() => {
+  const isAtTop = useSharedValue(true);
+
+  const handleScroll = useCallback(
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const y = e.nativeEvent.contentOffset.y;
+      isAtTop.value = y <= 0;
+    },
+    [isAtTop]
+  );
+
+  const summaryBoxStyle = useAnimatedStyle(() => ({
+    opacity: withTiming(isAtTop.value ? 1 : 0, { duration: 250 }),
+    transform: [{ translateY: withTiming(isAtTop.value ? 0 : -20, { duration: 250 }) }],
+    height: withTiming(isAtTop.value ? 72 : 0, { duration: 250 }),
+    marginBottom: withTiming(isAtTop.value ? 16 : 0, { duration: 250 }),
+    overflow: 'hidden' as const,
+  }));
+
+  const handleShouldSetResponder = useCallback(() => true, []);
+
+  const handleResponderRelease = useCallback(() => {
     Keyboard.dismiss();
   }, []);
 
@@ -179,7 +199,10 @@ export default function SimulationScreen() {
         </Pressable>
       </View>
 
-      <View className="flex-1 px-[16px] pt-[12px]">
+      <View
+        className="flex-1 px-[16px] pt-[12px]"
+        onStartShouldSetResponder={handleShouldSetResponder}
+        onResponderRelease={handleResponderRelease}>
         <Animated.View
           layout={LinearTransition.duration(800)}
           className={
@@ -189,7 +212,6 @@ export default function SimulationScreen() {
                 ? 'flex-1 justify-center'
                 : 'flex-1 justify-center pb-[80px]'
           }>
-          <Pressable onPress={handleDismissKeyboard}>
             <Animated.View style={titleAnimatedStyle}>
               <Text className="text-2xl font-bold">시드머니를 설정하세요</Text>
               <Text className="text-muted-foreground mt-[8px] text-sm">
@@ -252,11 +274,36 @@ export default function SimulationScreen() {
               </Pressable>
               {/* <Spacer height={120} /> */}
             </Animated.View>
-          </Pressable>
         </Animated.View>
 
         {baselineData && (
           <Animated.View entering={FadeInDown.duration(400)} className="mt-[24px] flex-1">
+            <Animated.View
+              style={summaryBoxStyle}
+              className="bg-primary/5 flex-row justify-between rounded-xl px-[16px] py-[14px]">
+              <View className="items-center gap-[4px]">
+                <Text className="text-muted-foreground text-xs">시드머니</Text>
+                <Text className="text-base font-bold">
+                  {baselineData.seedMoney.toLocaleString()}
+                  {currencyUnit}
+                </Text>
+              </View>
+              <View className="items-center gap-[4px]">
+                <Text className="text-muted-foreground text-xs">총 자산가치</Text>
+                <Text className="text-base font-bold">
+                  {Math.round(baselineData.totalValue).toLocaleString()}
+                  {currencyUnit}
+                </Text>
+              </View>
+              <View className="items-center gap-[4px]">
+                <Text className="text-muted-foreground text-xs">현금 잔고</Text>
+                <Text className="text-base font-bold">
+                  {Math.round(baselineData.cashAmount).toLocaleString()}
+                  {currencyUnit}
+                </Text>
+              </View>
+            </Animated.View>
+
             <FlashList
               data={baselineData.items}
               renderItem={renderItem}
@@ -264,35 +311,12 @@ export default function SimulationScreen() {
               showsVerticalScrollIndicator={false}
               keyboardDismissMode="on-drag"
               keyboardShouldPersistTaps="handled"
+              onScroll={handleScroll}
+              scrollEventThrottle={16}
               ListHeaderComponent={
-                <View>
-                  <View className="bg-primary/5 mb-[16px] flex-row justify-between rounded-xl px-[16px] py-[14px]">
-                    <View className="items-center gap-[4px]">
-                      <Text className="text-muted-foreground text-xs">시드머니</Text>
-                      <Text className="text-base font-bold">
-                        {baselineData.seedMoney.toLocaleString()}
-                        {currencyUnit}
-                      </Text>
-                    </View>
-                    <View className="items-center gap-[4px]">
-                      <Text className="text-muted-foreground text-xs">총 자산가치</Text>
-                      <Text className="text-base font-bold">
-                        {Math.round(baselineData.totalValue).toLocaleString()}
-                        {currencyUnit}
-                      </Text>
-                    </View>
-                    <View className="items-center gap-[4px]">
-                      <Text className="text-muted-foreground text-xs">현금 잔고</Text>
-                      <Text className="text-base font-bold">
-                        {Math.round(baselineData.cashAmount).toLocaleString()}
-                        {currencyUnit}
-                      </Text>
-                    </View>
-                  </View>
-                  <Text className="text-muted-foreground mb-[8px] text-sm font-bold">
-                    자산 배분
-                  </Text>
-                </View>
+                <Text className="text-muted-foreground mb-[8px] text-sm font-bold">
+                  자산 배분
+                </Text>
               }
               ListFooterComponent={<View className="h-[120px]" />}
             />
