@@ -13,14 +13,7 @@ import { BaselineItem } from '@/components/portfolio/baseline-item';
 import { useSeedPreviewMutation, useSetSeedMutation } from '@/lib/hooks/mutation/portfolio';
 import { type BaselineItemTypes } from '@/lib/api/portfolio';
 import { FlashList } from '@shopify/flash-list';
-import {
-  ChevronLeft,
-  CheckCircle,
-  CheckCircle2,
-  CheckCircle2Icon,
-  CheckCircleIcon,
-  CheckIcon,
-} from 'lucide-react-native';
+import { ChevronLeft, CheckIcon } from 'lucide-react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Keyboard, Platform, Pressable, TextInput, View } from 'react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -83,7 +76,7 @@ export default function SimulationScreen() {
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
   const { mutate: fetchSeedPreview, data: baselineData, isPending } = useSeedPreviewMutation();
-  const { mutate: confirmSeed } = useSetSeedMutation();
+  const { mutate: confirmSeed, isPending: isConfirming } = useSetSeedMutation();
 
   const titleOpacity = useSharedValue(0);
   const inputOpacity = useSharedValue(0);
@@ -150,7 +143,7 @@ export default function SimulationScreen() {
   }, [id, seedMoney, baseCurrency, fetchSeedPreview]);
 
   const handleConfirmSeed = useCallback(() => {
-    if (!id) return;
+    if (!id || isConfirming) return;
     const amount = parseInt(seedMoney, 10) || 0;
     if (amount <= 0) return;
 
@@ -165,7 +158,7 @@ export default function SimulationScreen() {
         },
       }
     );
-  }, [id, seedMoney, baseCurrency, confirmSeed, router]);
+  }, [id, seedMoney, baseCurrency, confirmSeed, isConfirming, router]);
 
   const handleGoBack = useCallback(() => {
     if (router.canGoBack()) {

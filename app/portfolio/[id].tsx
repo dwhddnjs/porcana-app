@@ -57,10 +57,7 @@ export default function PortfolioDetailScreen() {
   const { mutate: setMainPortfolio } = useSetMainPortfolioMutation();
   const { mutate: updateWeights } = useUpdatePortfolioWeightsMutation();
   const { mutate: deletePortfolio, isPending: isDeleting } = useDeletePortfolioMutation();
-  const { data: holdingData } = useGetHoldingBaselineQuery(id);
-
-  print('holdingData', holdingData);
-
+  const { data: holdingData, isLoading: isHoldingLoading } = useGetHoldingBaselineQuery(id);
   const [isEditMode, setIsEditMode] = useState(false);
   const [weightValues, setWeightValues] = useState<Record<string, string>>({});
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -287,7 +284,7 @@ export default function PortfolioDetailScreen() {
           </View>
         </View>
 
-        {!isEditMode && holdingData?.exists && (
+        {!isEditMode && !isHoldingLoading && holdingData?.exists && (
           <Pressable
             onPress={handleHolding}
             className="bg-primary mb-[16px] flex-row items-center justify-center gap-1 rounded-full py-[14px]"
@@ -296,7 +293,7 @@ export default function PortfolioDetailScreen() {
             <Text className="text-primary-foreground font-bold">보유현황</Text>
           </Pressable>
         )}
-        {!isEditMode && !holdingData?.exists && (
+        {!isEditMode && !isHoldingLoading && !holdingData?.exists && (
           <Pressable
             onPress={handleSimulation}
             className="bg-primary mb-[16px] flex-row items-center justify-center gap-1 rounded-full py-[14px]"
