@@ -10,10 +10,10 @@ import {
   type Option,
 } from '@/components/ui/select';
 import { BaselineItem } from '@/components/portfolio/baseline-item';
-import { useSeedPreviewMutation } from '@/lib/hooks/mutation/portfolio';
+import { useSeedPreviewMutation, useSetSeedMutation } from '@/lib/hooks/mutation/portfolio';
 import { type BaselineItemTypes } from '@/lib/api/portfolio';
 import { FlashList } from '@shopify/flash-list';
-import { ChevronLeft } from 'lucide-react-native';
+import { ChevronLeft, CheckIcon } from 'lucide-react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Keyboard, Platform, Pressable, TextInput, View } from 'react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -76,6 +76,7 @@ export default function SimulationScreen() {
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
   const { mutate: fetchSeedPreview, data: baselineData, isPending } = useSeedPreviewMutation();
+  const { mutate: confirmSeed, isPending: isConfirming } = useSetSeedMutation();
 
   const titleOpacity = useSharedValue(0);
   const inputOpacity = useSharedValue(0);
@@ -141,6 +142,24 @@ export default function SimulationScreen() {
     );
   }, [id, seedMoney, baseCurrency, fetchSeedPreview]);
 
+  const handleConfirmSeed = useCallback(() => {
+    if (!id || isConfirming) return;
+    const amount = parseInt(seedMoney, 10) || 0;
+    if (amount <= 0) return;
+
+    confirmSeed(
+      { portfolioId: id, seedMoney: amount, baseCurrency: baseCurrency?.value },
+      {
+        onSuccess: () => {
+          router.replace(`/portfolio/holding/${id}`);
+        },
+        onError: () => {
+          toast.error('시드 설정에 실패했습니다');
+        },
+      }
+    );
+  }, [id, seedMoney, baseCurrency, confirmSeed, isConfirming, router]);
+
   const handleGoBack = useCallback(() => {
     if (router.canGoBack()) {
       router.back();
@@ -174,10 +193,18 @@ export default function SimulationScreen() {
 
   return (
     <Container isKeyboardAvoiding>
-      <View className="flex-row items-center px-[16px] py-[12px]">
+      <View className="flex-row items-center justify-between py-[12px] pr-[24px] pl-[16px]">
         <Pressable onPress={handleGoBack} hitSlop={8}>
           <Icon as={ChevronLeft} size={24} className="text-foreground" />
         </Pressable>
+        {baselineData && (
+          <Pressable
+            onPress={handleConfirmSeed}
+            hitSlop={8}
+            className="bg-primary h-8 w-8 items-center justify-center rounded-full">
+            <Icon as={CheckIcon} size={24} className="text-primary-foreground" />
+          </Pressable>
+        )}
       </View>
 
       <View className="flex-1 px-[16px] pt-[12px]">
@@ -258,30 +285,21 @@ export default function SimulationScreen() {
             <View className="bg-primary/5 mb-[12px] flex-row rounded-xl px-[16px] py-[14px]">
               <View className="flex-1 items-center gap-[4px]">
                 <Text className="text-muted-foreground text-xs">시드머니</Text>
-                <Text
-                  className="text-base font-bold"
-                  adjustsFontSizeToFit
-                  numberOfLines={1}>
+                <Text className="text-base font-bold" adjustsFontSizeToFit numberOfLines={1}>
                   {baselineData.seedMoney.toLocaleString()}
                   {currencyUnit}
                 </Text>
               </View>
               <View className="flex-1 items-center gap-[4px]">
                 <Text className="text-muted-foreground text-xs">총 자산가치</Text>
-                <Text
-                  className="text-base font-bold"
-                  adjustsFontSizeToFit
-                  numberOfLines={1}>
+                <Text className="text-base font-bold" adjustsFontSizeToFit numberOfLines={1}>
                   {Math.round(baselineData.totalValue).toLocaleString()}
                   {currencyUnit}
                 </Text>
               </View>
               <View className="flex-1 items-center gap-[4px]">
                 <Text className="text-muted-foreground text-xs">현금 잔고</Text>
-                <Text
-                  className="text-base font-bold"
-                  adjustsFontSizeToFit
-                  numberOfLines={1}>
+                <Text className="text-base font-bold" adjustsFontSizeToFit numberOfLines={1}>
                   {Math.round(baselineData.cashAmount).toLocaleString()}
                   {currencyUnit}
                 </Text>

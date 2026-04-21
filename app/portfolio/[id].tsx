@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Text } from '@/components/ui/text';
 import { format, isValid } from 'date-fns';
 import { ko } from 'date-fns/locale';
-import { useGetPortfolioQuery } from '@/lib/hooks/query/portfolio';
+import { useGetPortfolioQuery, useGetHoldingBaselineQuery } from '@/lib/hooks/query/portfolio';
 import { cn } from '@/lib/utils';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
@@ -21,6 +21,7 @@ import { Icon } from '@/components/ui/icon';
 import {
   Check,
   ChevronLeft,
+  ClipboardList,
   FlaskConical,
   Split,
   Star,
@@ -56,6 +57,7 @@ export default function PortfolioDetailScreen() {
   const { mutate: setMainPortfolio } = useSetMainPortfolioMutation();
   const { mutate: updateWeights } = useUpdatePortfolioWeightsMutation();
   const { mutate: deletePortfolio, isPending: isDeleting } = useDeletePortfolioMutation();
+  const { data: holdingData, isLoading: isHoldingLoading } = useGetHoldingBaselineQuery(id);
   const [isEditMode, setIsEditMode] = useState(false);
   const [weightValues, setWeightValues] = useState<Record<string, string>>({});
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -126,6 +128,11 @@ export default function PortfolioDetailScreen() {
   const handleSimulation = useCallback(() => {
     if (!id) return;
     router.push(`/portfolio/simulation/${id}`);
+  }, [id, router]);
+
+  const handleHolding = useCallback(() => {
+    if (!id) return;
+    router.push(`/portfolio/holding/${id}`);
   }, [id, router]);
 
   const goBack = () => {
@@ -277,7 +284,16 @@ export default function PortfolioDetailScreen() {
           </View>
         </View>
 
-        {!isEditMode && (
+        {!isEditMode && !isHoldingLoading && holdingData?.exists && (
+          <Pressable
+            onPress={handleHolding}
+            className="bg-primary mb-[16px] flex-row items-center justify-center gap-1 rounded-full py-[14px]"
+            style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
+            <Icon as={ClipboardList} size={20} className="text-primary-foreground" />
+            <Text className="text-primary-foreground font-bold">보유현황</Text>
+          </Pressable>
+        )}
+        {!isEditMode && !isHoldingLoading && !holdingData?.exists && (
           <Pressable
             onPress={handleSimulation}
             className="bg-primary mb-[16px] flex-row items-center justify-center gap-1 rounded-full py-[14px]"

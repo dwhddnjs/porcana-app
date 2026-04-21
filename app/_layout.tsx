@@ -61,6 +61,7 @@ export default function RootLayout() {
 
               <Stack.Screen name="portfolio/[id]" options={{ headerShown: false }} />
               <Stack.Screen name="portfolio/simulation/[id]" options={{ headerShown: false }} />
+              <Stack.Screen name="portfolio/holding/[id]" options={{ headerShown: false }} />
               <Stack.Screen
                 name="asset/[assetId]"
                 options={{
