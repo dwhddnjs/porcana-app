@@ -26,7 +26,6 @@ import Animated, {
   withDelay,
   withTiming,
 } from 'react-native-reanimated';
-import { Spacer } from '@/components/ui/spacer';
 
 const formatWithComma = (value: string): string => {
   const num = value.replace(/[^0-9]/g, '');
@@ -77,8 +76,6 @@ export default function SimulationScreen() {
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
   const { mutate: fetchSeedPreview, data: baselineData, isPending } = useSeedPreviewMutation();
-
-  print('baselineData', baselineData);
 
   const titleOpacity = useSharedValue(0);
   const inputOpacity = useSharedValue(0);
@@ -253,13 +250,12 @@ export default function SimulationScreen() {
               style={({ pressed }) => ({ opacity: pressed || isPending ? 0.7 : 1 })}>
               <Text className="text-primary-foreground text-lg font-semibold">미리보기</Text>
             </Pressable>
-            {/* <Spacer height={120} /> */}
           </Animated.View>
         </Animated.View>
 
         {baselineData && (
           <Animated.View entering={FadeInDown.duration(400)} className="mt-[24px] flex-1">
-            <View className="bg-primary/5 mb-[12px] flex-row rounded-xl px-[12px] py-[14px]">
+            <View className="bg-primary/5 mb-[12px] flex-row rounded-xl px-[16px] py-[14px]">
               <View className="flex-1 items-center gap-[4px]">
                 <Text className="text-muted-foreground text-xs">시드머니</Text>
                 <Text
