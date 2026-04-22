@@ -5,12 +5,15 @@ import {
   createPortfolio,
   directCreatePortfolio,
   deletePortfolio,
+  executeTopUp,
   getRebalancingPlan,
   getSeedPreview,
+  getTopUpPlan,
   setMainPortfolio,
   setSeed,
   updatePortfolioWeights,
   type PortfolioTypes,
+  type TopUpExecuteRequestTypes,
   type UpdateWeightItemTypes,
 } from '@/lib/api/portfolio';
 import { useCustomPortfolioStore } from '../zustand/use-custom-portfolio-store';
@@ -277,6 +280,50 @@ export const useGetRebalancingPlanMutation = () => {
       portfolioId: string;
       thresholdPct?: number;
     }) => getRebalancingPlan({ portfolioId, thresholdPct }),
+  });
+};
+
+export const useGetTopUpPlanMutation = () => {
+  return useMutation({
+    mutationFn: ({
+      portfolioId,
+      additionalCash,
+    }: {
+      portfolioId: string;
+      additionalCash: number;
+    }) => getTopUpPlan({ portfolioId, additionalCash }),
+  });
+};
+
+export const useExecuteTopUpMutation = () => {
+  const queryClient = useQueryClient();
+  const { show, hide } = useLoadingStore();
+
+  return useMutation({
+    mutationFn: ({
+      portfolioId,
+      additionalCash,
+      purchases,
+      addRemainingCashToBaseline,
+    }: {
+      portfolioId: string;
+    } & TopUpExecuteRequestTypes) =>
+      executeTopUp({ portfolioId, additionalCash, purchases, addRemainingCashToBaseline }),
+    onMutate: () => {
+      show('추가 입금 처리 중...');
+    },
+    onSuccess: (_data, { portfolioId }) => {
+      queryClient.invalidateQueries({ queryKey: ['holding-baseline', portfolioId] });
+      queryClient.invalidateQueries({ queryKey: ['portfolios', portfolioId] });
+      queryClient.invalidateQueries({ queryKey: ['portfolios'] });
+      queryClient.invalidateQueries({ queryKey: ['home'] });
+    },
+    onError: (error) => {
+      console.error('Execute top-up failed:', error);
+    },
+    onSettled: () => {
+      hide();
+    },
   });
 };
 

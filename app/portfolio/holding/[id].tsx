@@ -5,7 +5,7 @@ import { BaselineItem } from '@/components/portfolio/baseline-item';
 import { useGetHoldingBaselineQuery } from '@/lib/hooks/query/portfolio';
 import { type BaselineItemTypes } from '@/lib/api/portfolio';
 import { FlashList } from '@shopify/flash-list';
-import { ChevronLeft } from 'lucide-react-native';
+import { ChevronLeft, Plus } from 'lucide-react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 import { useCallback } from 'react';
@@ -23,6 +23,11 @@ export default function HoldingScreen() {
     }
   }, [router]);
 
+  const handleDeposit = useCallback(() => {
+    if (!id) return;
+    router.push(`/portfolio/deposit/${id}`);
+  }, [id, router]);
+
   const renderItem = useCallback(
     ({ item, index }: { item: BaselineItemTypes; index: number }) => (
       <BaselineItem item={item} currencyUnit={currencyUnit} showTopBorder={index === 0} />
@@ -34,11 +39,21 @@ export default function HoldingScreen() {
 
   return (
     <Container>
-      <View className="flex-row items-center gap-[8px] px-[16px] py-[12px]">
-        <Pressable onPress={handleGoBack} hitSlop={8}>
-          <Icon as={ChevronLeft} size={24} className="text-foreground" />
+      <View className="flex-row items-center justify-between px-[16px] py-[12px]">
+        <View className="flex-row items-center gap-[8px]">
+          <Pressable onPress={handleGoBack} hitSlop={8}>
+            <Icon as={ChevronLeft} size={24} className="text-foreground" />
+          </Pressable>
+          <Text className="text-lg font-bold">보유현황</Text>
+        </View>
+        <Pressable
+          onPress={handleDeposit}
+          hitSlop={8}
+          className="flex-row items-center gap-[4px]"
+        >
+          <Icon as={Plus} size={18} className="text-primary" />
+          <Text className="text-primary text-sm font-semibold">추가 입금</Text>
         </Pressable>
-        <Text className="text-lg font-bold">보유현황</Text>
       </View>
 
       <View className="flex-1 px-[16px]">

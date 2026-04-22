@@ -1,27 +1,18 @@
 import { LargeHeader } from '@/components/ui/large-header';
-import { Card, CardContent } from '@/components/ui/card';
 import { Text } from '@/components/ui/text';
 import { format, isValid } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { useGetPortfolioQuery, useGetHoldingBaselineQuery } from '@/lib/hooks/query/portfolio';
 import { cn } from '@/lib/utils';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import {
-  ActivityIndicator,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  View,
-  useColorScheme,
-} from 'react-native';
+import { ActivityIndicator, Keyboard, Pressable, View, useColorScheme } from 'react-native';
 import { toast } from 'sonner-native';
 import { DeletePortfolioDialog } from '@/components/portfolio/delete-portfolio-dialog';
+import { InvestmentManagementCard } from '@/components/portfolio/investment-management-card';
 import { Icon } from '@/components/ui/icon';
 import {
   Check,
   ChevronLeft,
-  ClipboardList,
   FlaskConical,
   Split,
   Star,
@@ -35,9 +26,7 @@ import {
   DIVERSITY_LEVEL_LABELS,
   getDiversityLevelColor,
   getRiskStarColor,
-  roundToTwoDecimals,
 } from '@/lib/constant/function';
-import { THEME } from '@/lib/theme';
 import RiskDistributionChart from '@/components/portfolio/risk-distribution-chart';
 import { Spacer } from '@/components/ui/spacer';
 import { AssetItem } from '@/components/portfolio/asset-item';
@@ -133,6 +122,11 @@ export default function PortfolioDetailScreen() {
   const handleHolding = useCallback(() => {
     if (!id) return;
     router.push(`/portfolio/holding/${id}`);
+  }, [id, router]);
+
+  const handleDeposit = useCallback(() => {
+    if (!id) return;
+    router.push(`/portfolio/deposit/${id}`);
   }, [id, router]);
 
   const goBack = () => {
@@ -283,15 +277,15 @@ export default function PortfolioDetailScreen() {
             <RiskDistributionChart data={data.riskDistribution} />
           </View>
         </View>
-
+        <Spacer height={12} />
         {!isEditMode && !isHoldingLoading && holdingData?.exists && (
-          <Pressable
-            onPress={handleHolding}
-            className="bg-primary mb-[16px] flex-row items-center justify-center gap-1 rounded-full py-[14px]"
-            style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
-            <Icon as={ClipboardList} size={20} className="text-primary-foreground" />
-            <Text className="text-primary-foreground font-bold">보유현황</Text>
-          </Pressable>
+          <InvestmentManagementCard
+            seedMoney={holdingData.seedMoney}
+            totalValue={holdingData.totalValue}
+            baseCurrency={holdingData.baseCurrency}
+            onPressHolding={handleHolding}
+            onPressDeposit={handleDeposit}
+          />
         )}
         {!isEditMode && !isHoldingLoading && !holdingData?.exists && (
           <Pressable
