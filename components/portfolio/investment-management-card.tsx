@@ -74,7 +74,7 @@ export const InvestmentManagementCard = ({
         <View className="flex-row gap-3">
           <Pressable
             onPress={onPressHolding}
-            className="border-muted-foreground flex-1 flex-row items-center justify-center gap-1 rounded-full border py-[12px]"
+            className="border-border flex-1 flex-row items-center justify-center gap-1 rounded-full border py-[12px]"
             style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
             <Icon as={ClipboardList} size={16} className="text-primary" />
             <Text className="text-primary text-sm font-bold">보유 현황</Text>

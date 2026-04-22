@@ -9,7 +9,7 @@ import { FlashList } from '@shopify/flash-list';
 import { ChevronLeft, ArrowRight } from 'lucide-react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Keyboard, Platform, Pressable, TextInput, View } from 'react-native';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner-native';
 import Animated, {
   FadeInDown,
@@ -43,10 +43,6 @@ const formatCompactValue = (value: number, currencyUnit: string): string => {
   if (value >= 100_000_000) {
     const eok = (value / 100_000_000).toFixed(1);
     return `${currencyUnit}${eok}억`;
-  }
-  if (value >= 10_000_000) {
-    const rounded = (value / 1_000_000).toFixed(1);
-    return `${currencyUnit}${rounded}M`;
   }
   if (value >= 1_000_000) {
     const rounded = (value / 1_000_000).toFixed(1);
@@ -91,12 +87,16 @@ export default function DepositScreen() {
   const { mutate: fetchTopUpPlan, data: topUpPlanData, isPending } = useGetTopUpPlanMutation();
   const { mutate: executeTopUp, isPending: isExecuting } = useExecuteTopUpMutation();
 
-  const currencyUnit = holdingData?.baseCurrency === 'USD' ? '$' : '₩';
+  const isUsd = holdingData?.baseCurrency === 'USD';
+  const currencyUnit = isUsd ? '$' : '₩';
 
-  const imageUrlMap: Record<string, string | null> = {};
-  holdingData?.items?.forEach((item) => {
-    imageUrlMap[item.assetId] = item.imageUrl ?? null;
-  });
+  const imageUrlMap = useMemo(() => {
+    const map: Record<string, string | null> = {};
+    holdingData?.items?.forEach((item) => {
+      map[item.assetId] = item.imageUrl ?? null;
+    });
+    return map;
+  }, [holdingData?.items]);
 
   const titleOpacity = useSharedValue(0);
   const inputOpacity = useSharedValue(0);
@@ -130,8 +130,6 @@ export default function DepositScreen() {
       router.back();
     }
   }, [router]);
-
-  const isUsd = holdingData?.baseCurrency === 'USD';
 
   const handleAmountChange = useCallback(
     (text: string) => {
@@ -231,13 +229,16 @@ export default function DepositScreen() {
     [planVersion]
   );
 
-  const listHeaderComponent = (
-    <Text className="text-muted-foreground mt-[12px] mb-[8px] text-sm font-bold">
-      추천 매수 종목
-    </Text>
+  const listHeaderComponent = useMemo(
+    () => (
+      <Text className="text-muted-foreground mt-[12px] mb-[8px] text-sm font-bold">
+        추천 매수 종목
+      </Text>
+    ),
+    []
   );
 
-  const listFooterComponent = <View className="h-[120px]" />;
+  const listFooterComponent = useMemo(() => <View className="h-[120px]" />, []);
 
   return (
     <Container isKeyboardAvoiding>
