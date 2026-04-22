@@ -331,3 +331,109 @@ export const setMainPortfolio = async ({
     throw error;
   }
 };
+
+export type TopUpPlanRequestTypes = {
+  additionalCash: number;
+};
+
+export type TopUpRecommendationTypes = {
+  assetId: string;
+  symbol: string;
+  name: string;
+  market: string;
+  targetWeightPct: number;
+  currentWeightPct: number;
+  weightAfterBuy: number;
+  currentPrice: number;
+  recommendedQuantity: number;
+  recommendedAmount: number;
+  reason: string;
+};
+
+export type TopUpPlanResponseTypes = {
+  portfolioId: string;
+  additionalCash: number;
+  baseCurrency: string;
+  currentTotalValue: number;
+  newTotalValue: number;
+  remainingCash: number;
+  recommendations: TopUpRecommendationTypes[];
+};
+
+export type TopUpPurchaseItemTypes = {
+  assetId: string;
+  quantity: number;
+  purchasePrice: number;
+};
+
+export type TopUpExecuteRequestTypes = {
+  additionalCash: number;
+  purchases: TopUpPurchaseItemTypes[];
+  addRemainingCashToBaseline?: boolean;
+};
+
+export type TopUpSummaryTypes = {
+  additionalCash: number;
+  totalPurchaseAmount: number;
+  remainingCash: number;
+  previousTotalValue: number;
+  newTotalValue: number;
+  newCashAmount: number;
+};
+
+export type TopUpUpdatedItemTypes = {
+  assetId: string;
+  symbol: string;
+  name: string;
+  previousQuantity: number;
+  addedQuantity: number;
+  newQuantity: number;
+  previousAvgPrice: number;
+  newAvgPrice: number;
+};
+
+export type TopUpExecuteResponseTypes = {
+  portfolioId: string;
+  baselineId: string;
+  baseCurrency: string;
+  summary: TopUpSummaryTypes;
+  updatedItems: TopUpUpdatedItemTypes[];
+};
+
+export const getTopUpPlan = async ({
+  portfolioId,
+  additionalCash,
+}: {
+  portfolioId: string;
+} & TopUpPlanRequestTypes): Promise<TopUpPlanResponseTypes> => {
+  try {
+    const response = await api.post<TopUpPlanResponseTypes>(
+      `/portfolios/${portfolioId}/top-up-plan`,
+      { additionalCash }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const executeTopUp = async ({
+  portfolioId,
+  additionalCash,
+  purchases,
+  addRemainingCashToBaseline,
+}: {
+  portfolioId: string;
+} & TopUpExecuteRequestTypes): Promise<TopUpExecuteResponseTypes> => {
+  try {
+    const response = await api.post<TopUpExecuteResponseTypes>(
+      `/portfolios/${portfolioId}/top-up`,
+      { additionalCash, purchases, addRemainingCashToBaseline }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
