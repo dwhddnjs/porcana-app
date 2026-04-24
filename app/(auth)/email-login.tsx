@@ -13,7 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { TextInput, View } from 'react-native';
+import { Keyboard, TextInput, View } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 
 export default function LoginScreen() {
@@ -45,6 +45,9 @@ export default function LoginScreen() {
   const emailValue = watch('email');
   const passwordValue = watch('password');
 
+  const handleShouldSetResponder = () => true;
+  const handleResponderRelease = () => Keyboard.dismiss();
+
   const onSubmit = async (data: LoginFormDataTypes) => {
     const requestBody = {
       email: data.email,
@@ -55,11 +58,14 @@ export default function LoginScreen() {
   };
 
   return (
-    <Container isKeyboardAvoiding>
+    <Container>
       <Header title="이메일 로그인" onBackPress={handleBackPress} />
       <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
         <Spacer height={48} />
-        <View className="flex-1 gap-y-[48px] px-[20px]">
+        <View
+          className="flex-1 gap-y-[48px] px-[20px]"
+          onStartShouldSetResponder={handleShouldSetResponder}
+          onResponderRelease={handleResponderRelease}>
           <View className="gap-y-[18px]">
             <Label htmlFor="email" className="text-lg font-bold">
               이메일

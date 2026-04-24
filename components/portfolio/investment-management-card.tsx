@@ -32,7 +32,7 @@ export const InvestmentManagementCard = ({
 
   return (
     <Card className="mb-[16px] gap-4 py-4">
-      <CardContent className="gap-4">
+      <CardContent className="gap-4 px-5">
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center gap-2">
             <Icon as={Briefcase} size={18} className="text-primary" />
