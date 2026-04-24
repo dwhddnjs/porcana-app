@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { Keyboard, View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Label } from '@/components/ui/label';
 import { Controller, useForm } from 'react-hook-form';
@@ -37,6 +37,9 @@ export default function EnterPasswordScreen() {
   const confirmPasswordValue = watch('confirmPassword');
   const { mutate: signup } = useSignupMutation();
 
+  const handleShouldSetResponder = () => true;
+  const handleResponderRelease = () => Keyboard.dismiss();
+
   const onSubmit = async (data: PasswordFormDataTypes) => {
     setPassword(data.password);
     const requestBody = {
@@ -49,10 +52,13 @@ export default function EnterPasswordScreen() {
   };
 
   return (
-    <Container isKeyboardAvoiding>
+    <Container>
       <Header title="" />
       <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-        <View className="flex-1 px-[20px]">
+        <View
+          className="flex-1 px-[20px]"
+          onStartShouldSetResponder={handleShouldSetResponder}
+          onResponderRelease={handleResponderRelease}>
           <Spacer height={24} />
           <View className="gap-y-[24px]">
             <View className="gap-y-[20px]">

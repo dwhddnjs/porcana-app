@@ -1,20 +1,22 @@
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Image } from '@/components/ui/image';
 import { cn } from '@/lib/utils';
 import { type BaselineItemTypes } from '@/lib/api/portfolio';
+import {
+  formatCurrency,
+  formatSignedCurrency,
+  formatSignedPercent,
+  getReturnColorClass,
+  roundToTwoDecimals,
+} from '@/lib/constant/function';
 
 type BaselineItemPropsTypes = {
   item: BaselineItemTypes;
   currencyUnit?: string;
   showTopBorder?: boolean;
   showBottomBorder?: boolean;
-};
-
-const formatCurrency = (value: number): string => {
-  return Math.round(value)
-    .toString()
-    .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  onPress?: (assetId: string) => void;
 };
 
 export const BaselineItem = ({
@@ -22,11 +24,23 @@ export const BaselineItem = ({
   currencyUnit = '원',
   showTopBorder = false,
   showBottomBorder = true,
+  onPress,
 }: BaselineItemPropsTypes) => {
+  const profitLoss = (item.currentPrice - item.avgPrice) * item.quantity;
+  const returnPct = item.avgPrice > 0 ? ((item.currentPrice - item.avgPrice) / item.avgPrice) * 100 : 0;
+  const hasBasis = item.avgPrice > 0 && item.quantity > 0;
+  const colorClass = getReturnColorClass(profitLoss);
+
+  const handlePress = () => {
+    onPress?.(item.assetId);
+  };
+
   return (
-    <View
+    <Pressable
+      onPress={handlePress}
+      disabled={!onPress}
       className={cn(
-        'flex-row items-center justify-between gap-4 rounded-md px-[4px] py-[8px]',
+        'flex-row items-center justify-between gap-4 rounded-md px-[4px] py-[10px]',
         showTopBorder && 'border-primary/10 border-t',
         showBottomBorder && 'border-primary/10 border-b'
       )}>
@@ -59,11 +73,22 @@ export const BaselineItem = ({
           {formatCurrency(item.currentValue)}
           {currencyUnit}
         </Text>
+        {hasBasis && (
+          <View className="flex-row items-center gap-[4px]">
+            <Text className={cn('text-xs font-semibold', colorClass)}>
+              {formatSignedCurrency(profitLoss)}
+              {currencyUnit}
+            </Text>
+            <Text className={cn('text-xs font-semibold', colorClass)}>
+              {formatSignedPercent(roundToTwoDecimals(returnPct))}
+            </Text>
+          </View>
+        )}
         <Text className="text-muted-foreground text-xs">
           {item.quantity}주 · {formatCurrency(item.avgPrice)}
           {currencyUnit}
         </Text>
       </View>
-    </View>
+    </Pressable>
   );
 };

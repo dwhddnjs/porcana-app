@@ -9,11 +9,11 @@ import { ActivityIndicator, Keyboard, Pressable, View, useColorScheme } from 're
 import { toast } from 'sonner-native';
 import { DeletePortfolioDialog } from '@/components/portfolio/delete-portfolio-dialog';
 import { InvestmentManagementCard } from '@/components/portfolio/investment-management-card';
+import { StartSimulationCard } from '@/components/portfolio/start-simulation-card';
 import { Icon } from '@/components/ui/icon';
 import {
   Check,
   ChevronLeft,
-  FlaskConical,
   Split,
   Star,
   StarHalf,
@@ -288,13 +288,7 @@ export default function PortfolioDetailScreen() {
           />
         )}
         {!isEditMode && !isHoldingLoading && !holdingData?.exists && (
-          <Pressable
-            onPress={handleSimulation}
-            className="bg-primary mb-[16px] flex-row items-center justify-center gap-1 rounded-full py-[14px]"
-            style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
-            <Icon as={FlaskConical} size={20} className="text-primary-foreground" />
-            <Text className="text-primary-foreground font-bold">모의투자 시작</Text>
-          </Pressable>
+          <StartSimulationCard onPress={handleSimulation} />
         )}
         <Spacer height={24} />
         <View>

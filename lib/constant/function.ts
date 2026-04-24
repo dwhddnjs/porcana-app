@@ -124,3 +124,25 @@ export const parseEmailFromIdentityToken = (identityToken: string | null): strin
 export const roundToTwoDecimals = (num: number): number => {
   return Number(num.toFixed(2));
 };
+
+export const formatCurrency = (value: number): string => {
+  return Math.round(value)
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+};
+
+export const formatSignedCurrency = (value: number): string => {
+  const sign = value > 0 ? '+' : value < 0 ? '-' : '';
+  return `${sign}${formatCurrency(Math.abs(value))}`;
+};
+
+export const formatSignedPercent = (value: number): string => {
+  const sign = value > 0 ? '+' : value < 0 ? '' : '';
+  return `${sign}${roundToTwoDecimals(value)}%`;
+};
+
+export const getReturnColorClass = (value: number): string => {
+  if (value > 0) return 'text-stock-up';
+  if (value < 0) return 'text-stock-down';
+  return 'text-muted-foreground';
+};
