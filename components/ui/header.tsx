@@ -56,7 +56,7 @@ export const Header = ({
       </View>
 
       {/* 오른쪽 영역 - 커스텀 콘텐츠 */}
-      <View className="w-10 items-end">{rightContent}</View>
+      <View className="min-w-10 items-end">{rightContent}</View>
     </View>
   );
 };

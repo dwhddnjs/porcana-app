@@ -374,6 +374,7 @@ export const useSetMainPortfolioMutation = () => {
       queryClient.invalidateQueries({ queryKey: ['portfolios', portfolioId] });
       queryClient.invalidateQueries({ queryKey: ['portfolios'] });
       queryClient.invalidateQueries({ queryKey: ['home'] });
+      queryClient.invalidateQueries({ queryKey: ['holding-baseline'] });
     },
   });
 };

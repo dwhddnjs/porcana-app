@@ -1,6 +1,7 @@
 import Container from '@/components/ui/container';
 import { Text } from '@/components/ui/text';
 import { Icon } from '@/components/ui/icon';
+import { Header } from '@/components/ui/header';
 import { BaselineItem } from '@/components/portfolio/baseline-item';
 import { HoldingSummaryCard } from '@/components/portfolio/holding-summary-card';
 import { HoldingSubStats } from '@/components/portfolio/holding-sub-stats';
@@ -12,7 +13,7 @@ import {
 } from '@/lib/hooks/query/portfolio';
 import { type BaselineItemTypes } from '@/lib/api/portfolio';
 import { FlashList } from '@shopify/flash-list';
-import { ChevronLeft, Plus } from 'lucide-react-native';
+import { Plus } from 'lucide-react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 import { useCallback } from 'react';
@@ -27,9 +28,7 @@ export default function HoldingScreen() {
   const currencyUnit = data?.baseCurrency === 'USD' ? '$' : '원';
 
   const handleGoBack = useCallback(() => {
-    if (router.canGoBack()) {
-      router.back();
-    }
+    if (router.canGoBack()) router.back();
   }, [router]);
 
   const handleDeposit = useCallback(() => {
@@ -58,19 +57,16 @@ export default function HoldingScreen() {
 
   const keyExtractor = useCallback((item: BaselineItemTypes) => item.assetId, []);
 
+  const depositButton = (
+    <Pressable onPress={handleDeposit} hitSlop={8} className="flex-row items-center gap-[4px]">
+      <Icon as={Plus} size={18} className="text-primary" />
+      <Text className="text-primary text-sm font-semibold">추가 입금</Text>
+    </Pressable>
+  );
+
   return (
     <Container>
-      <View className="flex-row items-center justify-between px-[16px] py-[12px]">
-        <View className="flex-row items-center gap-[8px]">
-          <Pressable onPress={handleGoBack} hitSlop={8}>
-            <Icon as={ChevronLeft} size={24} className="text-foreground" />
-          </Pressable>
-        </View>
-        <Pressable onPress={handleDeposit} hitSlop={8} className="flex-row items-center gap-[4px]">
-          <Icon as={Plus} size={18} className="text-primary" />
-          <Text className="text-primary text-sm font-semibold">추가 입금</Text>
-        </Pressable>
-      </View>
+      <Header showBackButton onBackPress={handleGoBack} rightContent={depositButton} />
       <Spacer height={12} />
 
       <View className="flex-1 px-[16px]">
