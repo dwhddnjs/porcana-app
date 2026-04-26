@@ -24,7 +24,6 @@ export const AmountInput = ({ value, onChangeText, isUsd, children }: AmountInpu
   };
 
   const numericValue = parseInt(value, 10);
-  const currencySymbol = isUsd ? '$' : '원';
   const currencyLabel = isUsd ? '달러' : '원';
 
   return (

@@ -148,7 +148,12 @@ export const formatKoreanUnit = (value: number): string => {
   return parts.join(' ');
 };
 
-export const formatCompactValue = (value: number, currencyUnit: string): string => {
+export const formatCompactValue = (value: number, currencyUnit: string, isUsd = false): string => {
+  if (isUsd) {
+    if (value >= 1_000_000_000) return `${currencyUnit}${(value / 1_000_000_000).toFixed(1)}B`;
+    if (value >= 1_000_000) return `${currencyUnit}${(value / 1_000_000).toFixed(1)}M`;
+    return `${currencyUnit}${Math.round(value).toLocaleString()}`;
+  }
   if (value >= 100_000_000) return `${currencyUnit}${(value / 100_000_000).toFixed(1)}억`;
   if (value >= 1_000_000) return `${currencyUnit}${(value / 1_000_000).toFixed(1)}M`;
   return `${currencyUnit}${Math.round(value).toLocaleString()}`;

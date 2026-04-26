@@ -92,6 +92,8 @@ export default function SimulationScreen() {
     if (router.canGoBack()) router.back();
   }, [router]);
 
+  const handleShouldSetResponder = useCallback(() => true, []);
+
   const handleDismissKeyboard = useCallback(() => {
     Keyboard.dismiss();
   }, []);
@@ -168,7 +170,7 @@ export default function SimulationScreen() {
       <View className="flex-1 px-[16px] pt-[12px]">
         <Animated.View
           layout={LinearTransition.duration(800)}
-          onStartShouldSetResponder={() => true}
+          onStartShouldSetResponder={handleShouldSetResponder}
           onResponderRelease={handleDismissKeyboard}
           className={
             hasExpanded

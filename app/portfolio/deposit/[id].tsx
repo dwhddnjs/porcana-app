@@ -135,6 +135,8 @@ export default function DepositScreen() {
     );
   }, [id, depositAmount, topUpPlanData, isExecuting, executeTopUp, router]);
 
+  const handleShouldSetResponder = useCallback(() => true, []);
+
   const handleDismissKeyboard = useCallback(() => {
     Keyboard.dismiss();
   }, []);
@@ -175,7 +177,7 @@ export default function DepositScreen() {
       <View className="flex-1 px-[16px] pt-[12px]">
         <Animated.View
           layout={LinearTransition.duration(800)}
-          onStartShouldSetResponder={() => true}
+          onStartShouldSetResponder={handleShouldSetResponder}
           onResponderRelease={handleDismissKeyboard}
           className={
             hasExpanded
@@ -212,14 +214,14 @@ export default function DepositScreen() {
               <View className="items-center gap-[2px]">
                 <Text className="text-muted-foreground text-xs">현재 총액</Text>
                 <Text className="text-base font-bold">
-                  {formatCompactValue(topUpPlanData.currentTotalValue, currencyUnit)}
+                  {formatCompactValue(topUpPlanData.currentTotalValue, currencyUnit, isUsd)}
                 </Text>
               </View>
               <Icon as={ArrowRight} size={16} className="text-muted-foreground" />
               <View className="items-center gap-[2px]">
                 <Text className="text-muted-foreground text-xs">추가 후</Text>
                 <Text className="text-base font-bold">
-                  {formatCompactValue(topUpPlanData.newTotalValue, currencyUnit)}
+                  {formatCompactValue(topUpPlanData.newTotalValue, currencyUnit, isUsd)}
                 </Text>
               </View>
             </View>

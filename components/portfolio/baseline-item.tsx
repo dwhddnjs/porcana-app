@@ -29,7 +29,7 @@ export const BaselineItem = ({
   const profitLoss = (item.currentPrice - item.avgPrice) * item.quantity;
   const returnPct =
     item.avgPrice > 0 ? ((item.currentPrice - item.avgPrice) / item.avgPrice) * 100 : 0;
-  const hasBasis = item.avgPrice > 0 && item.quantity > 0 && profitLoss !== 0;
+  const hasBasis = item.avgPrice > 0 && item.quantity > 0 && Math.abs(profitLoss) > 0.001;
   const colorClass = getReturnColorClass(profitLoss);
 
   const handlePress = () => {
