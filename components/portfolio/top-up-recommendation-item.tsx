@@ -2,17 +2,12 @@ import { View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Image } from '@/components/ui/image';
 import { type TopUpRecommendationTypes } from '@/lib/api/portfolio';
+import { formatCurrency } from '@/lib/constant/function';
 
 type TopUpRecommendationItemPropsTypes = {
   item: TopUpRecommendationTypes;
   currencyUnit: string;
   imageUrl?: string | null;
-};
-
-const formatCurrency = (value: number): string => {
-  return Math.round(value)
-    .toString()
-    .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
 
 export const TopUpRecommendationItem = ({

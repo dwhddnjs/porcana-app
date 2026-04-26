@@ -2,7 +2,7 @@ import { Image, Platform, Pressable, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Text } from '@/components/ui/text';
 import { Icon } from '@/components/ui/icon';
-import { ArrowRight } from 'lucide-react-native';
+import { ArrowRight, ChevronRight } from 'lucide-react-native';
 
 type StartSimulationCardPropsTypes = {
   onPress: () => void;
@@ -57,13 +57,13 @@ export const StartSimulationCard = ({ onPress }: StartSimulationCardPropsTypes) 
           <View
             className="bg-weight absolute items-center justify-center"
             style={{
-              right: 16,
-              bottom: 16,
+              right: 12,
+              bottom: 12,
               width: 40,
               height: 40,
               borderRadius: 22,
             }}>
-            <Icon as={ArrowRight} size={20} className="text-primary-foreground" />
+            <Icon as={ChevronRight} size={24} className="text-primary-foreground font-bold" />
           </View>
         </View>
       </View>
@@ -72,10 +72,10 @@ export const StartSimulationCard = ({ onPress }: StartSimulationCardPropsTypes) 
         source={require('@/assets/images/money.png')}
         style={{
           position: 'absolute',
-          right: -14,
-          top: -15,
-          width: 110,
-          height: 110,
+          right: -17,
+          top: -19,
+          width: 130,
+          height: 130,
           ...Platform.select({
             ios: {
               shadowColor: '#000',

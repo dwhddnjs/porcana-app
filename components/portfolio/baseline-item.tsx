@@ -27,8 +27,9 @@ export const BaselineItem = ({
   onPress,
 }: BaselineItemPropsTypes) => {
   const profitLoss = (item.currentPrice - item.avgPrice) * item.quantity;
-  const returnPct = item.avgPrice > 0 ? ((item.currentPrice - item.avgPrice) / item.avgPrice) * 100 : 0;
-  const hasBasis = item.avgPrice > 0 && item.quantity > 0;
+  const returnPct =
+    item.avgPrice > 0 ? ((item.currentPrice - item.avgPrice) / item.avgPrice) * 100 : 0;
+  const hasBasis = item.avgPrice > 0 && item.quantity > 0 && profitLoss !== 0;
   const colorClass = getReturnColorClass(profitLoss);
 
   const handlePress = () => {
@@ -68,7 +69,7 @@ export const BaselineItem = ({
           </View>
         </View>
       </View>
-      <View className="items-end gap-[2px]">
+      <View className="items-end gap-[4px]">
         <Text className="text-md font-semibold">
           {formatCurrency(item.currentValue)}
           {currencyUnit}
