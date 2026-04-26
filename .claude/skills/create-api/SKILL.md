@@ -17,6 +17,14 @@ allowed-tools: Read, Write, Edit, Glob, Grep, WebFetch
 
 > 네이밍, 타입 등 일반 규칙은 CLAUDE.md를 따릅니다.
 
+## API Layer 규칙
+
+- Base URL: `EXPO_PUBLIC_API_BASE_URL/api/v1/` (prod: `https://api.porcana.co.kr`)
+- Axios 클라이언트(`lib/api/client.ts`)는 토큰 자동 주입 + 401 자동 리프레시 인터셉터 구현됨 — 개별 호출에서 토큰 처리 불필요
+- 게스트 호출은 `X-Guest-Session-Id` 헤더로 자동 처리됨
+- 모든 함수는 `client`를 import해서 사용 (직접 axios 인스턴스 만들지 말 것)
+- request/response 타입은 `Types` 접미사 필수
+
 ## 절차
 
 1. OpenAPI 스펙 조회 (`https://api.porcana.co.kr/v3/api-docs`) 로 정확한 request/response 타입 확인

@@ -32,6 +32,7 @@ allowed-tools: Read, Write, Glob, Grep
   - `isKeyboardAvoiding` prop으로 키보드 dismiss 처리 가능
 - 데이터 패칭은 `useGet[Resource]Query()` 훅 사용
 - 뮤테이션은 `use[Action]Mutation()` 훅 사용
+- Expo Router 패턴 참고: https://docs.expo.dev/router/introduction/
 
 ## 출력 예시
 
