@@ -7,6 +7,8 @@ import { ImageCarousel } from '@/components/ui/image-carousel';
 import { Link, useRouter } from 'expo-router';
 import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { CAROUSEL_ITEMS } from '@/lib/constant/variables';
+import { supabase } from '@/lib/supabase/client';
+import { useEffect } from 'react';
 
 export default function LandingScreen() {
   const { accessToken, refreshToken, user, reset } = useUserStore();
@@ -19,6 +21,23 @@ export default function LandingScreen() {
   // console.log('accessToken', accessToken);
   // console.log('refreshToken', refreshToken);
   // console.log('user', user);
+  // 예: app/(tabs)/index.tsx 상단에 임시 추가
+
+  useEffect(() => {
+    supabase
+      .from('아무_테이블명') // 없어도 됨
+      .select('*')
+      .limit(1)
+      .then(({ error }) => {
+        if (error?.code === '42P01') {
+          console.log('✅ Supabase 연결 성공 (테이블 없음은 정상)');
+        } else if (error) {
+          console.log('❌ 연결 실패:', error.message);
+        } else {
+          console.log('✅ Supabase 연결 성공');
+        }
+      });
+  }, []);
 
   return (
     <Container>

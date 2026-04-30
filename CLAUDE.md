@@ -5,9 +5,10 @@
 ## Tech Stack
 
 - React Native + Expo SDK 54 (New Architecture), Expo Router v6, TypeScript strict
+- 백엔드: **Supabase** (Postgres + Auth + Edge Functions). 클라이언트 → `supabase` (anon key + RLS) / 외부 API·복잡한 로직 → Supabase Edge Functions
 - 상태: Zustand (AsyncStorage persist) + TanStack React Query
 - 스타일: Tailwind v4 + NativeWind + Uniwind + CVA, React Native Reusables, Lucide
-- 폼: React Hook Form + Zod / 날짜: date-fns / HTTP: Axios
+- 폼: React Hook Form + Zod / 날짜: date-fns
 
 ## Code Conventions
 
@@ -26,7 +27,9 @@
 
 ## 작업별 Skill
 
-- API 추가: `/create-api` · 엔드포인트 조회: `/api-spec`
+- 백엔드 초기 셋업(1회): `/create-supabase-setup`
+- 테이블 추가: `/create-supabase-table`
+- 클라이언트 API 함수: `/create-api`
 - 쿼리 훅: `/create-query` · 뮤테이션 훅: `/create-mutation`
 - 컴포넌트: `/create-component` · 스크린: `/create-screen`
 - 커밋: `/commit`

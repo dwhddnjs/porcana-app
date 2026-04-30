@@ -20,8 +20,10 @@ allowed-tools: Read, Write, Glob, Grep
 ## 절차
 
 1. 기존 `lib/hooks/query/` 파일들을 읽어 패턴 파악
-2. 대응하는 API 함수(`lib/api/`)의 타입 확인
+2. 대응하는 API 함수(`lib/api/`)의 타입 확인 — 없으면 `/create-api` 먼저
 3. 쿼리 훅 생성
+
+> 백엔드는 Supabase + Expo Router API Routes로 이전됨. 응답 컨트랙트(`ApiResponseTypes`)는 동일하므로 훅 코드 변경 없음.
 
 ## 쿼리 훅 전용 규칙
 
