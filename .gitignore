@@ -48,3 +48,6 @@ scripts
 
 # Google Service Account Key
 service-account.json
+
+supabase/.gitignore
+.temp

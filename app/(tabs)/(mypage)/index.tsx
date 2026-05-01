@@ -4,6 +4,7 @@ import { Spacer } from '@/components/ui/spacer';
 import { Text } from '@/components/ui/text';
 import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { queryClient } from '@/lib/react-query';
+import { signOut } from '@/lib/api/auth';
 import { useRouter } from 'expo-router';
 import { PaletteIcon, UserPenIcon } from 'lucide-react-native';
 import { Pressable, View } from 'react-native';
@@ -11,12 +12,13 @@ import { toast } from 'sonner-native';
 
 export default function MypageScreen() {
   const router = useRouter();
-  const logout = useUserStore((s) => s.logout);
+  const reset = useUserStore((s) => s.reset);
 
   const handleLogout = async () => {
     await queryClient.cancelQueries();
     queryClient.clear();
-    logout();
+    await signOut();
+    reset();
     toast.success('로그아웃 되었습니다.');
     if (router.canDismiss()) {
       router.dismissAll();

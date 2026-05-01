@@ -1,4 +1,6 @@
-import { api } from './client';
+import { supabase } from '@/lib/supabase/client';
+
+export type ProviderTypes = 'EMAIL' | 'GOOGLE' | 'APPLE';
 
 type SignupRequestTypes = {
   nickname: string;
@@ -7,8 +9,7 @@ type SignupRequestTypes = {
 };
 
 type SignupResponseTypes = {
-  accessToken: string;
-  refreshToken: string;
+  userId: string;
 };
 
 export const signup = async ({
@@ -16,28 +17,35 @@ export const signup = async ({
   email,
   password,
 }: SignupRequestTypes): Promise<SignupResponseTypes> => {
-  try {
-    const response = await api.post('/auth/signup', {
-      nickname,
+  const { data: sessionData } = await supabase.auth.getSession();
+  const isAnonymous = sessionData.session?.user?.is_anonymous === true;
+
+  if (isAnonymous) {
+    const { data, error } = await supabase.auth.updateUser({
       email,
       password,
+      data: { nickname },
     });
-
-    // TODO: 실제 API 연동 시 아래 mock 데이터 제거
-    return response.data;
-  } catch (error: any) {
-    // 더 자세한 에러 정보 출력
-    console.error('Signup Error Details:', {
-      message: error.message,
-      code: error.code,
-      url: error.config?.url,
-      baseURL: error.config?.baseURL,
-    });
-    throw error;
+    if (error) throw error;
+    const userId = data.user?.id;
+    if (!userId) throw new Error('회원가입 실패: 사용자 정보를 확인할 수 없습니다');
+    await supabase
+      .from('profiles')
+      .update({ nickname, is_anonymous: false, provider: 'EMAIL' })
+      .eq('user_id', userId);
+    return { userId };
   }
-};
 
-export type ProviderTypes = 'EMAIL' | 'GOOGLE' | 'APPLE';
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: { data: { nickname } },
+  });
+  if (error) throw error;
+  const userId = data.user?.id;
+  if (!userId) throw new Error('회원가입 실패: 사용자 정보를 확인할 수 없습니다');
+  return { userId };
+};
 
 type LoginRequestTypes = {
   email?: string;
@@ -47,8 +55,7 @@ type LoginRequestTypes = {
 };
 
 type LoginResponseTypes = {
-  accessToken: string;
-  refreshToken: string;
+  userId: string;
 };
 
 export const login = async ({
@@ -57,22 +64,29 @@ export const login = async ({
   provider = 'EMAIL',
   code,
 }: LoginRequestTypes): Promise<LoginResponseTypes> => {
-  try {
-    const response = await api.post('auth/login', {
-      provider,
-      email,
-      password,
-      code,
-    });
-    return response.data;
-  } catch (error: any) {
-    console.error('Login Error:', error);
-    throw error;
+  if (provider === 'EMAIL') {
+    if (!email || !password) throw new Error('이메일과 비밀번호가 필요합니다');
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    return { userId: data.user.id };
   }
+
+  if (!code) throw new Error('OAuth 토큰이 필요합니다');
+
+  const supabaseProvider = provider === 'GOOGLE' ? 'google' : 'apple';
+  // 익명 세션 위에 OAuth identity를 manual-link하는 안전한 모바일 흐름은 Edge Function에서
+  // service-role로 처리하는 게 맞아 후속 작업에서 구현. 현 단계는 단순 OAuth 로그인.
+  const { data, error } = await supabase.auth.signInWithIdToken({
+    provider: supabaseProvider,
+    token: code,
+  });
+  if (error) throw error;
+  return { userId: data.user.id };
 };
 
 type AppleLoginRequestTypes = {
   authorizationCode: string;
+  identityToken?: string;
   user?: string;
   email?: string | null;
   fullName?: {
@@ -83,59 +97,25 @@ type AppleLoginRequestTypes = {
 
 export const appleLogin = async ({
   authorizationCode,
+  identityToken,
 }: AppleLoginRequestTypes): Promise<LoginResponseTypes> => {
-  try {
-    const response = await api.post('auth/login', {
-      provider: 'APPLE' as ProviderTypes,
-      code: authorizationCode,
-    });
-
-    return response.data;
-  } catch (error: any) {
-    console.error('Apple Login Error:', error);
-    throw error;
-  }
+  const token = identityToken ?? authorizationCode;
+  return login({ provider: 'APPLE', code: token });
 };
 
-export type GuestSessionResponseTypes = {
-  guestSessionId: string;
+export const checkEmail = async (_args: { email: string }): Promise<{ available: boolean }> => {
+  // Supabase는 auth.users 직접 조회를 허용하지 않음. 실제 중복은 signUp 시 검증되며,
+  // 사전 체크가 필요하면 별도 Edge Function(check-email)에서 admin client로 조회.
+  return { available: true };
 };
 
-export const createGuestSession = async (): Promise<GuestSessionResponseTypes> => {
-  try {
-    const response = await api.post('guest-sessions');
-    return response.data;
-  } catch (error: any) {
-    console.error('Create Guest Session Error:', error);
-    throw error;
-  }
+export const signInAnonymously = async () => {
+  const { data, error } = await supabase.auth.signInAnonymously();
+  if (error) throw error;
+  return data;
 };
 
-export const getRefreshToken = async ({ refreshToken }: { refreshToken: string }) => {
-  try {
-    const response = await api.post('auth/refresh', {
-      refreshToken,
-    });
-
-    return response.data;
-  } catch (error: any) {
-    console.error('Get Refresh Token Error:', error);
-    throw error;
-  }
-};
-
-type CheckEmailResponseTypes = {
-  available: boolean;
-};
-
-export const checkEmail = async ({ email }: { email: string }) => {
-  try {
-    const response = await api.get<CheckEmailResponseTypes>('auth/check-email', {
-      params: { email },
-    });
-    return response.data;
-  } catch (error: any) {
-    console.error('Check Email Error:', error);
-    throw error;
-  }
+export const signOut = async () => {
+  const { error } = await supabase.auth.signOut();
+  if (error) throw error;
 };

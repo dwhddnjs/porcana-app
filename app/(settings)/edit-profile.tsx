@@ -13,7 +13,7 @@ import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 
 export default function EditProfileScreen() {
   const insets = useSafeAreaInsets();
-  const { user, accessToken } = useUserStore();
+  const { user } = useUserStore();
   const [nickname, setNickname] = useState(user?.nickname ?? '');
   const { mutate } = useUpdateProfileMutation();
 

@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { deleteAccount, updateProfile } from '@/lib/api/user';
-import { UserStateTypes, useUserStore } from '@/lib/hooks/zustand/use-user-store';
+import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { useLoadingStore } from '@/lib/hooks/zustand/use-loading-store';
 import { queryClient } from '@/lib/react-query';
 import { router } from 'expo-router';
@@ -19,7 +19,7 @@ export const useDeleteAccountMutation = () => {
       await queryClient.cancelQueries();
       queryClient.clear();
       reset();
-      router.replace('/landing');
+      router.replace('/');
     },
     onError: (error) => {
       hide();
@@ -42,7 +42,7 @@ export const useUpdateProfileMutation = () => {
     },
     onSuccess: (data) => {
       if (user) {
-        setUser({ user: { ...user, nickname: data.nickname } } as UserStateTypes);
+        setUser({ ...user, nickname: data.nickname });
       }
       toast.success('닉네임이 변경되었습니다.');
       router.back();
