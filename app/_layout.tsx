@@ -93,6 +93,10 @@ export default function RootLayout() {
                 options={{ headerShown: false, gestureEnabled: false }}
               />
               <Stack.Screen
+                name="(common)"
+                options={{ headerShown: false, animation: 'fade' }}
+              />
+              <Stack.Screen
                 name="(arena)"
                 options={{ headerShown: false, gestureEnabled: false }}
               />

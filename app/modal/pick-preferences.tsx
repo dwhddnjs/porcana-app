@@ -1,4 +1,4 @@
-import { Keyboard, Pressable, ScrollView, View } from 'react-native';
+import { Keyboard, Pressable, ScrollView, View, InteractionManager } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { router } from 'expo-router';
 import { Button } from '@/components/ui/button';
@@ -9,10 +9,9 @@ import { HandFistIcon, ShieldIcon, ScaleIcon } from 'lucide-react-native';
 import { SectorTag } from '@/components/portfolio/sector-tag';
 import { SECTOR_OPTIONS, SECTOR_OPTIONS_KO } from '@/lib/constant/variables';
 import { useState } from 'react';
-import { useCreatePortfolioMutation } from '@/lib/hooks/mutation/portfolio';
+import { useArenaStore } from '@/lib/hooks/zustand/use-arena-store';
+import * as ScreenOrientation from 'expo-screen-orientation';
 
-import { ActivityIndicator, useColorScheme } from 'react-native';
-import { THEME } from '@/lib/theme';
 import Container from '@/components/ui/container';
 import { Spacer } from '@/components/ui/spacer';
 
@@ -23,8 +22,7 @@ export default function PickPreferences() {
   const [selectedRiskProfile, setSelectedRiskProfile] = useState<RiskProfileTypes>(null);
   const [selectedSector, setSelectedSector] = useState<string[]>([]);
 
-  const colorScheme = useColorScheme() ?? 'light';
-  const { mutate: createPortfolio, isPending } = useCreatePortfolioMutation();
+  const { resetArena, setName, setPicked } = useArenaStore((state) => state);
 
   const handleRiskProfileSelect = (profile: RiskProfileTypes) => {
     setSelectedRiskProfile((prev) => (prev === profile ? null : profile));
@@ -47,13 +45,19 @@ export default function PickPreferences() {
   const isFormValid =
     portfolioName.trim().length > 0 && selectedRiskProfile !== null && selectedSector.length > 0;
 
-  const handleCreatePortfolio = () => {
-    if (!isFormValid) return;
+  const handleStartArena = () => {
+    if (!isFormValid || !selectedRiskProfile) return;
 
-    createPortfolio({
-      name: portfolioName.trim(),
-      riskProfile: selectedRiskProfile.toUpperCase(),
+    resetArena();
+    setName(portfolioName.trim());
+    setPicked({
+      riskProfile: selectedRiskProfile,
       sectors: selectedSector,
+    });
+    router.dismiss();
+    InteractionManager.runAfterInteractions(() => {
+      router.push('/(arena)');
+      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
     });
   };
 
@@ -146,12 +150,8 @@ export default function PickPreferences() {
         </View>
       </ScrollView>
       <View className="px-[20px]">
-        <Button onPress={handleCreatePortfolio} size={'lg'} disabled={!isFormValid || isPending}>
-          {isPending ? (
-            <ActivityIndicator color={THEME[colorScheme].primaryForeground} />
-          ) : (
-            <Text>생성하기</Text>
-          )}
+        <Button onPress={handleStartArena} size={'lg'} disabled={!isFormValid}>
+          <Text>시작하기</Text>
         </Button>
       </View>
     </Container>

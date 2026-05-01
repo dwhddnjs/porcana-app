@@ -13,8 +13,7 @@ import * as ScreenOrientation from 'expo-screen-orientation';
 import { router, useFocusEffect } from 'expo-router';
 import { Button } from '@/components/ui/button';
 import { useNavigation, DrawerActions } from '@react-navigation/native';
-import { useGetArenaSessionRoundsQuery } from '@/lib/hooks/query/arena';
-import { usePickArenaSessionAssetMutation } from '@/lib/hooks/mutation/arena';
+import { useRecommendArenaCardsQuery } from '@/lib/hooks/query/arena';
 import { useArenaStore, AssetTypes } from '@/lib/hooks/zustand/use-arena-store';
 import { THEME } from '@/lib/theme';
 import { useQueryClient } from '@tanstack/react-query';
@@ -39,18 +38,12 @@ export default function Arena() {
   // 타이머 정리를 위한 ref (React Native에서는 setTimeout이 number 반환)
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
-  const {
-    data: arenaSessionRounds,
-    refetch,
-    isLoading,
-    isPending,
-  } = useGetArenaSessionRoundsQuery();
-  const { mutate: pickAsset } = usePickArenaSessionAssetMutation();
+  const { data: recommendedAssets, refetch, isLoading, isPending } = useRecommendArenaCardsQuery();
 
-  // 서버에서 받아온 assets (3장) - useMemo로 불필요한 재생성 방지
+  // 추천된 assets (3장) - useMemo로 불필요한 재생성 방지
   const currentAssets: AssetTypes[] = useMemo(
-    () => arenaSessionRounds?.assets || [],
-    [arenaSessionRounds?.assets]
+    () => recommendedAssets ?? [],
+    [recommendedAssets]
   );
 
   // 타이머 정리 함수
@@ -71,7 +64,7 @@ export default function Arena() {
   const handleBack = useCallback(async () => {
     clearAllTimers();
     resetArena();
-    queryClient.removeQueries({ queryKey: ['arena-session-rounds'] });
+    queryClient.removeQueries({ queryKey: ['arena-recommend'] });
     setHasInitialFlip(false);
     setRound(1);
     setIsFlipped(false);
@@ -128,59 +121,42 @@ export default function Arena() {
       const selectedAsset = currentAssets[cardIndex];
 
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      // addCard로 selectedCards에 추가되면 useRecommendArenaCardsQuery의 queryKey가 round 변화로 새로 페칭
       addCard(selectedAsset);
       setSelectedCardIndex(cardIndex);
       setIsTransitioning(true);
 
-      // 서버에 선택 전송
-      pickAsset(
-        { pickedAssetId: selectedAsset.assetId },
-        {
-          onSuccess: () => {
-            // 1초 동안 선택된 카드가 커진 상태 유지
-            const timer1 = setTimeout(() => {
-              setShowCards(false);
-              setSelectedCardIndex(null);
+      // 1초 동안 선택된 카드가 커진 상태 유지
+      const timer1 = setTimeout(() => {
+        setShowCards(false);
+        setSelectedCardIndex(null);
 
-              if (round < MAX_ROUNDS) {
-                // 새 데이터를 먼저 fetch
-                refetch().then(() => {
-                  // 데이터 로드 후 카드 표시
-                  const timer2 = setTimeout(() => {
-                    setRound((prev) => prev + 1);
-                    setIsFlipped(false);
-                    setShowCards(true);
+        if (round < MAX_ROUNDS) {
+          // 다음 라운드 카드 fetch (queryKey가 selectedCards.length로 자동 갱신됨)
+          refetch().then(() => {
+            const timer2 = setTimeout(() => {
+              setRound((prev) => prev + 1);
+              setIsFlipped(false);
+              setShowCards(true);
 
-                    // 새 카드가 나타난 후 뒤집기
-                    const timer3 = setTimeout(() => {
-                      setIsFlipped(true);
-                      setIsTransitioning(false);
-                    }, 300);
-                    timersRef.current.push(timer3);
-                  }, 100);
-                  timersRef.current.push(timer2);
-                });
-              } else {
-                // 10라운드 완료 - 세로 모드로 전환 후 완료 페이지로 이동
-                clearAllTimers();
-                ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).then(
-                  () => {
-                    router.replace('/(arena)/complete');
-                  }
-                );
-              }
-            }, 1000);
-            timersRef.current.push(timer1);
-          },
-          onError: (error) => {
-            console.error('Asset pick failed:', error);
-            setIsTransitioning(false);
-            setSelectedCardIndex(null);
-          },
+              const timer3 = setTimeout(() => {
+                setIsFlipped(true);
+                setIsTransitioning(false);
+              }, 300);
+              timersRef.current.push(timer3);
+            }, 100);
+            timersRef.current.push(timer2);
+          });
+        } else {
+          clearAllTimers();
+          ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).then(() => {
+            router.replace('/(arena)/complete');
+          });
         }
-      );
+      }, 1000);
+      timersRef.current.push(timer1);
     },
-    [round, currentAssets, isTransitioning, pickAsset, addCard, refetch, clearAllTimers]
+    [round, currentAssets, isTransitioning, addCard, refetch, clearAllTimers]
   );
 
   return (

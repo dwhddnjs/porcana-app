@@ -26,8 +26,25 @@ export const signup = async ({
       password,
       data: { nickname },
     });
-    if (error) throw error;
-    const userId = data.user?.id;
+
+    let userId: string | undefined;
+
+    if (error) {
+      if (error.code === 'same_password') {
+        // 비밀번호는 이미 설정됨 → 이메일과 닉네임만 업데이트 (세션은 유지됨)
+        const { data: updateData, error: updateError } = await supabase.auth.updateUser({
+          email,
+          data: { nickname },
+        });
+        if (updateError) throw updateError;
+        userId = updateData.user?.id;
+      } else {
+        throw error;
+      }
+    } else {
+      userId = data.user?.id;
+    }
+
     if (!userId) throw new Error('회원가입 실패: 사용자 정보를 확인할 수 없습니다');
     await supabase
       .from('profiles')
