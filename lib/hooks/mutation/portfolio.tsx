@@ -22,8 +22,6 @@ import { useArenaStore } from '../zustand/use-arena-store';
 import { useRouter } from 'expo-router';
 import { InteractionManager } from 'react-native';
 import { createArenaSessions, pickArenaSessionPreference } from '@/lib/api/arena';
-import { createGuestSession } from '@/lib/api/auth';
-import { setGuestSessionId } from '@/lib/api';
 import * as ScreenOrientation from 'expo-screen-orientation';
 
 export const useCreatePortfolioMutation = () => {
@@ -43,11 +41,7 @@ export const useCreatePortfolioMutation = () => {
       riskProfile: string;
       sectors: string[];
     }) => {
-      if (!user?.userId) {
-        const { guestSessionId } = await createGuestSession();
-        setGuestSessionId(guestSessionId);
-      }
-
+      // 익명/영구 모두 supabase user_id를 가지므로 별도 게스트 세션 불필요
       // 1. 포트폴리오 생성
       const portfolio = await createPortfolio({ name });
 

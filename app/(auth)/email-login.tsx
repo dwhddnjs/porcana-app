@@ -22,7 +22,7 @@ export default function LoginScreen() {
   const passwordInputRef = useRef<TextInput>(null);
   const { mutate: login } = useLoginMutation();
 
-  const { accessToken, reset, user } = useUserStore();
+  const { reset, user } = useUserStore();
 
   const handleBackPress = () => {
     reset();

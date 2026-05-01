@@ -17,6 +17,8 @@ import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { Toaster } from 'sonner-native';
 import { useUniwind } from 'uniwind';
 import { useThemeSync } from '@/lib/hooks/use-theme-sync';
+import { useSession } from '@/lib/hooks/query/use-session';
+import { supabase } from '@/lib/supabase/client';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -35,6 +37,19 @@ export default function RootLayout() {
 
   // React Query - 앱 포커스시 refetch 활성화
   useAppState();
+
+  // Supabase 세션 부팅 + onAuthStateChange 구독 → useUserStore 동기화
+  const { isLoading: isSessionLoading } = useSession();
+
+  // 세션 없으면 익명 로그인으로 즉시 user_id 발급 (게스트도 portfolio/arena 소유 가능)
+  useEffect(() => {
+    if (isSessionLoading) return;
+    supabase.auth.getSession().then(({ data }) => {
+      if (!data.session) {
+        supabase.auth.signInAnonymously();
+      }
+    });
+  }, [isSessionLoading]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -83,10 +98,6 @@ export default function RootLayout() {
               />
               <Stack.Screen name="component-preview" options={{ headerShown: false }} />
               <Stack.Screen name="(settings)" options={{ headerShown: false }} />
-              <Stack.Screen
-                name="(common)"
-                options={{ headerShown: false, gestureEnabled: false, animation: 'fade' }}
-              />
               <Stack.Screen name="(auth)" options={{ headerShown: false, animation: 'fade' }} />
               <Stack.Screen
                 name="modal/login-sheet"
