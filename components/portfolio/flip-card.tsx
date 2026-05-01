@@ -16,6 +16,7 @@ import { Image } from '@/components/ui/image';
 import { Star, TriangleAlert } from 'lucide-react-native';
 import { getRiskStarColor } from '@/lib/constant/function';
 import { sectorLabels } from '@/lib/constant/variables';
+import { AssetImage } from '@/components/portfolio/asset-image';
 
 const logoBlack = require('@/assets/images/logo-black.png');
 const logoWhite = require('@/assets/images/logo-white.png');
@@ -136,11 +137,7 @@ export const FlipCard = memo(function FlipCard({
           {/* 상단: 이미지 + 티커 */}
 
           <View className="flex-row items-center gap-[6px]">
-            <Image
-              source={asset.imageUrl}
-              className="bg-background h-9 w-9 rounded-full"
-              contentFit="contain"
-            />
+            <AssetImage imageUrl={asset.imageUrl} name={asset.name} size={36} />
             <View className="flex-1">
               <Text
                 numberOfLines={1}

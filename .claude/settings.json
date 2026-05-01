@@ -1,0 +1,18 @@
+{
+  "env": {
+    "SUPABASE_PROJECT_REF": "qokimnuzvnnkcfcidizo"
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -f supabase/.temp/project-ref ] || { [ -n \"$SUPABASE_PROJECT_REF\" ] && npx supabase link --project-ref \"$SUPABASE_PROJECT_REF\" 2>/dev/null && echo \"Supabase linked: $SUPABASE_PROJECT_REF\" || true; }",
+            "statusMessage": "Supabase 프로젝트 연결 확인 중..."
+          }
+        ]
+      }
+    ]
+  }
+}
