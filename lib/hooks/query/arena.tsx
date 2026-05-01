@@ -1,18 +1,26 @@
 import { useQuery } from '@tanstack/react-query';
 import { useArenaStore } from '../zustand/use-arena-store';
-import { getArenaSessionRounds } from '@/lib/api/arena';
+import { recommendArenaCards } from '@/lib/api/arena';
 
-export const useGetArenaSessionRoundsQuery = () => {
-  const sessionId = useArenaStore((state) => state.sessionId);
+export const useRecommendArenaCardsQuery = () => {
+  const picked = useArenaStore((state) => state.picked);
+  const selectedCards = useArenaStore((state) => state.selectedCards);
+
+  const round = selectedCards.length;
+  const excludeIds = selectedCards.map((c) => c.assetId);
+
   return useQuery({
-    queryKey: ['arena-session-rounds', sessionId],
+    queryKey: ['arena-recommend', picked?.riskProfile, picked?.sectors, round],
     queryFn: () => {
-      const currentSessionId = useArenaStore.getState().sessionId;
-      if (!currentSessionId) {
-        return Promise.reject(new Error('Session not found'));
-      }
-      return getArenaSessionRounds({ sessionId: currentSessionId });
+      if (!picked) return Promise.reject(new Error('preferences not picked'));
+      return recommendArenaCards({
+        riskProfile: picked.riskProfile,
+        sectors: picked.sectors,
+        excludeIds,
+      });
     },
-    enabled: !!sessionId,
+    enabled: !!picked,
+    staleTime: Infinity,
+    gcTime: 0,
   });
 };

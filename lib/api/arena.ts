@@ -1,63 +1,78 @@
-// 아레나 세션 생성
+// 아레나 카드 추천 / 포트폴리오 확정 (Supabase RPC 기반)
 
-import { api } from '.';
+import { supabase } from '@/lib/supabase/client';
+import type { AssetTypes } from '@/lib/hooks/zustand/use-arena-store';
 
-export const createArenaSessions = async ({ portfolioId }: { portfolioId: string }) => {
-  try {
-    const response = await api.post('arena/sessions', {
-      portfolioId,
-    });
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
+type DbAssetRowTypes = {
+  asset_id: string;
+  ticker: string;
+  yahoo_symbol: string;
+  name: string;
+  market: 'US' | 'KR';
+  type: 'STOCK' | 'ETF';
+  sector: string | null;
+  asset_class: string | null;
+  current_risk_level: number;
+  image_url: string | null;
+  impact_hint: string | null;
+  website_domain: string | null;
 };
 
-export const pickArenaSessionPreference = async ({
-  sessionId,
+const mapAsset = (row: DbAssetRowTypes): AssetTypes => ({
+  assetId: row.asset_id,
+  ticker: row.ticker,
+  name: row.name,
+  sector: row.sector ?? '',
+  market: row.market,
+  assetClass: row.asset_class,
+  currentRiskLevel: row.current_risk_level,
+  imageUrl: row.website_domain
+    ? `https://logo.clearbit.com/${row.website_domain}`
+    : (row.image_url ?? ''),
+  impactHint: row.impact_hint ?? '',
+});
+
+export const recommendArenaCards = async ({
   riskProfile,
   sectors,
+  excludeIds,
 }: {
-  sessionId: string;
   riskProfile: string;
   sectors: string[];
-}) => {
-  try {
-    const response = await api.post(`arena/sessions/${sessionId}/rounds/current/pick-preferences`, {
-      riskProfile,
-      sectors,
-    });
-    return response.data;
-  } catch (error) {
-    console.error(error);
+  excludeIds: string[];
+}): Promise<AssetTypes[]> => {
+  const { data, error } = await supabase.rpc('recommend_arena_cards', {
+    p_risk_profile: riskProfile,
+    p_sectors: sectors,
+    p_exclude_ids: excludeIds,
+  });
+  if (error) {
+    console.error('recommendArenaCards failed:', error);
     throw error;
   }
+  return ((data ?? []) as DbAssetRowTypes[]).map(mapAsset);
 };
 
-export const getArenaSessionRounds = async ({ sessionId }: { sessionId: string }) => {
-  try {
-    const response = await api.get(`arena/sessions/${sessionId}/rounds/current`);
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-};
-export const pickArenaSessionAsset = async ({
-  sessionId,
-  pickedAssetId,
+export const finalizeArenaPortfolio = async ({
+  name,
+  riskProfile,
+  sectors,
+  pickedAssetIds,
 }: {
-  sessionId: string;
-  pickedAssetId: string;
-}) => {
-  try {
-    const response = await api.post(`arena/sessions/${sessionId}/rounds/current/pick-asset`, {
-      pickedAssetId,
-    });
-    return response.data;
-  } catch (error) {
-    console.error(error);
+  name: string;
+  riskProfile: string;
+  sectors: string[];
+  pickedAssetIds: string[];
+}): Promise<{ portfolioId: string }> => {
+  const { data, error } = await supabase.rpc('finalize_arena_portfolio', {
+    p_name: name,
+    p_risk_profile: riskProfile,
+    p_sectors: sectors,
+    p_picked_asset_ids: pickedAssetIds,
+  });
+  if (error) {
+    console.error('finalizeArenaPortfolio failed:', error);
     throw error;
   }
+  return { portfolioId: data as string };
 };

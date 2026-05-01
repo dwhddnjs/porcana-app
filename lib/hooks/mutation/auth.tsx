@@ -39,9 +39,9 @@ export const useSignupMutation = () => {
       reset();
       router.replace('/(tabs)');
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       console.error('Signup failed:', error);
-      toast.error('회원가입에 실패했어요');
+      toast.error(error.message ?? '회원가입에 실패했어요');
     },
     onSettled: () => {
       hide();

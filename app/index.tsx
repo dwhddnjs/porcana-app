@@ -13,6 +13,6 @@ export default function Index() {
     return <Redirect href="/(tabs)" />;
   }
 
-  // 그 외(익명/포트폴리오 없음): 아레나로 진입해 포트폴리오 생성부터
-  return <Redirect href="/(arena)" />;
+  // 그 외(익명/포트폴리오 없음): 랜딩 화면부터
+  return <Redirect href="/(common)/landing" />;
 }

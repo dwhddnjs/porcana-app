@@ -14,30 +14,14 @@ export interface AssetTypes {
 
 interface ArenaStateTypes {
   name: string;
-  portfolioId: string;
-  sessionId: string;
-  status: string;
-  currentRound: number;
   picked: {
     riskProfile: string;
     sectors: string[];
   } | null;
   selectedCards: AssetTypes[];
 
-  setPortfolio: ({
-    name,
-    portfolioId,
-    sessionId,
-    status,
-    currentRound,
-  }: {
-    name: string;
-    portfolioId: string;
-    sessionId: string;
-    status: string;
-    currentRound: number;
-  }) => void;
-  setPicked: (picked: { riskProfile: string; sectors: string[] }, currentRound: number) => void;
+  setName: (name: string) => void;
+  setPicked: (picked: { riskProfile: string; sectors: string[] }) => void;
   addCard: (card: AssetTypes) => void;
   clearCards: () => void;
   resetArena: () => void;
@@ -45,15 +29,10 @@ interface ArenaStateTypes {
 
 export const useArenaStore = create<ArenaStateTypes>((set) => ({
   name: '',
-  portfolioId: '',
-  sessionId: '',
-  status: '',
-  currentRound: 0,
   picked: null,
   selectedCards: [],
-  setPortfolio: ({ name, portfolioId, sessionId, status, currentRound }) =>
-    set({ name, portfolioId, sessionId, status, currentRound }),
-  setPicked: (picked, currentRound) => set({ picked, currentRound }),
+  setName: (name) => set({ name }),
+  setPicked: (picked) => set({ picked }),
   addCard: (card) =>
     set((state) => ({
       selectedCards: [...state.selectedCards, card],
@@ -62,10 +41,6 @@ export const useArenaStore = create<ArenaStateTypes>((set) => ({
   resetArena: () =>
     set({
       name: '',
-      portfolioId: '',
-      sessionId: '',
-      status: '',
-      currentRound: 0,
       picked: null,
       selectedCards: [],
     }),

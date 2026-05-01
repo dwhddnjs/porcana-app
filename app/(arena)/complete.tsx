@@ -1,38 +1,39 @@
-import { View, ScrollView, useColorScheme } from 'react-native';
+import { View, ScrollView, useColorScheme, ActivityIndicator } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { router } from 'expo-router';
 import { useArenaStore } from '@/lib/hooks/zustand/use-arena-store';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
-import { Building2, CheckCircle, TrendingUp } from 'lucide-react-native';
+import { CheckCircle, TrendingUp } from 'lucide-react-native';
 import Container from '@/components/ui/container';
 import { Image } from '@/components/ui/image';
 import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
-import { useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useFinalizeArenaPortfolioMutation } from '@/lib/hooks/mutation/arena';
 import { getRiskStarColor } from '@/lib/constant/function';
+import { THEME } from '@/lib/theme';
 
 export default function ArenaComplete() {
   const colorScheme = useColorScheme() ?? 'light';
-  const { name, portfolioId, selectedCards, resetArena } = useArenaStore();
+  const { name, selectedCards, resetArena } = useArenaStore();
   const { user } = useUserStore();
-  const queryClient = useQueryClient();
+  const { mutate: finalizePortfolio, isPending } = useFinalizeArenaPortfolioMutation();
 
-  const handleOpenLoginSheet = () => {
-    if (!user) {
-      router.push('/modal/login-sheet');
-      return;
-    }
-    queryClient.invalidateQueries({ queryKey: ['portfolios'] });
-    resetArena();
-    router.dismissTo('/(tabs)');
-    router.push(`/portfolio/${portfolioId}`);
+  const isLoggedIn = !!user && !user.isAnonymous;
+
+  const handleConfirm = () => {
+    finalizePortfolio(undefined, {
+      onSuccess: ({ portfolioId }) => {
+        resetArena();
+        if (isLoggedIn) {
+          router.dismissTo('/(tabs)');
+          router.push(`/portfolio/${portfolioId}`);
+        } else {
+          router.push('/modal/login-sheet');
+        }
+      },
+    });
   };
-
-  // useEffect(() => {
-  //   reset();
-  // }, [user, accessToken, refreshToken]);
 
   return (
     <Container>
@@ -117,8 +118,12 @@ export default function ArenaComplete() {
 
       {/* 하단 버튼 */}
       <Animated.View entering={FadeInDown.duration(500).delay(500)} className="gap-3 px-4 pt-4">
-        <Button onPress={handleOpenLoginSheet} className="w-full" size="lg">
-          <Text className="font-semibold">{user ? '포트폴리오 보러가기' : '로그인 하러가기'}</Text>
+        <Button onPress={handleConfirm} className="w-full" size="lg" disabled={isPending}>
+          {isPending ? (
+            <ActivityIndicator color={THEME[colorScheme].primaryForeground} />
+          ) : (
+            <Text className="font-semibold">{isLoggedIn ? '포트폴리오 보러가기' : '로그인 하러가기'}</Text>
+          )}
         </Button>
       </Animated.View>
     </Container>
