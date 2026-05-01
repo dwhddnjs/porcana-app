@@ -7,7 +7,7 @@ import { useArenaStore } from '@/lib/hooks/zustand/use-arena-store';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { CheckCircle, TrendingUp } from 'lucide-react-native';
 import Container from '@/components/ui/container';
-import { Image } from '@/components/ui/image';
+import { AssetImage } from '@/components/portfolio/asset-image';
 import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { useFinalizeArenaPortfolioMutation } from '@/lib/hooks/mutation/arena';
 import { getRiskStarColor } from '@/lib/constant/function';
@@ -24,11 +24,13 @@ export default function ArenaComplete() {
   const handleConfirm = () => {
     finalizePortfolio(undefined, {
       onSuccess: ({ portfolioId }) => {
-        resetArena();
         if (isLoggedIn) {
+          resetArena();
           router.dismissTo('/(tabs)');
           router.push(`/portfolio/${portfolioId}`);
         } else {
+          // 비로그인: login-sheet가 formSheet로 부분 표시되어 complete 화면이 배경에 남음.
+          // resetArena()를 호출하면 selectedCards가 비워져 리스트가 사라지므로 보류.
           router.push('/modal/login-sheet');
         }
       },
@@ -66,11 +68,7 @@ export default function ArenaComplete() {
                 entering={FadeInDown.duration(300).delay(300 + index * 50)}
                 className="bg-card border-border flex-row items-center gap-3 rounded-lg border px-4 py-3">
                 {/* 이미지 */}
-                <Image
-                  source={card.imageUrl}
-                  className="bg-background h-10 w-10 rounded-full"
-                  contentFit="contain"
-                />
+                <AssetImage imageUrl={card.imageUrl} name={card.name} size={40} />
 
                 {/* 정보 */}
                 <View className="flex-1">

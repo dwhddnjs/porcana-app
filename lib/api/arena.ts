@@ -26,9 +26,15 @@ const mapAsset = (row: DbAssetRowTypes): AssetTypes => ({
   market: row.market,
   assetClass: row.asset_class,
   currentRiskLevel: row.current_risk_level,
-  imageUrl: row.website_domain
-    ? `https://logo.clearbit.com/${row.website_domain}`
-    : (row.image_url ?? ''),
+  imageUrl: row.market === 'US'
+    ? `https://assets.parqet.com/logos/symbol/${row.ticker}`
+    : row.website_domain
+      ? [
+          `https://logo.clearbit.com/${row.website_domain}`,
+          `https://unavatar.io/${row.website_domain}`,
+          `https://www.google.com/s2/favicons?domain=${row.website_domain}&sz=128`,
+        ]
+      : (row.image_url ?? ''),
   impactHint: row.impact_hint ?? '',
 });
 

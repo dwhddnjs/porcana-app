@@ -16,7 +16,7 @@ type EmptyImageProps = {
 };
 
 type ImageProps = Omit<ExpoImageProps, 'source'> & {
-  source?: ImageSource | ImageSourcePropType | string | null;
+  source?: ImageSource | ImageSource[] | ImageSourcePropType | string | string[] | null;
   emptyImage?: ComponentType<EmptyImageProps>;
 
   emptyIconClassName?: string;
@@ -45,6 +45,7 @@ export const Image = ({
   const hasSource =
     source !== null &&
     source !== undefined &&
+    (Array.isArray(source) ? source.length > 0 : true) &&
     (typeof source === 'string' ? source.trim() !== '' : true) &&
     (typeof source === 'number' ? source > 0 : true);
 
@@ -74,15 +75,14 @@ export const Image = ({
   }
 
   // source 타입에 따라 변환
-  let imageSource: ImageSource;
-  if (typeof source === 'string') {
-    // 문자열인 경우 uri로 변환
+  let imageSource: ImageSource | ImageSource[];
+  if (Array.isArray(source)) {
+    imageSource = (source as string[]).map((s) => ({ uri: s }));
+  } else if (typeof source === 'string') {
     imageSource = { uri: source };
   } else if (typeof source === 'number') {
-    // require()로 가져온 이미지 (number 타입)
     imageSource = source as ImageSource;
   } else {
-    // 이미 ImageSource 형태이거나 ImageSourcePropType
     imageSource = source as ImageSource;
   }
 
