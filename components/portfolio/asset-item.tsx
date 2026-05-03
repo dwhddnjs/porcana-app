@@ -1,13 +1,13 @@
 import { Pressable, TextInput, View } from 'react-native';
 import { Text } from '@/components/ui/text';
-import { Image } from '@/components/ui/image';
+import { AssetImage } from '@/components/portfolio/asset-image';
 import { cn } from '@/lib/utils';
 import { roundToTwoDecimals } from '@/lib/constant/function';
 import { useRef } from 'react';
 
 export type AssetItemDataTypes = {
   assetId: string;
-  imageUrl: string | null;
+  imageUrl: string | string[];
   name: string;
   ticker: string;
   weightPct: number;
@@ -50,10 +50,11 @@ export const AssetItem = ({
       )}
       style={({ pressed }) => (onPress && !isEditMode && pressed ? { opacity: 0.8 } : undefined)}>
       <View className="flex-1 flex-row items-center gap-3">
-        <Image
-          source={item.imageUrl}
-          className="bg-background border-primary/10 h-10 w-10 rounded-full border"
-          contentFit="contain"
+        <AssetImage
+          imageUrl={item.imageUrl ?? ''}
+          name={item.name}
+          size={40}
+          className="border-primary/10 border"
         />
         <View className="flex-1 gap-[2px]">
           <View className="flex-row items-center gap-[4px]">
@@ -98,8 +99,9 @@ export const AssetItem = ({
         <Text
           className={cn(
             'text-md font-semibold',
-            item.returnPct > 0 ? 'text-stock-up' : 'text-stock-down'
+            item.returnPct >= 0 ? 'text-stock-up' : 'text-stock-down'
           )}>
+          {item.returnPct >= 0 ? '+' : ''}
           {roundToTwoDecimals(item.returnPct)}%
         </Text>
       </View>

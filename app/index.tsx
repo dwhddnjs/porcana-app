@@ -8,8 +8,8 @@ export default function Index() {
 
   if (isLoading) return null;
 
-  // 영구 회원이고 메인 포트폴리오가 있으면 홈으로
-  if (user && !user.isAnonymous && user.mainPortfolioId) {
+  // 영구 회원이면 홈으로
+  if (user && !user.isAnonymous) {
     return <Redirect href="/(tabs)" />;
   }
 

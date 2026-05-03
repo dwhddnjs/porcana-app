@@ -14,8 +14,19 @@ type DbAssetRowTypes = {
   asset_class: string | null;
   current_risk_level: number;
   image_url: string | null;
-  impact_hint: string | null;
   website_domain: string | null;
+  impact_hint: string | null;
+};
+
+const resolveImageUrl = (row: DbAssetRowTypes): string | string[] => {
+  if (row.market === 'US') return row.image_url ?? '';
+  if (row.website_domain)
+    return [
+      `https://logo.clearbit.com/${row.website_domain}`,
+      `https://unavatar.io/${row.website_domain}`,
+      `https://www.google.com/s2/favicons?domain=${row.website_domain}&sz=128`,
+    ];
+  return row.image_url ?? '';
 };
 
 const mapAsset = (row: DbAssetRowTypes): AssetTypes => ({
@@ -26,15 +37,7 @@ const mapAsset = (row: DbAssetRowTypes): AssetTypes => ({
   market: row.market,
   assetClass: row.asset_class,
   currentRiskLevel: row.current_risk_level,
-  imageUrl: row.market === 'US'
-    ? `https://assets.parqet.com/logos/symbol/${row.ticker}`
-    : row.website_domain
-      ? [
-          `https://logo.clearbit.com/${row.website_domain}`,
-          `https://unavatar.io/${row.website_domain}`,
-          `https://www.google.com/s2/favicons?domain=${row.website_domain}&sz=128`,
-        ]
-      : (row.image_url ?? ''),
+  imageUrl: resolveImageUrl(row),
   impactHint: row.impact_hint ?? '',
 });
 

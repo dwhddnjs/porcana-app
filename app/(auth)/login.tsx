@@ -10,7 +10,6 @@ import { AntDesign } from '@expo/vector-icons';
 import { Image } from '@/components/ui/image';
 import { Header } from '@/components/ui/header';
 import { Spacer } from '@/components/ui/spacer';
-import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 
 const logoWhite = require('@/assets/images/logo-white.png');
 const logoBlack = require('@/assets/images/logo-black.png');
@@ -19,21 +18,13 @@ export default function Login() {
   const colorScheme = useColorScheme();
   const { handleGoogleLogin, isLoading: isGoogleLoading } = useGoogleAuth();
   const { handleAppleLogin, isLoading: isAppleLoading } = useAppleAuth();
-  const { user, reset } = useUserStore();
 
   const handleEmailLogin = () => {
     router.push('/email-login');
   };
 
   const handleBackPress = () => {
-    if (user) {
-      reset();
-      router.replace('/(common)/landing');
-    } else if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace('/(common)/landing');
-    }
+    router.replace('/(common)/landing');
   };
 
   return (

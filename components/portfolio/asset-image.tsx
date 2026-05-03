@@ -34,11 +34,12 @@ export const AssetImage = ({ imageUrl, name, className, size = 36 }: AssetImageP
   return (
     <View
       className={cn('bg-muted rounded-full', className)}
-      style={{ width: size, height: size, overflow: 'hidden' }}>
+      style={{ width: size, height: size, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
       <ExpoImage
         source={{ uri: imageUrls[urlIndex] }}
         contentFit="contain"
         cachePolicy="memory-disk"
+        transition={150}
         style={{ width: size, height: size }}
         onError={handleError}
       />
