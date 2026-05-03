@@ -2,7 +2,12 @@ import { LargeHeader } from '@/components/ui/large-header';
 import { Text } from '@/components/ui/text';
 import { format, isValid } from 'date-fns';
 import { ko } from 'date-fns/locale';
-import { useGetPortfolioQuery, useGetHoldingBaselineQuery } from '@/lib/hooks/query/portfolio';
+import {
+  useGetPortfolioQuery,
+  useGetHoldingBaselineQuery,
+  useGetPortfolioChartQuery,
+  useGetPortfolioReturnsQuery,
+} from '@/lib/hooks/query/portfolio';
 import { cn } from '@/lib/utils';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ActivityIndicator, Keyboard, Pressable, View, useColorScheme } from 'react-native';
@@ -28,6 +33,7 @@ import {
   getRiskStarColor,
 } from '@/lib/constant/function';
 import RiskDistributionChart from '@/components/portfolio/risk-distribution-chart';
+import HomePortfolioChart from '@/components/portfolio/home-portfolio-chart';
 import { Spacer } from '@/components/ui/spacer';
 import { AssetItem } from '@/components/portfolio/asset-item';
 import {
@@ -37,6 +43,7 @@ import {
 } from '@/lib/hooks/mutation/portfolio';
 import { useCallback, useState } from 'react';
 import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
+import { HomeChartDataTypes } from '@/lib/api/home';
 
 export default function PortfolioDetailScreen() {
   const colorScheme = useColorScheme() ?? 'light';
@@ -47,6 +54,9 @@ export default function PortfolioDetailScreen() {
   const { mutate: updateWeights } = useUpdatePortfolioWeightsMutation();
   const { mutate: deletePortfolio, isPending: isDeleting } = useDeletePortfolioMutation();
   const { data: holdingData, isLoading: isHoldingLoading } = useGetHoldingBaselineQuery(id);
+  const [chartRange, setChartRange] = useState<'1M' | '3M' | '1Y'>('1Y');
+  const { data: chartData } = useGetPortfolioChartQuery(id, chartRange);
+  const { data: returnsData } = useGetPortfolioReturnsQuery(id);
   const [isEditMode, setIsEditMode] = useState(false);
   const [weightValues, setWeightValues] = useState<Record<string, string>>({});
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -129,6 +139,10 @@ export default function PortfolioDetailScreen() {
     router.push(`/portfolio/deposit/${id}`);
   }, [id, router]);
 
+  const handleSetChartRange = useCallback((range: '1M' | '3M' | '1Y') => {
+    setChartRange(range);
+  }, []);
+
   const goBack = () => {
     if (isEditMode) return;
     if (router.canGoBack()) {
@@ -148,7 +162,7 @@ export default function PortfolioDetailScreen() {
     );
   }
 
-  if (isLoading || !data) {
+  if (isLoading) {
     return (
       <View className="bg-background flex-1 items-center justify-center">
         <ActivityIndicator size="large" />
@@ -156,7 +170,7 @@ export default function PortfolioDetailScreen() {
     );
   }
 
-  if (isError) {
+  if (isError || !data) {
     return (
       <View className="bg-background flex-1 items-center justify-center px-4">
         <Text className="text-destructive mb-2 text-center">포트폴리오를 불러오지 못했습니다.</Text>
@@ -275,8 +289,68 @@ export default function PortfolioDetailScreen() {
               </View>
             </View>
             <RiskDistributionChart data={data.riskDistribution} />
+            {returnsData &&
+              [returnsData.return1D, returnsData.return1W, returnsData.return1M, returnsData.return1Y].some(
+                (v) => v !== null
+              ) && (
+                <View className="flex-row justify-between">
+                  {(
+                    [
+                      { label: '1일', value: returnsData.return1D },
+                      { label: '1주', value: returnsData.return1W },
+                      { label: '1개월', value: returnsData.return1M },
+                      { label: '1년', value: returnsData.return1Y },
+                    ] as { label: string; value: number | null }[]
+                  ).map((item) => (
+                    <View key={item.label} className="items-center gap-[2px]">
+                      <Text className="text-muted-foreground text-xs">{item.label}</Text>
+                      <Text
+                        className={cn(
+                          'text-sm font-semibold',
+                          item.value === null
+                            ? 'text-muted-foreground'
+                            : item.value >= 0
+                              ? 'text-stock-up'
+                              : 'text-stock-down'
+                        )}>
+                        {item.value === null
+                          ? '-'
+                          : `${item.value >= 0 ? '+' : ''}${item.value.toFixed(2)}%`}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              )}
           </View>
         </View>
+        {/* 차트 */}
+        {(chartData ?? []).length >= 2 && (
+          <View>
+            <View className="flex-row justify-end gap-[4px] px-[8px] pb-[8px]">
+              {(['1M', '3M', '1Y'] as const).map((r) => (
+                <Pressable
+                  key={r}
+                  onPress={() => handleSetChartRange(r)}
+                  className={cn(
+                    'rounded-full px-[10px] py-[4px]',
+                    chartRange === r ? 'bg-primary' : 'bg-muted'
+                  )}>
+                  <Text
+                    className={cn(
+                      'text-xs font-semibold',
+                      chartRange === r ? 'text-primary-foreground' : 'text-muted-foreground'
+                    )}>
+                    {r}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+            <HomePortfolioChart
+              data={chartData as HomeChartDataTypes[]}
+              totalReturnPct={data.totalReturnPct}
+            />
+          </View>
+        )}
         <Spacer height={12} />
         {!isEditMode && !isHoldingLoading && holdingData?.exists && (
           <InvestmentManagementCard

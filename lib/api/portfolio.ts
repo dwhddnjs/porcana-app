@@ -4,6 +4,7 @@ type DbAssetBasicTypes = {
   asset_id: string;
   ticker: string;
   name: string;
+  market: string;
   image_url: string | null;
   website_domain: string | null;
 };
@@ -23,10 +24,14 @@ type DbHoldingBasicTypes = {
   assets: DbAssetBasicTypes;
 };
 
+type PricePointTypes = { t: string; c: number };
+
 type DbHoldingDetailTypes = {
   target_weight_pct: number;
   avg_price: number | null;
-  assets: DbAssetDetailTypes;
+  assets: DbAssetDetailTypes & {
+    asset_prices: { range: string; points: unknown; current_price: number | null }[];
+  };
 };
 
 type DbHoldingWithPricesTypes = {
@@ -41,7 +46,7 @@ type DbHoldingWithPricesTypes = {
 export type PositionTypes = {
   assetId: string;
   currentRiskLevel: number;
-  imageUrl: string | null;
+  imageUrl: string | string[];
   name: string;
   returnPct: number;
   ticker: string;
@@ -55,7 +60,7 @@ export type DiversityLevelTypes = 'LOW' | 'MEDIUM' | 'HIGH';
 
 export type TopAssetTypes = {
   assetId: string;
-  imageUrl: string | null;
+  imageUrl: string | string[];
   symbol: string;
   name: string;
   weight: number;
@@ -76,9 +81,20 @@ export type PortfolioTypes = {
   topAssets?: TopAssetTypes[];
 };
 
-const getImageUrl = (websiteDomain: string | null, imageUrl: string | null): string | null => {
-  if (websiteDomain) return `https://logo.clearbit.com/${websiteDomain}`;
-  return imageUrl;
+const resolveImageUrl = (
+  market: string,
+  ticker: string,
+  websiteDomain: string | null,
+  imageUrl: string | null
+): string | string[] => {
+  if (market === 'US') return imageUrl ?? `https://assets.parqet.com/logos/symbol/${ticker}`;
+  if (websiteDomain)
+    return [
+      `https://logo.clearbit.com/${websiteDomain}`,
+      `https://unavatar.io/${websiteDomain}`,
+      `https://www.google.com/s2/favicons?domain=${websiteDomain}&sz=128`,
+    ];
+  return imageUrl ?? '';
 };
 
 export const getPortfolios = async (): Promise<PortfolioTypes[]> => {
@@ -88,7 +104,7 @@ export const getPortfolios = async (): Promise<PortfolioTypes[]> => {
       `portfolio_id, name, status, is_main, total_return_pct, average_risk_level, started_at, created_at,
       portfolio_holdings (
         target_weight_pct,
-        assets ( asset_id, ticker, name, image_url, website_domain )
+        assets ( asset_id, ticker, name, market, image_url, website_domain )
       )`
     )
     .order('created_at', { ascending: false });
@@ -102,7 +118,7 @@ export const getPortfolios = async (): Promise<PortfolioTypes[]> => {
     );
     const topAssets: TopAssetTypes[] = sorted.slice(0, 3).map((h) => ({
       assetId: h.assets.asset_id,
-      imageUrl: getImageUrl(h.assets.website_domain, h.assets.image_url),
+      imageUrl: resolveImageUrl(h.assets.market, h.assets.ticker, h.assets.website_domain, h.assets.image_url),
       symbol: h.assets.ticker,
       name: h.assets.name,
       weight: Number(h.target_weight_pct),
@@ -133,7 +149,9 @@ export const getPortfolio = async ({
       `portfolio_id, name, status, is_main, total_return_pct, average_risk_level, started_at, created_at,
       portfolio_holdings (
         target_weight_pct, avg_price,
-        assets ( asset_id, ticker, name, current_risk_level, image_url, website_domain, sector )
+        assets ( asset_id, ticker, name, market, current_risk_level, image_url, website_domain, sector,
+          asset_prices ( range, points, current_price )
+        )
       )`
     )
     .eq('portfolio_id', portfolioId)
@@ -153,23 +171,37 @@ export const getPortfolio = async ({
     riskDistribution[level] = (riskDistribution[level] ?? 0) + Number(h.target_weight_pct);
   });
 
-  const positions: PositionTypes[] = holdings.map((h) => ({
-    assetId: h.assets.asset_id,
-    currentRiskLevel: h.assets.current_risk_level,
-    imageUrl: getImageUrl(h.assets.website_domain, h.assets.image_url),
-    name: h.assets.name,
-    returnPct: 0,
-    ticker: h.assets.ticker,
-    weightPct: Number(h.target_weight_pct),
-    targetWeightPct: Number(h.target_weight_pct),
-  }));
+  const positions: PositionTypes[] = holdings.map((h) => {
+    const prices = h.assets.asset_prices ?? [];
+    const price1Y = prices.find((p) => p.range === '1Y');
+    const points = (price1Y?.points as PricePointTypes[]) ?? [];
+    const firstPrice = points.length ? points[0].c : 0;
+    const currentPrice = Number(price1Y?.current_price ?? (points.length ? points[points.length - 1].c : 0));
+    const avgPrice = h.avg_price ? Number(h.avg_price) : 0;
+    const returnPct =
+      avgPrice > 0 && currentPrice > 0
+        ? ((currentPrice - avgPrice) / avgPrice) * 100
+        : firstPrice > 0 && currentPrice > 0
+          ? ((currentPrice - firstPrice) / firstPrice) * 100
+          : 0;
+    return {
+      assetId: h.assets.asset_id,
+      currentRiskLevel: h.assets.current_risk_level,
+      imageUrl: resolveImageUrl(h.assets.market, h.assets.ticker, h.assets.website_domain, h.assets.image_url),
+      name: h.assets.name,
+      returnPct,
+      ticker: h.assets.ticker,
+      weightPct: Number(h.target_weight_pct),
+      targetWeightPct: Number(h.target_weight_pct),
+    };
+  });
 
   const sorted = [...holdings].sort(
     (a, b) => Number(b.target_weight_pct) - Number(a.target_weight_pct)
   );
   const topAssets: TopAssetTypes[] = sorted.slice(0, 3).map((h) => ({
     assetId: h.assets.asset_id,
-    imageUrl: getImageUrl(h.assets.website_domain, h.assets.image_url),
+    imageUrl: resolveImageUrl(h.assets.market, h.assets.ticker, h.assets.website_domain, h.assets.image_url),
     symbol: h.assets.ticker,
     name: h.assets.name,
     weight: Number(h.target_weight_pct),
@@ -365,7 +397,7 @@ export const getSeedPreview = async ({
       targetWeightPct: Number(h.target_weight_pct),
       currentPrice: price,
       currentValue,
-      imageUrl: getImageUrl(h.assets.website_domain, h.assets.image_url),
+      imageUrl: resolveImageUrl(h.assets.market, h.assets.ticker, h.assets.website_domain, h.assets.image_url),
     };
   });
 
@@ -438,7 +470,7 @@ export const getHoldingBaseline = async ({
       targetWeightPct: Number(h.target_weight_pct),
       currentPrice,
       currentValue: qty * currentPrice,
-      imageUrl: getImageUrl(h.assets.website_domain, h.assets.image_url),
+      imageUrl: resolveImageUrl(h.assets.market, h.assets.ticker, h.assets.website_domain, h.assets.image_url),
     };
   });
 
@@ -647,6 +679,12 @@ export const setMainPortfolio = async ({
     .eq('user_id', user.id);
   if (profileError) throw profileError;
 
+  // user_metadata에도 동기화 → 앱 재시작 시 index.tsx 라우팅 조건에 사용됨
+  const { error: metaError } = await supabase.auth.updateUser({
+    data: { main_portfolio_id: portfolioId },
+  });
+  if (metaError) throw metaError;
+
   return { mainPortfolioId: portfolioId };
 };
 
@@ -769,6 +807,86 @@ export const getTopUpPlan = async ({
     newTotalValue: newTotal,
     remainingCash: additionalCash - totalRecommended,
     recommendations,
+  };
+};
+
+export type PortfolioChartPointTypes = {
+  date: string;
+  value: number;
+};
+
+export type PortfolioReturnsTypes = {
+  totalReturnPct: number;
+  return1D: number | null;
+  return1W: number | null;
+  return1M: number | null;
+  return1Y: number | null;
+};
+
+export const getPortfolioChart = async ({
+  portfolioId,
+  range = '1Y',
+}: {
+  portfolioId: string;
+  range?: '1M' | '3M' | '1Y';
+}): Promise<PortfolioChartPointTypes[]> => {
+  const limitDays: Record<string, number> = { '1M': 30, '3M': 90 };
+  let query = supabase
+    .from('portfolio_value_history')
+    .select('date, index_value')
+    .eq('portfolio_id', portfolioId)
+    .order('date', { ascending: true });
+
+  if (range !== '1Y') {
+    const fromDate = new Date();
+    fromDate.setDate(fromDate.getDate() - limitDays[range]);
+    query = query.gte('date', fromDate.toISOString().slice(0, 10));
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+
+  return (data ?? []).map((row) => ({
+    date: row.date,
+    value: Number(row.index_value),
+  }));
+};
+
+export const getPortfolioReturns = async ({
+  portfolioId,
+}: {
+  portfolioId: string;
+}): Promise<PortfolioReturnsTypes> => {
+  const { data, error } = await supabase
+    .from('portfolio_value_history')
+    .select('date, index_value, return_pct')
+    .eq('portfolio_id', portfolioId)
+    .order('date', { ascending: false })
+    .limit(366);
+
+  if (error) throw error;
+
+  const rows = data ?? [];
+  if (rows.length === 0) {
+    return { totalReturnPct: 0, return1D: null, return1W: null, return1M: null, return1Y: null };
+  }
+
+  const latest = rows[0];
+  const latestIndex = Number(latest.index_value);
+
+  const calcReturn = (daysAgo: number): number | null => {
+    const target = rows[daysAgo];
+    if (!target) return null;
+    const prevIndex = Number(target.index_value);
+    return prevIndex > 0 ? (latestIndex / prevIndex) * 100 - 100 : null;
+  };
+
+  return {
+    totalReturnPct: Number(latest.return_pct),
+    return1D: calcReturn(1),
+    return1W: calcReturn(7),
+    return1M: calcReturn(30),
+    return1Y: calcReturn(365),
   };
 };
 
