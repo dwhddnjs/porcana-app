@@ -16,7 +16,7 @@ type AssetRowTypes = {
 };
 
 type RangeTypes = '1M' | '3M' | '1Y';
-type PricePointTypes = { t: string; c: number };
+type PricePointTypes = { t: string; o: number; h: number; l: number; c: number; v: number };
 
 const RANGES: { range: RangeTypes; months: number }[] = [
   { range: '1M', months: 1 },
@@ -66,11 +66,26 @@ const fetchYahooHistory = async (symbol: string): Promise<PricePointTypes[]> => 
   }
 
   const timestamps: number[] = result.timestamp ?? [];
-  const closes: (number | null)[] = result.indicators?.quote?.[0]?.close ?? [];
+  const quote = result.indicators?.quote?.[0] ?? {};
+  const opens: (number | null)[] = quote.open ?? [];
+  const highs: (number | null)[] = quote.high ?? [];
+  const lows: (number | null)[] = quote.low ?? [];
+  const closes: (number | null)[] = quote.close ?? [];
+  const volumes: (number | null)[] = quote.volume ?? [];
 
   return timestamps
-    .map((ts, i) => ({ t: new Date(ts * 1000).toISOString().slice(0, 10), c: closes[i] }))
-    .filter((p): p is PricePointTypes => p.c !== null && !isNaN(p.c as number));
+    .map((ts, i) => ({
+      t: new Date(ts * 1000).toISOString().slice(0, 10),
+      o: opens[i],
+      h: highs[i],
+      l: lows[i],
+      c: closes[i],
+      v: volumes[i] ?? 0,
+    }))
+    .filter(
+      (p): p is PricePointTypes =>
+        p.c !== null && !isNaN(p.c) && p.o !== null && !isNaN(p.o)
+    );
 };
 
 const sliceByMonths = (points: PricePointTypes[], months: number): PricePointTypes[] => {

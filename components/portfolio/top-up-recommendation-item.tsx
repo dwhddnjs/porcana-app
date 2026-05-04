@@ -7,7 +7,7 @@ import { formatCurrency } from '@/lib/constant/function';
 type TopUpRecommendationItemPropsTypes = {
   item: TopUpRecommendationTypes;
   currencyUnit: string;
-  imageUrl?: string | null;
+  imageUrl?: string | string[] | null;
 };
 
 export const TopUpRecommendationItem = ({

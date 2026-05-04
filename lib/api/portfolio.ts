@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import { resolveAssetImageUrl } from '@/lib/utils/asset-image';
 
 type DbAssetBasicTypes = {
   asset_id: string;
@@ -81,22 +82,6 @@ export type PortfolioTypes = {
   topAssets?: TopAssetTypes[];
 };
 
-const resolveImageUrl = (
-  market: string,
-  ticker: string,
-  websiteDomain: string | null,
-  imageUrl: string | null
-): string | string[] => {
-  if (market === 'US') return imageUrl ?? `https://assets.parqet.com/logos/symbol/${ticker}`;
-  if (websiteDomain)
-    return [
-      `https://logo.clearbit.com/${websiteDomain}`,
-      `https://unavatar.io/${websiteDomain}`,
-      `https://www.google.com/s2/favicons?domain=${websiteDomain}&sz=128`,
-    ];
-  return imageUrl ?? '';
-};
-
 export const getPortfolios = async (): Promise<PortfolioTypes[]> => {
   const { data, error } = await supabase
     .from('portfolios')
@@ -118,7 +103,7 @@ export const getPortfolios = async (): Promise<PortfolioTypes[]> => {
     );
     const topAssets: TopAssetTypes[] = sorted.slice(0, 3).map((h) => ({
       assetId: h.assets.asset_id,
-      imageUrl: resolveImageUrl(h.assets.market, h.assets.ticker, h.assets.website_domain, h.assets.image_url),
+      imageUrl: resolveAssetImageUrl(h.assets.market, h.assets.ticker, h.assets.website_domain, h.assets.image_url),
       symbol: h.assets.ticker,
       name: h.assets.name,
       weight: Number(h.target_weight_pct),
@@ -187,7 +172,7 @@ export const getPortfolio = async ({
     return {
       assetId: h.assets.asset_id,
       currentRiskLevel: h.assets.current_risk_level,
-      imageUrl: resolveImageUrl(h.assets.market, h.assets.ticker, h.assets.website_domain, h.assets.image_url),
+      imageUrl: resolveAssetImageUrl(h.assets.market, h.assets.ticker, h.assets.website_domain, h.assets.image_url),
       name: h.assets.name,
       returnPct,
       ticker: h.assets.ticker,
@@ -201,7 +186,7 @@ export const getPortfolio = async ({
   );
   const topAssets: TopAssetTypes[] = sorted.slice(0, 3).map((h) => ({
     assetId: h.assets.asset_id,
-    imageUrl: resolveImageUrl(h.assets.market, h.assets.ticker, h.assets.website_domain, h.assets.image_url),
+    imageUrl: resolveAssetImageUrl(h.assets.market, h.assets.ticker, h.assets.website_domain, h.assets.image_url),
     symbol: h.assets.ticker,
     name: h.assets.name,
     weight: Number(h.target_weight_pct),
@@ -315,7 +300,7 @@ export type BaselineItemTypes = {
   targetWeightPct: number;
   currentPrice: number;
   currentValue: number;
-  imageUrl?: string | null;
+  imageUrl?: string | string[] | null;
 };
 
 export type BaselineResponseTypes = {
@@ -397,7 +382,7 @@ export const getSeedPreview = async ({
       targetWeightPct: Number(h.target_weight_pct),
       currentPrice: price,
       currentValue,
-      imageUrl: resolveImageUrl(h.assets.market, h.assets.ticker, h.assets.website_domain, h.assets.image_url),
+      imageUrl: resolveAssetImageUrl(h.assets.market, h.assets.ticker, h.assets.website_domain, h.assets.image_url),
     };
   });
 
@@ -470,7 +455,7 @@ export const getHoldingBaseline = async ({
       targetWeightPct: Number(h.target_weight_pct),
       currentPrice,
       currentValue: qty * currentPrice,
-      imageUrl: resolveImageUrl(h.assets.market, h.assets.ticker, h.assets.website_domain, h.assets.image_url),
+      imageUrl: resolveAssetImageUrl(h.assets.market, h.assets.ticker, h.assets.website_domain, h.assets.image_url),
     };
   });
 

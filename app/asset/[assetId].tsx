@@ -81,7 +81,7 @@ export default function AssetDetailScreen() {
       </View>
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 24 }}>
         <View>
-          <View className="gap-y-[12px] px-[24px]">
+          <View className="gap-y-[12px] px-[20px]">
             <View className="flex-row items-center gap-3">
               <Image
                 source={data.imageUrl}
@@ -96,7 +96,7 @@ export default function AssetDetailScreen() {
                     numberOfLines={1}>
                     {data.name}
                   </Text>
-                  <Text className="text-success text-sm">{data.exchange}</Text>
+                  <Text className="text-success text-sm">{data.market}</Text>
                 </View>
                 <Text className="text-muted-foreground text-base">{data.ticker}</Text>
               </View>
@@ -126,7 +126,7 @@ export default function AssetDetailScreen() {
 
           <Spacer height={24} />
 
-          <View className="flex-row items-center justify-between px-[24px]">
+          <View className="flex-row items-center justify-between px-[20px]">
             <Text className="text-lg font-semibold">가격 차트</Text>
             <View className="flex-row items-center gap-3">
               <Pressable
@@ -173,7 +173,11 @@ export default function AssetDetailScreen() {
               </Pressable>
             </View>
           </View>
-          <AssetCandlestickChart points={chartData?.points} isLoading={isChartLoading} />
+          <AssetCandlestickChart
+            points={chartData?.points}
+            isLoading={isChartLoading}
+            currency={data.currency}
+          />
         </View>
       </ScrollView>
       <View className="px-[24px]">

@@ -48,7 +48,7 @@ export default function DepositScreen() {
   const currencyUnit = isUsd ? '$' : '₩';
 
   const imageUrlMap = useMemo(() => {
-    const map: Record<string, string | null> = {};
+    const map: Record<string, string | string[] | null> = {};
     holdingData?.items?.forEach((item) => {
       map[item.assetId] = item.imageUrl ?? null;
     });

@@ -1,4 +1,6 @@
 import { api } from '.';
+import { supabase } from '@/lib/supabase/client';
+import { resolveAssetImageUrl } from '@/lib/utils/asset-image';
 
 export type ChartPointTypes = {
   date: string;
@@ -22,15 +24,18 @@ export type AssetPersonalityTypes = {
   dividendProfileDisplayName: string;
 };
 
+export type MarketTypes = 'US' | 'KR';
+
+export type AssetTypeTypes = 'STOCK' | 'ETF';
+
 export type AssetDetailTypes = {
   assetId: string;
   ticker: string;
   name: string;
-  exchange: string;
-  country: string;
-  sector: string;
-  currency: string;
-  imageUrl: string | null;
+  market: MarketTypes;
+  sector: string | null;
+  currency: string | null;
+  imageUrl: string | string[];
   description: string | null;
   personality: AssetPersonalityTypes | null;
 };
@@ -42,10 +47,6 @@ export type AssetChartTypes = {
 };
 
 export type ChartRangeTypes = '1M' | '3M' | '1Y';
-
-export type MarketTypes = 'US' | 'KR';
-
-export type AssetTypeTypes = 'STOCK' | 'ETF';
 
 export type GetAssetLibraryRequestTypes = {
   market?: MarketTypes;
@@ -93,14 +94,51 @@ export const getAssetLibrary = async (
   }
 };
 
+type DbAssetDetailRowTypes = {
+  asset_id: string;
+  ticker: string;
+  name: string;
+  market: string;
+  sector: string | null;
+  image_url: string | null;
+  description: string | null;
+  website_domain: string | null;
+  personality: AssetPersonalityTypes | null;
+  asset_prices: { currency: string | null }[] | null;
+};
+
 export const getAsset = async ({ assetId }: { assetId: string }): Promise<AssetDetailTypes> => {
-  try {
-    const response = await api.get<AssetDetailTypes>(`/assets/${assetId}`);
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
+  const { data, error } = await supabase
+    .from('assets')
+    .select(
+      `asset_id, ticker, name, market, sector, image_url, description,
+       website_domain, personality,
+       asset_prices ( currency )`
+    )
+    .eq('asset_id', assetId)
+    .single<DbAssetDetailRowTypes>();
+
+  if (error) throw error;
+
+  const currency = data.asset_prices?.find((p) => p.currency)?.currency ?? null;
+
+  return {
+    assetId: data.asset_id,
+    ticker: data.ticker,
+    name: data.name,
+    market: data.market as MarketTypes,
+    sector: data.sector,
+    currency,
+    imageUrl: resolveAssetImageUrl(data.market, data.ticker, data.website_domain, data.image_url),
+    description: data.description,
+    personality: data.personality,
+  };
+};
+
+type DbPricePointTypes = { t: string; o: number; h: number; l: number; c: number; v: number };
+
+type DbAssetPricesRowTypes = {
+  points: DbPricePointTypes[] | null;
 };
 
 export const getAssetChart = async ({
@@ -110,13 +148,24 @@ export const getAssetChart = async ({
   assetId: string;
   range: ChartRangeTypes;
 }): Promise<AssetChartTypes> => {
-  try {
-    const response = await api.get<AssetChartTypes>(`/assets/${assetId}/chart`, {
-      params: { range },
-    });
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
+  const { data, error } = await supabase
+    .from('asset_prices')
+    .select('points')
+    .eq('asset_id', assetId)
+    .eq('range', range)
+    .maybeSingle<DbAssetPricesRowTypes>();
+
+  if (error) throw error;
+
+  const rawPoints = data?.points ?? [];
+  const points: ChartPointTypes[] = rawPoints.map((p) => ({
+    date: p.t,
+    open: p.o,
+    high: p.h,
+    low: p.l,
+    close: p.c,
+    volume: p.v,
+  }));
+
+  return { assetId, range, points };
 };
