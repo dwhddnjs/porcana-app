@@ -74,7 +74,12 @@ export const AllocationDonut = ({ items, totalValue, cashAmount }: AllocationDon
     return null;
   }
 
-  const pieData = slices.map((s) => ({ value: s.value, color: s.color }));
+  const pieData = slices.map((s) => ({
+    value: s.value,
+    color: s.color,
+    strokeWidth: 2,
+    strokeColor: colors.background,
+  }));
 
   return (
     <View className="border-primary/10 rounded-xl border px-[16px] py-[16px]">

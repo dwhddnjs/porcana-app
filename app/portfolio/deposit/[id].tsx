@@ -47,14 +47,6 @@ export default function DepositScreen() {
   const isUsd = holdingData?.baseCurrency === 'USD';
   const currencyUnit = isUsd ? '$' : '₩';
 
-  const imageUrlMap = useMemo(() => {
-    const map: Record<string, string | string[] | null> = {};
-    holdingData?.items?.forEach((item) => {
-      map[item.assetId] = item.imageUrl ?? null;
-    });
-    return map;
-  }, [holdingData?.items]);
-
   const titleOpacity = useSharedValue(0);
   const inputOpacity = useSharedValue(0);
 
@@ -147,11 +139,11 @@ export default function DepositScreen() {
         <TopUpRecommendationItem
           item={item}
           currencyUnit={currencyUnit}
-          imageUrl={imageUrlMap[item.assetId]}
+          imageUrl={item.imageUrl}
         />
       </AnimatedListItem>
     ),
-    [currencyUnit, imageUrlMap]
+    [currencyUnit]
   );
 
   const keyExtractor = useCallback(

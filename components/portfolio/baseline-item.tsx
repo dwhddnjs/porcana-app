@@ -1,6 +1,6 @@
 import { Pressable, View } from 'react-native';
 import { Text } from '@/components/ui/text';
-import { Image } from '@/components/ui/image';
+import { AssetImage } from '@/components/portfolio/asset-image';
 import { cn } from '@/lib/utils';
 import { type BaselineItemTypes } from '@/lib/api/portfolio';
 import {
@@ -46,10 +46,11 @@ export const BaselineItem = ({
         showBottomBorder && 'border-primary/10 border-b'
       )}>
       <View className="flex-1 flex-row items-center gap-3">
-        <Image
-          source={item.imageUrl}
-          className="bg-background border-primary/10 h-10 w-10 rounded-full border"
-          contentFit="contain"
+        <AssetImage
+          imageUrl={item.imageUrl ?? null}
+          name={item.name}
+          size={40}
+          className="border-primary/10 border"
         />
         <View className="flex-1 gap-[2px]">
           <View className="flex-row items-center gap-[4px]">

@@ -13,7 +13,7 @@ import {
 } from '@/lib/hooks/query/portfolio';
 import { type BaselineItemTypes } from '@/lib/api/portfolio';
 import { FlashList } from '@shopify/flash-list';
-import { Plus } from 'lucide-react-native';
+import { PlusCircle } from 'lucide-react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 import { useCallback } from 'react';
@@ -58,8 +58,8 @@ export default function HoldingScreen() {
   const keyExtractor = useCallback((item: BaselineItemTypes) => item.assetId, []);
 
   const depositButton = (
-    <Pressable onPress={handleDeposit} hitSlop={8} className="flex-row items-center gap-[4px]">
-      <Icon as={Plus} size={18} className="text-primary" />
+    <Pressable onPress={handleDeposit} hitSlop={8} className="mr-[12px] flex-row items-center gap-[4px]">
+      <Icon as={PlusCircle} size={18} className="text-primary" />
       <Text className="text-primary text-sm font-semibold">추가 입금</Text>
     </Pressable>
   );
