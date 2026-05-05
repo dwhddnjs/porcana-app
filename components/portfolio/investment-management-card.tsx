@@ -2,7 +2,7 @@ import { View, Pressable } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Card, CardContent } from '@/components/ui/card';
 import { Icon } from '@/components/ui/icon';
-import { Briefcase, ClipboardList, Plus } from 'lucide-react-native';
+import { Briefcase, ClipboardList, PlusCircle } from 'lucide-react-native';
 import { cn } from '@/lib/utils';
 
 type InvestmentManagementCardPropsTypes = {
@@ -83,7 +83,7 @@ export const InvestmentManagementCard = ({
             onPress={onPressDeposit}
             className="bg-primary flex-1 flex-row items-center justify-center gap-1 rounded-full py-[12px]"
             style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
-            <Icon as={Plus} size={16} className="text-primary-foreground font-bold" />
+            <Icon as={PlusCircle} size={16} className="text-primary-foreground font-bold" />
             <Text className="text-primary-foreground text-sm font-bold">추가 입금</Text>
           </Pressable>
         </View>

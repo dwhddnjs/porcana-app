@@ -361,14 +361,11 @@ export const setSeed = async ({
 }: {
   portfolioId: string;
 } & SetSeedRequestTypes): Promise<BaselineResponseTypes> => {
-  const { error } = await supabase
-    .from('portfolios')
-    .update({ seed_money: seedMoney, base_currency: baseCurrency ?? 'KRW' })
-    .eq('portfolio_id', portfolioId);
-
+  const { data, error } = await supabase.functions.invoke('portfolio-set-seed', {
+    body: { portfolioId, seedMoney, baseCurrency: baseCurrency ?? 'KRW' },
+  });
   if (error) throw error;
-
-  return getHoldingBaseline({ portfolioId });
+  return data as BaselineResponseTypes;
 };
 
 export const getSeedPreview = async ({
@@ -378,62 +375,11 @@ export const getSeedPreview = async ({
 }: {
   portfolioId: string;
 } & SetSeedRequestTypes): Promise<BaselineResponseTypes> => {
-  const { data, error } = await supabase
-    .from('portfolios')
-    .select(
-      `portfolio_id, base_currency,
-      portfolio_holdings (
-        holding_id, asset_id, target_weight_pct,
-        assets ( ticker, name, market, current_risk_level, image_url, website_domain,
-          asset_prices ( current_price, range )
-        )
-      )`
-    )
-    .eq('portfolio_id', portfolioId)
-    .single();
-
-  if (error) throw error;
-
-  const currency = baseCurrency ?? data.base_currency ?? 'KRW';
-  const holdings = (data.portfolio_holdings ?? []) as unknown as (DbHoldingWithPricesTypes & {
-    holding_id: string;
-    asset_id: string;
-  })[];
-
-  const items: BaselineItemTypes[] = holdings.map((h) => {
-    const prices = h.assets.asset_prices ?? [];
-    const price = prices.find((p) => p.range === '1M')?.current_price ?? 0;
-    const quantity = price > 0 ? Math.floor((seedMoney * (Number(h.target_weight_pct) / 100)) / price) : 0;
-    const currentValue = quantity * price;
-    return {
-      assetId: h.asset_id,
-      symbol: h.assets.ticker,
-      name: h.assets.name,
-      market: h.assets.market,
-      quantity,
-      avgPrice: price,
-      targetWeightPct: Number(h.target_weight_pct),
-      currentPrice: price,
-      currentValue,
-      imageUrl: resolveAssetImageUrl(h.assets.market, h.assets.ticker, h.assets.website_domain, h.assets.image_url),
-    };
+  const { data, error } = await supabase.functions.invoke('portfolio-seed-preview', {
+    body: { portfolioId, seedMoney, baseCurrency: baseCurrency ?? 'KRW' },
   });
-
-  const totalValue = items.reduce((sum, i) => sum + i.currentValue, 0);
-  const cashAmount = seedMoney - totalValue;
-
-  return {
-    exists: false,
-    baselineId: '',
-    portfolioId,
-    sourceType: 'MANUAL',
-    baseCurrency: currency,
-    seedMoney,
-    totalValue,
-    cashAmount,
-    confirmedAt: '',
-    items,
-  };
+  if (error) throw error;
+  return data as BaselineResponseTypes;
 };
 
 export const getHoldingBaseline = async ({
@@ -441,72 +387,11 @@ export const getHoldingBaseline = async ({
 }: {
   portfolioId: string;
 }): Promise<BaselineResponseTypes> => {
-  const { data, error } = await supabase
-    .from('portfolios')
-    .select(
-      `portfolio_id, seed_money, base_currency,
-      portfolio_holdings (
-        holding_id, asset_id, quantity, avg_price, target_weight_pct,
-        assets ( ticker, name, market, current_risk_level, image_url, website_domain,
-          asset_prices ( current_price, range )
-        )
-      )`
-    )
-    .eq('portfolio_id', portfolioId)
-    .single();
-
-  if (error) throw error;
-
-  if (!data.seed_money) {
-    return {
-      exists: false,
-      baselineId: '',
-      portfolioId,
-      sourceType: '',
-      baseCurrency: data.base_currency ?? 'KRW',
-      seedMoney: 0,
-      totalValue: 0,
-      cashAmount: 0,
-      confirmedAt: '',
-      items: [],
-    };
-  }
-
-  const holdings = (data.portfolio_holdings ?? []) as unknown as DbHoldingWithPricesTypes[];
-  const items: BaselineItemTypes[] = holdings.map((h) => {
-    const prices = h.assets.asset_prices ?? [];
-    const currentPrice = prices.find((p) => p.range === '1M')?.current_price ?? 0;
-    const qty = Number(h.quantity ?? 0);
-    const avgPrice = Number(h.avg_price ?? 0);
-    return {
-      assetId: h.asset_id,
-      symbol: h.assets.ticker,
-      name: h.assets.name,
-      market: h.assets.market,
-      quantity: qty,
-      avgPrice,
-      targetWeightPct: Number(h.target_weight_pct),
-      currentPrice,
-      currentValue: qty * currentPrice,
-      imageUrl: resolveAssetImageUrl(h.assets.market, h.assets.ticker, h.assets.website_domain, h.assets.image_url),
-    };
+  const { data, error } = await supabase.functions.invoke('portfolio-holding-baseline', {
+    body: { portfolioId },
   });
-
-  const totalValue = items.reduce((sum, i) => sum + i.currentValue, 0);
-  const cashAmount = Number(data.seed_money) - totalValue;
-
-  return {
-    exists: true,
-    baselineId: portfolioId,
-    portfolioId,
-    sourceType: 'MANUAL',
-    baseCurrency: data.base_currency ?? 'KRW',
-    seedMoney: Number(data.seed_money),
-    totalValue,
-    cashAmount,
-    confirmedAt: '',
-    items,
-  };
+  if (error) throw error;
+  return data as BaselineResponseTypes;
 };
 
 export type RebalanceStatusItemTypes = {
@@ -542,48 +427,11 @@ export const getRebalanceStatus = async ({
   portfolioId: string;
   thresholdPct?: number;
 }): Promise<RebalanceStatusResponseTypes> => {
-  const baseline = await getHoldingBaseline({ portfolioId });
-
-  if (!baseline.exists || baseline.totalValue === 0) {
-    return {
-      portfolioId,
-      hasBaseline: false,
-      needsRebalancing: false,
-      checkedAt: new Date().toISOString(),
-      thresholdPct,
-      baseCurrency: baseline.baseCurrency,
-      summary: { totalAssets: 0, overThresholdCount: 0 },
-      items: [],
-    };
-  }
-
-  const items: RebalanceStatusItemTypes[] = baseline.items.map((item) => {
-    const currentWeightPct =
-      baseline.totalValue > 0 ? (item.currentValue / baseline.totalValue) * 100 : 0;
-    const deviationPct = Math.abs(currentWeightPct - item.targetWeightPct);
-    return {
-      assetId: item.assetId,
-      symbol: item.symbol,
-      name: item.name,
-      targetWeightPct: item.targetWeightPct,
-      currentWeightPct,
-      deviationPct,
-      overThreshold: deviationPct > thresholdPct,
-    };
+  const { data, error } = await supabase.functions.invoke('portfolio-rebalance-status', {
+    body: { portfolioId, thresholdPct },
   });
-
-  const overThresholdCount = items.filter((i) => i.overThreshold).length;
-
-  return {
-    portfolioId,
-    hasBaseline: true,
-    needsRebalancing: overThresholdCount > 0,
-    checkedAt: new Date().toISOString(),
-    thresholdPct,
-    baseCurrency: baseline.baseCurrency,
-    summary: { totalAssets: items.length, overThresholdCount },
-    items,
-  };
+  if (error) throw error;
+  return data as RebalanceStatusResponseTypes;
 };
 
 export type RebalancingPlanActionTypes = {
@@ -668,6 +516,7 @@ export const getRebalancingPlan = async ({
   };
 };
 
+
 export const setMainPortfolio = async ({
   portfolioId,
 }: {
@@ -722,6 +571,7 @@ export type TopUpRecommendationTypes = {
   recommendedQuantity: number;
   recommendedAmount: number;
   reason: string;
+  imageUrl?: string | string[] | null;
 };
 
 export type TopUpPlanResponseTypes = {
@@ -780,52 +630,11 @@ export const getTopUpPlan = async ({
 }: {
   portfolioId: string;
 } & TopUpPlanRequestTypes): Promise<TopUpPlanResponseTypes> => {
-  const baseline = await getHoldingBaseline({ portfolioId });
-  const newTotal = baseline.totalValue + additionalCash;
-
-  const recommendations: TopUpRecommendationTypes[] = baseline.items
-    .map((item) => {
-      const currentWeightPct =
-        baseline.totalValue > 0 ? (item.currentValue / baseline.totalValue) * 100 : 0;
-      const targetValue = newTotal * (item.targetWeightPct / 100);
-      const diff = targetValue - item.currentValue;
-
-      if (diff <= 0 || item.currentPrice === 0) return null;
-
-      const recommendedQuantity = Math.floor(diff / item.currentPrice);
-      if (recommendedQuantity === 0) return null;
-
-      const recommendedAmount = recommendedQuantity * item.currentPrice;
-      const weightAfterBuy =
-        ((item.currentValue + recommendedAmount) / (baseline.totalValue + recommendedAmount)) * 100;
-
-      return {
-        assetId: item.assetId,
-        symbol: item.symbol,
-        name: item.name,
-        market: item.market,
-        targetWeightPct: item.targetWeightPct,
-        currentWeightPct,
-        weightAfterBuy,
-        currentPrice: item.currentPrice,
-        recommendedQuantity,
-        recommendedAmount,
-        reason: '목표 비중 달성',
-      } satisfies TopUpRecommendationTypes;
-    })
-    .filter((r): r is TopUpRecommendationTypes => r !== null);
-
-  const totalRecommended = recommendations.reduce((sum, r) => sum + r.recommendedAmount, 0);
-
-  return {
-    portfolioId,
-    additionalCash,
-    baseCurrency: baseline.baseCurrency,
-    currentTotalValue: baseline.totalValue,
-    newTotalValue: newTotal,
-    remainingCash: additionalCash - totalRecommended,
-    recommendations,
-  };
+  const { data, error } = await supabase.functions.invoke('portfolio-topup-plan', {
+    body: { portfolioId, additionalCash },
+  });
+  if (error) throw error;
+  return data as TopUpPlanResponseTypes;
 };
 
 export type PortfolioChartPointTypes = {
@@ -916,73 +725,9 @@ export const executeTopUp = async ({
 }: {
   portfolioId: string;
 } & TopUpExecuteRequestTypes): Promise<TopUpExecuteResponseTypes> => {
-  const baseline = await getHoldingBaseline({ portfolioId });
-
-  const updatedItems: TopUpUpdatedItemTypes[] = [];
-  let totalPurchaseAmount = 0;
-
-  for (const purchase of purchases) {
-    const existing = baseline.items.find((i) => i.assetId === purchase.assetId);
-    const prevQty = existing?.quantity ?? 0;
-    const prevAvg = existing?.avgPrice ?? 0;
-    const addedQty = purchase.quantity;
-    const newQty = prevQty + addedQty;
-    const purchaseAmount = addedQty * purchase.purchasePrice;
-    const newAvg = newQty > 0 ? (prevQty * prevAvg + purchaseAmount) / newQty : purchase.purchasePrice;
-
-    totalPurchaseAmount += purchaseAmount;
-
-    const { error } = await supabase
-      .from('portfolio_holdings')
-      .upsert(
-        {
-          portfolio_id: portfolioId,
-          asset_id: purchase.assetId,
-          quantity: newQty,
-          avg_price: newAvg,
-        },
-        { onConflict: 'portfolio_id,asset_id' }
-      );
-
-    if (error) throw error;
-
-    updatedItems.push({
-      assetId: purchase.assetId,
-      symbol: existing?.symbol ?? '',
-      name: existing?.name ?? '',
-      previousQuantity: prevQty,
-      addedQuantity: addedQty,
-      newQuantity: newQty,
-      previousAvgPrice: prevAvg,
-      newAvgPrice: newAvg,
-    });
-  }
-
-  const newCashAmount = baseline.cashAmount + (additionalCash - totalPurchaseAmount);
-  const newTotalValue = baseline.totalValue + totalPurchaseAmount;
-
-  if (addRemainingCashToBaseline) {
-    const remaining = additionalCash - totalPurchaseAmount;
-    if (remaining > 0) {
-      await supabase
-        .from('portfolios')
-        .update({ seed_money: baseline.seedMoney + remaining })
-        .eq('portfolio_id', portfolioId);
-    }
-  }
-
-  return {
-    portfolioId,
-    baselineId: portfolioId,
-    baseCurrency: baseline.baseCurrency,
-    summary: {
-      additionalCash,
-      totalPurchaseAmount,
-      remainingCash: additionalCash - totalPurchaseAmount,
-      previousTotalValue: baseline.totalValue,
-      newTotalValue,
-      newCashAmount,
-    },
-    updatedItems,
-  };
+  const { data, error } = await supabase.functions.invoke('portfolio-execute-topup', {
+    body: { portfolioId, additionalCash, purchases, addRemainingCashToBaseline },
+  });
+  if (error) throw error;
+  return data as TopUpExecuteResponseTypes;
 };

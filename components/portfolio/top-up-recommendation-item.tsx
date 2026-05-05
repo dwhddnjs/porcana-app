@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 import { Text } from '@/components/ui/text';
-import { Image } from '@/components/ui/image';
+import { AssetImage } from '@/components/portfolio/asset-image';
 import { type TopUpRecommendationTypes } from '@/lib/api/portfolio';
 import { formatCurrency } from '@/lib/constant/function';
 
@@ -18,10 +18,11 @@ export const TopUpRecommendationItem = ({
   return (
     <View className="bg-card mb-[12px] rounded-xl px-[16px] py-[14px]">
       <View className="flex-row items-center gap-[12px]">
-        <Image
-          source={imageUrl}
-          className="bg-background border-primary/10 h-10 w-10 rounded-full border"
-          contentFit="contain"
+        <AssetImage
+          imageUrl={imageUrl ?? null}
+          name={item.name}
+          size={40}
+          className="border-primary/10 border"
         />
         <View className="flex-1 gap-[2px]">
           <Text className="text-base font-semibold">{item.name}</Text>
