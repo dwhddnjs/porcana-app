@@ -260,9 +260,15 @@ export const directCreatePortfolio = async ({
   name,
   assets,
 }: DirectCreatePortfolioRequestTypes): Promise<DirectCreatePortfolioResponseTypes> => {
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+  if (authError || !user) throw new Error('인증이 필요합니다');
+
   const { data: portfolio, error: portfolioError } = await supabase
     .from('portfolios')
-    .insert({ name, status: 'DRAFT' })
+    .insert({ name, status: 'DRAFT', user_id: user.id })
     .select('portfolio_id, name, status, created_at')
     .single();
 
@@ -280,6 +286,33 @@ export const directCreatePortfolio = async ({
   if (holdingsError) {
     await supabase.from('portfolios').delete().eq('portfolio_id', portfolio.portfolio_id);
     throw holdingsError;
+  }
+
+  const { data: riskData, error: riskError } = await supabase
+    .from('assets')
+    .select('asset_id, current_risk_level')
+    .in(
+      'asset_id',
+      assets.map((a) => a.assetId)
+    );
+
+  if (!riskError && riskData) {
+    const riskMap = Object.fromEntries(riskData.map((r) => [r.asset_id, r.current_risk_level]));
+    const totalWeight = holdings.reduce((sum, h) => sum + h.target_weight_pct, 0);
+    const avgRisk =
+      totalWeight > 0
+        ? Math.round(
+            holdings.reduce(
+              (sum, h) => sum + h.target_weight_pct * (riskMap[h.asset_id] ?? 0),
+              0
+            ) / totalWeight
+          )
+        : 0;
+
+    await supabase
+      .from('portfolios')
+      .update({ average_risk_level: avgRisk })
+      .eq('portfolio_id', portfolio.portfolio_id);
   }
 
   return {

@@ -6,7 +6,7 @@ import { useResolveClassNames } from 'uniwind';
 import { cn } from '@/lib/utils';
 
 interface AssetImageProps {
-  imageUrl: string | string[];
+  imageUrl: string | string[] | null;
   name: string;
   className?: string;
   size?: number;
