@@ -95,7 +95,7 @@ export const AssetItem = ({
           </Text>
         </View>
       </View>
-      <View>
+      <View className="items-end">
         <Text
           className={cn(
             'text-md font-semibold',
@@ -104,6 +104,12 @@ export const AssetItem = ({
           {item.returnPct >= 0 ? '+' : ''}
           {roundToTwoDecimals(item.returnPct)}%
         </Text>
+        {!isEditMode && (
+          <Text className="text-muted-foreground text-xs">
+            ({item.returnPct * (item.targetWeightPct / 100) >= 0 ? '+' : ''}
+            {roundToTwoDecimals(item.returnPct * (item.targetWeightPct / 100))}%)
+          </Text>
+        )}
       </View>
     </Pressable>
   );

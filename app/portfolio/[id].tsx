@@ -45,6 +45,16 @@ import { useCallback, useState } from 'react';
 import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { HomeChartDataTypes } from '@/lib/api/home';
 
+const distributeWithRemainder = (rawValues: number[]): string[] => {
+  const rounded = rawValues.map((v) => Math.round(v * 100) / 100);
+  const sum = rounded.reduce((a, b) => a + b, 0);
+  const diff = Math.round((100 - sum) * 100) / 100;
+  if (rounded.length > 0) {
+    rounded[rounded.length - 1] = Math.round((rounded[rounded.length - 1] + diff) * 100) / 100;
+  }
+  return rounded.map(String);
+};
+
 export default function PortfolioDetailScreen() {
   const colorScheme = useColorScheme() ?? 'light';
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -108,6 +118,33 @@ export default function PortfolioDetailScreen() {
   const handleWeightChange = useCallback((assetId: string, value: string) => {
     setWeightValues((prev) => ({ ...prev, [assetId]: value }));
   }, []);
+
+  const handleEqualDistribute = useCallback(() => {
+    if (!data?.positions || data.positions.length === 0) return;
+    const ids = data.positions.map((p) => p.assetId);
+    const each = 100 / ids.length;
+    const distributed = distributeWithRemainder(ids.map(() => each));
+    const next: Record<string, string> = {};
+    ids.forEach((assetId, i) => {
+      next[assetId] = distributed[i];
+    });
+    setWeightValues(next);
+  }, [data?.positions]);
+
+  const handleNormalize = useCallback(() => {
+    if (!data?.positions || data.positions.length === 0) return;
+    const ids = data.positions.map((p) => p.assetId);
+    const raws = ids.map((assetId) => parseFloat(weightValues[assetId] ?? '0') || 0);
+    const total = raws.reduce((a, b) => a + b, 0);
+    if (total <= 0) return;
+    const scaled = raws.map((v) => (v * 100) / total);
+    const distributed = distributeWithRemainder(scaled);
+    const next: Record<string, string> = {};
+    ids.forEach((assetId, i) => {
+      next[assetId] = distributed[i];
+    });
+    setWeightValues(next);
+  }, [data?.positions, weightValues]);
 
   const handleDeletePress = useCallback(() => {
     setIsDeleteDialogOpen(true);
@@ -385,6 +422,23 @@ export default function PortfolioDetailScreen() {
               </Pressable>
             )}
           </View>
+          {isEditMode && (
+            <View className="flex-row justify-end gap-[6px] pb-[12px]">
+              <Pressable
+                onPress={handleEqualDistribute}
+                style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
+                className="border-primary/40 rounded-lg border px-[10px] py-[4px]">
+                <Text className="text-xs">균등 분배</Text>
+              </Pressable>
+              <Pressable
+                onPress={handleNormalize}
+                disabled={totalWeight <= 0}
+                style={({ pressed }) => ({ opacity: pressed ? 0.8 : totalWeight <= 0 ? 0.4 : 1 })}
+                className="border-primary/40 rounded-lg border px-[10px] py-[4px]">
+                <Text className="text-xs">100% 맞추기</Text>
+              </Pressable>
+            </View>
+          )}
           {data?.positions?.map((item, index) => (
             <AssetItem
               key={item.assetId}

@@ -59,7 +59,7 @@ export function PortfolioDrawerContent(props: DrawerContentComponentProps) {
     // API 요청
     setMainPortfolio(portfolioId, {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['home'] });
+        queryClient.refetchQueries({ queryKey: ['home'] });
       },
       onError: () => {
         // 실패 시 롤백

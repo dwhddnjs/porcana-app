@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { GestureResponderEvent, Pressable, View, useColorScheme } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { Text } from '@/components/ui/text';
-import { Image } from '@/components/ui/image';
+import { AssetImage } from '@/components/portfolio/asset-image';
 import { Icon } from '@/components/ui/icon';
 import { X } from 'lucide-react-native';
 import { AssetLibraryItemTypes } from '@/lib/api/asset';
@@ -29,12 +29,7 @@ export const SelectedAssetItem = ({ asset, index, onRemove, onPress }: SelectedA
   return (
     <Animated.View entering={FadeIn.duration(200)} exiting={FadeOut.duration(150)}>
       <Pressable onPress={onPress} className="bg-card border-border relative flex-row items-center gap-2 rounded-lg border p-2 pr-2">
-        <Image
-          source={asset.imageUrl}
-          className="bg-background h-8 w-8 rounded-full"
-          contentFit="contain"
-          emptyIconClassName="size-4"
-        />
+        <AssetImage imageUrl={asset.imageUrl} name={asset.name} size={32} />
 
         <View className="flex-1">
           <Text
