@@ -445,6 +445,7 @@ export default function PortfolioDetailScreen() {
               item={item}
               showTopBorder={index === 0}
               isEditMode={isEditMode}
+              showContribution={(chartData ?? []).length >= 2}
               weightValue={weightValues[item.assetId]}
               onWeightChange={(value) => handleWeightChange(item.assetId, value)}
               onPress={

@@ -9,6 +9,7 @@ import {
   getTopUpPlan,
   setMainPortfolio,
   setSeed,
+  triggerRecalc,
   updatePortfolioWeights,
   type PortfolioTypes,
   type TopUpExecuteRequestTypes,
@@ -36,6 +37,7 @@ export const useDirectCreatePortfolioMutation = () => {
       show('포트폴리오 생성 중...');
     },
     onSuccess: (data) => {
+      triggerRecalc({ portfolioId: data.portfolioId }).catch(() => {});
       queryClient.invalidateQueries({ queryKey: ['portfolios'] });
       queryClient.invalidateQueries({ queryKey: ['home'] });
       clearAssets();
