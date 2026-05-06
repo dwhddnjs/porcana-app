@@ -61,7 +61,7 @@ export const getHome = async (): Promise<HomeResponseTypes> => {
   const { data: portfolio, error } = await supabase
     .from('portfolios')
     .select(
-      `portfolio_id, name, total_return_pct, started_at, created_at,
+      `portfolio_id, name, total_return_pct, started_at,
       portfolio_holdings (
         target_weight_pct,
         assets ( asset_id, ticker, name, market, image_url, website_domain,

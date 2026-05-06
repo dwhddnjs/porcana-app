@@ -161,12 +161,21 @@ serve(async (req: Request) => {
         continue;
       }
 
-      // 생성일 이전에 잘못 쌓인 백테스트 데이터 정리
-      await admin
+      // 생성일 이전 데이터가 있을 때만 정리 (첫 번째 히스토리 날짜 확인)
+      const { data: oldestRow } = await admin
         .from('portfolio_value_history')
-        .delete()
+        .select('date')
         .eq('portfolio_id', portfolio.portfolio_id)
-        .lt('date', createdDate);
+        .lt('date', createdDate)
+        .limit(1);
+
+      if (oldestRow && oldestRow.length > 0) {
+        await admin
+          .from('portfolio_value_history')
+          .delete()
+          .eq('portfolio_id', portfolio.portfolio_id)
+          .lt('date', createdDate);
+      }
 
       const rows: HistoryRowTypes[] = history.map((h) => ({
         portfolio_id: portfolio.portfolio_id,
