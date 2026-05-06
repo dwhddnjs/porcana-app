@@ -94,6 +94,7 @@ export default function PortfolioScreen() {
                 key={item.assetId}
                 item={item}
                 showTopBorder={index === 0}
+                showContribution={(data.chart ?? []).length >= 2}
                 onPress={() => handleAssetPress(item)}
               />
             ))}

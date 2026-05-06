@@ -21,6 +21,7 @@ type HoldingRowTypes = {
 
 type PortfolioRowTypes = {
   portfolio_id: string;
+  created_at: string;
   portfolio_holdings: HoldingRowTypes[];
 };
 
@@ -38,29 +39,38 @@ const corsHeaders = {
 };
 
 const calcWeightedIndex = (
-  holdings: HoldingRowTypes[]
+  holdings: HoldingRowTypes[],
+  createdDate: string // YYYY-MM-DD: 이 날짜 이후만 계산, 이 날의 가격이 기준(100)
 ): { date: string; index_value: number; return_pct: number; daily_return_pct: number | null }[] => {
   const enriched = holdings.map((h) => {
     const range1Y = (h.assets?.asset_prices ?? []).find((p) => p.range === '1Y');
     const points: PricePointTypes[] = range1Y?.points ?? [];
     const priceMap = new Map<string, number>();
     points.forEach((p) => priceMap.set(p.t, p.c));
-    const firstPrice = points.length ? points[0].c : 0;
+
+    // 생성일 또는 그 이전 가장 가까운 거래일의 종가를 기준 가격으로 사용
+    const sortedDates = [...priceMap.keys()].sort();
+    const onOrBefore = sortedDates.filter((d) => d <= createdDate);
+    const baseDate = onOrBefore.length ? onOrBefore[onOrBefore.length - 1] : null;
+    const firstPrice = baseDate ? (priceMap.get(baseDate) ?? 0) : 0;
+
     return { weight: Number(h.target_weight_pct), priceMap, firstPrice };
   });
 
-  // 모든 종목에 공통으로 존재하는 날짜만 사용
   if (enriched.length === 0) return [];
-  const dateSets = enriched.map((e) => new Set(e.priceMap.keys()));
-  const commonDates = [...dateSets[0]].filter((d) => dateSets.every((s) => s.has(d))).sort();
-  if (commonDates.length === 0) return [];
+
+  // 생성일 이후 날짜만, 한 종목 이상에 가격이 있는 모든 거래일 사용 (union)
+  const allDates = [...new Set(enriched.flatMap((e) => [...e.priceMap.keys()]))]
+    .filter((d) => d >= createdDate)
+    .sort();
+  if (allDates.length === 0) return [];
 
   const totalWeight = enriched.reduce((s, e) => s + e.weight, 0);
   if (totalWeight === 0) return [];
 
   const indexValues: number[] = [];
 
-  for (const date of commonDates) {
+  for (const date of allDates) {
     let indexValue = 0;
     let weightAccum = 0;
     for (const e of enriched) {
@@ -73,7 +83,7 @@ const calcWeightedIndex = (
     indexValues.push(weightAccum > 0 ? indexValue / weightAccum : 0);
   }
 
-  return commonDates.map((date, i) => {
+  return allDates.map((date, i) => {
     const index_value = indexValues[i];
     const return_pct = index_value - 100;
     const daily_return_pct =
@@ -103,11 +113,12 @@ serve(async (req: Request) => {
     // body 없으면 전체 처리
   }
 
-  // ACTIVE 포트폴리오 조회
+  // ACTIVE 포트폴리오 조회 (created_at 포함)
   let query = admin
     .from('portfolios')
     .select(
       `portfolio_id,
+      created_at,
       portfolio_holdings (
         asset_id, target_weight_pct,
         assets (
@@ -142,11 +153,28 @@ serve(async (req: Request) => {
         continue;
       }
 
-      const history = calcWeightedIndex(holdings);
+      const createdDate = portfolio.created_at.slice(0, 10);
+      const history = calcWeightedIndex(holdings, createdDate);
       if (history.length === 0) {
-        console.log(`skip portfolio ${portfolio.portfolio_id}: 공통 가격 데이터 없음`);
+        console.log(`skip portfolio ${portfolio.portfolio_id}: 생성일 이후 가격 데이터 없음`);
         skipped++;
         continue;
+      }
+
+      // 생성일 이전 데이터가 있을 때만 정리 (첫 번째 히스토리 날짜 확인)
+      const { data: oldestRow } = await admin
+        .from('portfolio_value_history')
+        .select('date')
+        .eq('portfolio_id', portfolio.portfolio_id)
+        .lt('date', createdDate)
+        .limit(1);
+
+      if (oldestRow && oldestRow.length > 0) {
+        await admin
+          .from('portfolio_value_history')
+          .delete()
+          .eq('portfolio_id', portfolio.portfolio_id)
+          .lt('date', createdDate);
       }
 
       const rows: HistoryRowTypes[] = history.map((h) => ({

@@ -43,7 +43,6 @@ type DbAssetTypes = {
 
 type DbHoldingTypes = {
   target_weight_pct: number;
-  avg_price: number | null;
   assets: DbAssetTypes;
 };
 
@@ -64,7 +63,7 @@ export const getHome = async (): Promise<HomeResponseTypes> => {
     .select(
       `portfolio_id, name, total_return_pct, started_at,
       portfolio_holdings (
-        target_weight_pct, avg_price,
+        target_weight_pct,
         assets ( asset_id, ticker, name, market, image_url, website_domain,
           asset_prices ( range, points, current_price )
         )
@@ -85,15 +84,12 @@ export const getHome = async (): Promise<HomeResponseTypes> => {
     const prices = h.assets.asset_prices ?? [];
     const price1Y = prices.find((p) => p.range === '1Y');
     const points = (price1Y?.points as PricePointTypes[]) ?? [];
-    const firstPrice = points.length ? points[0].c : 0;
-    const currentPrice = Number(price1Y?.current_price ?? (points.length ? points[points.length - 1].c : 0));
-    const avgPrice = h.avg_price !== null ? Number(h.avg_price) : null;
+
+    const currentPrice = points.length >= 1 ? points[points.length - 1].c : 0;
+    const prevClose = points.length >= 2 ? points[points.length - 2].c : 0;
+
     const returnPct =
-      avgPrice && avgPrice > 0 && currentPrice > 0
-        ? ((currentPrice - avgPrice) / avgPrice) * 100
-        : firstPrice > 0 && currentPrice > 0
-          ? ((currentPrice - firstPrice) / firstPrice) * 100
-          : 0;
+      prevClose > 0 && currentPrice > 0 ? ((currentPrice - prevClose) / prevClose) * 100 : 0;
     return {
       assetId: h.assets.asset_id,
       imageUrl: resolveImageUrl(h.assets),

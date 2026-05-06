@@ -1,4 +1,4 @@
--- refresh-prices 완료 5분 후 recalc-portfolio-returns 호출 (KST 10:05 / 23:05)
+-- refresh-prices 완료 5분 후 recalc-portfolio-returns 호출 (KST 10:05 / 00:05)
 -- Vault 시크릿 등록 필요:
 --   select vault.create_secret('https://<project-ref>.functions.supabase.co/recalc-portfolio-returns', 'recalc_returns_url');
 --   select vault.create_secret('<service_role_jwt>', 'recalc_returns_token');
@@ -33,10 +33,10 @@ select cron.schedule(
   $cmd$
 );
 
--- KST 23:05 = UTC 14:05
+-- KST 00:05 = UTC 15:05
 select cron.schedule(
   'recalc-returns-night',
-  '5 14 * * *',
+  '5 15 * * *',
   $cmd$
   select net.http_post(
     url := (select decrypted_secret from vault.decrypted_secrets where name = 'recalc_returns_url'),

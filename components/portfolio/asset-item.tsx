@@ -22,6 +22,7 @@ type AssetItemProps = {
   onPress?: () => void;
   className?: string;
   isEditMode?: boolean;
+  showContribution?: boolean;
   weightValue?: string;
   onWeightChange?: (value: string) => void;
 };
@@ -33,6 +34,7 @@ export const AssetItem = ({
   onPress,
   className,
   isEditMode = false,
+  showContribution = false,
   weightValue,
   onWeightChange,
 }: AssetItemProps) => {
@@ -99,14 +101,18 @@ export const AssetItem = ({
         <Text
           className={cn(
             'text-md font-semibold',
-            item.returnPct >= 0 ? 'text-stock-up' : 'text-stock-down'
+            roundToTwoDecimals(item.returnPct) === 0
+              ? 'text-foreground'
+              : item.returnPct > 0
+                ? 'text-stock-up'
+                : 'text-stock-down'
           )}>
-          {item.returnPct >= 0 ? '+' : ''}
+          {item.returnPct > 0 ? '+' : ''}
           {roundToTwoDecimals(item.returnPct)}%
         </Text>
-        {!isEditMode && (
+        {!isEditMode && showContribution && (
           <Text className="text-muted-foreground text-xs">
-            ({item.returnPct * (item.targetWeightPct / 100) >= 0 ? '+' : ''}
+            ({item.returnPct * (item.targetWeightPct / 100) > 0 ? '+' : ''}
             {roundToTwoDecimals(item.returnPct * (item.targetWeightPct / 100))}%)
           </Text>
         )}

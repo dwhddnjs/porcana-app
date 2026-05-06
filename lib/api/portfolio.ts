@@ -29,7 +29,6 @@ type PricePointTypes = { t: string; c: number };
 
 type DbHoldingDetailTypes = {
   target_weight_pct: number;
-  avg_price: number | null;
   assets: DbAssetDetailTypes & {
     asset_prices: { range: string; points: unknown; current_price: number | null }[];
   };
@@ -133,7 +132,7 @@ export const getPortfolio = async ({
     .select(
       `portfolio_id, name, status, is_main, total_return_pct, average_risk_level, started_at, created_at,
       portfolio_holdings (
-        target_weight_pct, avg_price,
+        target_weight_pct,
         assets ( asset_id, ticker, name, market, current_risk_level, image_url, website_domain, sector,
           asset_prices ( range, points, current_price )
         )
@@ -160,15 +159,12 @@ export const getPortfolio = async ({
     const prices = h.assets.asset_prices ?? [];
     const price1Y = prices.find((p) => p.range === '1Y');
     const points = (price1Y?.points as PricePointTypes[]) ?? [];
-    const firstPrice = points.length ? points[0].c : 0;
-    const currentPrice = Number(price1Y?.current_price ?? (points.length ? points[points.length - 1].c : 0));
-    const avgPrice = h.avg_price ? Number(h.avg_price) : 0;
+
+    const currentPrice = points.length >= 1 ? points[points.length - 1].c : 0;
+    const prevClose = points.length >= 2 ? points[points.length - 2].c : 0;
+
     const returnPct =
-      avgPrice > 0 && currentPrice > 0
-        ? ((currentPrice - avgPrice) / avgPrice) * 100
-        : firstPrice > 0 && currentPrice > 0
-          ? ((currentPrice - firstPrice) / firstPrice) * 100
-          : 0;
+      prevClose > 0 && currentPrice > 0 ? ((currentPrice - prevClose) / prevClose) * 100 : 0;
     return {
       assetId: h.assets.asset_id,
       currentRiskLevel: h.assets.current_risk_level,
@@ -730,4 +726,10 @@ export const executeTopUp = async ({
   });
   if (error) throw error;
   return data as TopUpExecuteResponseTypes;
+};
+
+export const triggerRecalc = async ({ portfolioId }: { portfolioId: string }): Promise<void> => {
+  await supabase.functions.invoke('recalc-portfolio-returns', {
+    body: { portfolioId },
+  });
 };
