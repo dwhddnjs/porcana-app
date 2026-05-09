@@ -650,6 +650,7 @@ type AssetRowTypes = {
   market: 'US' | 'KR';
   type: 'STOCK' | 'ETF';
   sector: SectorTypes | null;
+  impact_hint: string | null;
 };
 
 
@@ -658,11 +659,9 @@ serve(async (_req: Request) => {
   const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
   const admin = createClient(supabaseUrl, serviceKey);
 
-  // impact_hint가 null인 자산만 대상
   const { data, error } = await admin
     .from('assets')
-    .select('asset_id, ticker, yahoo_symbol, market, type, sector')
-    .is('impact_hint', null)
+    .select('asset_id, ticker, yahoo_symbol, market, type, sector, impact_hint')
     .in('market', ['US', 'KR']);
 
   if (error) {
@@ -686,24 +685,27 @@ serve(async (_req: Request) => {
         const rule = US_SECTOR_RULES[sector ?? ''];
         const riskLevel = isEtf ? 2 : (TICKER_RISK_OVERRIDE[asset.ticker] ?? rule?.risk ?? 3);
 
-        const etfHint = isEtf
-          ? (US_ETF_SECTOR_HINT[sector ?? ''] ?? 'Diversified US market ETF')
-          : null;
+        const updatePayload: Record<string, unknown> = {
+          sector: sector ?? asset.sector,
+          current_risk_level: riskLevel,
+        };
 
-        const stockHint = rule?.hint ?? 'US listed company';
+        // impact_hint가 없는 경우에만 큐레이션 필드 채움
+        if (!asset.impact_hint) {
+          const etfHint = isEtf
+            ? (US_ETF_SECTOR_HINT[sector ?? ''] ?? 'Diversified US market ETF')
+            : null;
+          updatePayload.impact_hint = etfHint ?? rule?.hint ?? 'US listed company';
+          updatePayload.personality = isEtf
+            ? { growth: 20, stability: 60, income: 20 }
+            : riskLevel >= 4
+              ? { growth: 60, stability: 20, income: 20 }
+              : { growth: 40, stability: 40, income: 20 };
+        }
 
         const { error: updateError } = await admin
           .from('assets')
-          .update({
-            sector: sector ?? asset.sector,
-            impact_hint: etfHint ?? stockHint,
-            current_risk_level: riskLevel,
-            personality: isEtf
-              ? { growth: 20, stability: 60, income: 20 }
-              : riskLevel >= 4
-                ? { growth: 60, stability: 20, income: 20 }
-                : { growth: 40, stability: 40, income: 20 },
-          })
+          .update(updatePayload)
           .eq('asset_id', asset.asset_id);
 
         if (updateError) throw updateError;
@@ -716,22 +718,27 @@ serve(async (_req: Request) => {
         const rule = KR_SECTOR_RULES[sector ?? ''];
         const riskLevel = isEtf ? 2 : (TICKER_RISK_OVERRIDE[asset.ticker] ?? rule?.risk ?? 3);
 
-        const krEtfHint = isEtf
-          ? (KR_ETF_SECTOR_HINT[sector ?? ''] ?? '국내 시장 분산 ETF')
-          : null;
+        const updatePayload: Record<string, unknown> = {
+          sector: sector ?? asset.sector,
+          current_risk_level: riskLevel,
+        };
+
+        // impact_hint가 없는 경우에만 큐레이션 필드 채움
+        if (!asset.impact_hint) {
+          const krEtfHint = isEtf
+            ? (KR_ETF_SECTOR_HINT[sector ?? ''] ?? '국내 시장 분산 ETF')
+            : null;
+          updatePayload.impact_hint = krEtfHint ?? rule?.hint ?? '국내 주요 상장 기업';
+          updatePayload.personality = isEtf
+            ? { growth: 20, stability: 60, income: 20 }
+            : riskLevel >= 4
+              ? { growth: 60, stability: 20, income: 20 }
+              : { growth: 40, stability: 40, income: 20 };
+        }
 
         const { error: updateError } = await admin
           .from('assets')
-          .update({
-            sector: sector ?? asset.sector,
-            impact_hint: krEtfHint ?? (rule?.hint ?? '국내 주요 상장 기업'),
-            current_risk_level: riskLevel,
-            personality: isEtf
-              ? { growth: 20, stability: 60, income: 20 }
-              : riskLevel >= 4
-                ? { growth: 60, stability: 20, income: 20 }
-                : { growth: 40, stability: 40, income: 20 },
-          })
+          .update(updatePayload)
           .eq('asset_id', asset.asset_id);
 
         if (updateError) throw updateError;

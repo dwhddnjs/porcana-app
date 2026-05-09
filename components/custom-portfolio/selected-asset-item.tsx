@@ -15,7 +15,12 @@ interface SelectedAssetItemPropsTypes {
   onPress: () => void;
 }
 
-export const SelectedAssetItem = ({ asset, index, onRemove, onPress }: SelectedAssetItemPropsTypes) => {
+export const SelectedAssetItem = ({
+  asset,
+  index,
+  onRemove,
+  onPress,
+}: SelectedAssetItemPropsTypes) => {
   const colorScheme = useColorScheme() ?? 'light';
 
   const handleRemove = useCallback(
@@ -28,14 +33,16 @@ export const SelectedAssetItem = ({ asset, index, onRemove, onPress }: SelectedA
 
   return (
     <Animated.View entering={FadeIn.duration(200)} exiting={FadeOut.duration(150)}>
-      <Pressable onPress={onPress} className="bg-card border-border relative flex-row items-center gap-2 rounded-lg border p-2 pr-2">
+      <Pressable
+        onPress={onPress}
+        className="bg-card border-border relative flex-row items-center gap-2 rounded-lg border p-2 pr-2">
         <AssetImage imageUrl={asset.imageUrl} name={asset.name} size={32} />
 
         <View className="flex-1">
           <Text
             numberOfLines={1}
             ellipsizeMode="tail"
-            className="text-foreground max-w-[100px] text-sm font-semibold text-ellipsis">
+            className="text-foreground max-w-[140px] text-sm font-semibold text-ellipsis">
             {asset.name}
           </Text>
           <Text className="text-muted-foreground text-xs" numberOfLines={1}>

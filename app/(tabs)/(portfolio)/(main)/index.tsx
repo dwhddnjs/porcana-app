@@ -1,5 +1,5 @@
 import { Text } from '@/components/ui/text';
-import { Pressable, View } from 'react-native';
+import { ActivityIndicator, Pressable, View } from 'react-native';
 import { MenuIcon } from 'lucide-react-native';
 import { Icon } from '@/components/ui/icon';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
@@ -44,7 +44,11 @@ export default function PortfolioScreen() {
   );
 
   if (isPending || isLoading) {
-    return null;
+    return (
+      <View className="bg-background flex-1 items-center justify-center">
+        <ActivityIndicator size="large" />
+      </View>
+    );
   }
 
   if (!data?.hasMainPortfolio) {

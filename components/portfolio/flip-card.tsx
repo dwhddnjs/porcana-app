@@ -133,7 +133,7 @@ export const FlipCard = memo(function FlipCard({
       <Animated.View
         style={backAnimatedStyle}
         className="bg-card absolute h-full w-full rounded-xl shadow-lg shadow-black/25">
-        <View className="border-primary h-full w-full rounded-xl border-[1.5px] px-[11px] py-[7px]">
+        <View className="border-primary h-full w-full rounded-xl border-[1.5px] px-[8px] py-[8px]">
           {/* 상단: 이미지 + 티커 */}
 
           <View className="flex-row items-center gap-[6px]">
@@ -171,10 +171,8 @@ export const FlipCard = memo(function FlipCard({
             </View>
           )}
 
-          <View className="flex-1 items-center justify-center">
-            <Text className="text-primary text-center text-xs" numberOfLines={2}>
-              {asset.impactHint}
-            </Text>
+          <View className="flex-1 items-center justify-center px-1">
+            <Text className="text-primary text-center text-xs">{asset.impactHint}</Text>
           </View>
 
           {/* 리스크 레벨 */}
