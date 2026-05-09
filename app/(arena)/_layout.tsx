@@ -1,10 +1,8 @@
 import { Drawer } from 'expo-router/drawer';
 import { View, ScrollView, useColorScheme } from 'react-native';
 import { Text } from '@/components/ui/text';
-import { Icon } from '@/components/ui/icon';
 import { useArenaStore } from '@/lib/hooks/zustand/use-arena-store';
-import { Building2 } from 'lucide-react-native';
-import { Image } from '@/components/ui/image';
+import { AssetImage } from '@/components/portfolio/asset-image';
 import { getRiskStarColor } from '@/lib/constant/function';
 
 function CustomDrawerContent() {
@@ -35,12 +33,7 @@ function CustomDrawerContent() {
                 key={card.assetId}
                 className="bg-card border-border flex-row items-center gap-2 rounded-lg border p-2">
                 {/* 이미지 */}
-                <Image
-                  source={card.imageUrl}
-                  className="bg-background h-8 w-8 rounded-full"
-                  contentFit="contain"
-                  emptyIconClassName="size-4"
-                />
+                <AssetImage imageUrl={card.imageUrl} name={card.name} size={32} />
 
                 {/* 정보 */}
                 <View className="flex-1">

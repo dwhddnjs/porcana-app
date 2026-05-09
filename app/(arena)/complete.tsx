@@ -22,17 +22,15 @@ export default function ArenaComplete() {
   const isLoggedIn = !!user && !user.isAnonymous;
 
   const handleConfirm = () => {
+    if (!isLoggedIn) {
+      router.push('/modal/login-sheet');
+      return;
+    }
     finalizePortfolio(undefined, {
       onSuccess: ({ portfolioId }) => {
-        if (isLoggedIn) {
-          resetArena();
-          router.dismissTo('/(tabs)');
-          router.push(`/portfolio/${portfolioId}`);
-        } else {
-          // 비로그인: login-sheet가 formSheet로 부분 표시되어 complete 화면이 배경에 남음.
-          // resetArena()를 호출하면 selectedCards가 비워져 리스트가 사라지므로 보류.
-          router.push('/modal/login-sheet');
-        }
+        resetArena();
+        router.dismissTo('/(tabs)');
+        router.push(`/portfolio/${portfolioId}`);
       },
     });
   };

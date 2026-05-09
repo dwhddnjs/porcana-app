@@ -153,7 +153,8 @@ serve(async (req: Request) => {
         continue;
       }
 
-      const createdDate = portfolio.created_at.slice(0, 10);
+      const kstDate = new Date(new Date(portfolio.created_at).getTime() + 9 * 60 * 60 * 1000);
+      const createdDate = kstDate.toISOString().slice(0, 10);
       const history = calcWeightedIndex(holdings, createdDate);
       if (history.length === 0) {
         console.log(`skip portfolio ${portfolio.portfolio_id}: 생성일 이후 가격 데이터 없음`);

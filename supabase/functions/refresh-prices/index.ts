@@ -24,8 +24,8 @@ const RANGES: { range: RangeTypes; months: number }[] = [
   { range: '1Y', months: 12 },
 ];
 
-const CHUNK_SIZE = 3;
-const CHUNK_DELAY_MS = 800;
+const CHUNK_SIZE = 10;
+const CHUNK_DELAY_MS = 300;
 
 const chunk = <T,>(arr: T[], size: number): T[][] => {
   const out: T[][] = [];

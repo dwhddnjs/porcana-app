@@ -14,17 +14,17 @@ interface GhostCardPropsTypes {
 
 export const GhostCard = ({ asset, colorScheme }: GhostCardPropsTypes) => {
   return (
-    <View className="bg-card border-primary h-full w-full rounded-xl border-[1.5px] px-[11px] py-[7px] opacity-80 shadow-xl shadow-black/40">
+    <View className="bg-card border-primary h-full w-full rounded-xl border-[1.5px] px-[8px] py-[8px] opacity-80 shadow-xl shadow-black/40">
       <View className="flex-row items-center gap-[6px]">
-        <AssetImage imageUrl={asset.imageUrl} name={asset.name} size={36} />
-        <View className="flex-1">
+        <AssetImage imageUrl={asset.imageUrl} name={asset.name} size={32} />
+        <View className="flex-1 gap-[2px]">
           <Text
             numberOfLines={1}
             ellipsizeMode="tail"
-            className="text-primary text-sm font-bold text-ellipsis">
+            className="text-primary text-xs font-bold text-ellipsis">
             {asset.name}
           </Text>
-          <Text className="text-muted-foreground text-xs" numberOfLines={1}>
+          <Text className="text-muted-foreground text-[10px]" numberOfLines={1}>
             {asset.symbol}
           </Text>
         </View>

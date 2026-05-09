@@ -38,7 +38,7 @@ export const HomePortfolioChart = ({ data, totalReturnPct = 0 }: HomePortfolioCh
     return format(new Date(dateStr), 'M월d일', { locale: ko });
   };
 
-  if (chartData.length < 3) {
+  if (chartData.length < 2) {
     return (
       <View className="h-[200px] flex-row items-center justify-center gap-2">
         <Icon as={ChartSpline} size={24} className="text-muted-foreground" />

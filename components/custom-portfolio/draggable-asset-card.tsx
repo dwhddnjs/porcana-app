@@ -198,10 +198,10 @@ export const DraggableAssetCard = ({
             frontFaceStyle,
           ]}>
           <View
-            className={`bg-card border-primary h-full w-full rounded-xl border px-[10px] py-[8px] shadow-lg shadow-black/25 ${disabled ? 'opacity-40' : isSelected ? 'opacity-50' : ''}`}>
+            className={`bg-card border-primary h-full w-full rounded-xl border px-[8px] py-[8px] shadow-lg shadow-black/25 ${disabled ? 'opacity-40' : isSelected ? 'opacity-50' : ''}`}>
             <View className="flex-row items-center gap-[6px]">
               <AssetImage imageUrl={asset.imageUrl} name={asset.name} size={32} />
-              <View className="flex-1">
+              <View className="flex-1 gap-[2px]">
                 <Text
                   numberOfLines={1}
                   ellipsizeMode="tail"
