@@ -22,7 +22,7 @@ import { Spacer } from '@/components/ui/spacer';
 export default function HoldingScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { data, isLoading } = useGetHoldingBaselineQuery(id);
+  const { data, isLoading, isFetching } = useGetHoldingBaselineQuery(id);
   const { data: rebalanceStatus } = useGetRebalanceStatusQuery(id);
 
   const currencyUnit = data?.baseCurrency === 'USD' ? '$' : '원';
@@ -58,11 +58,24 @@ export default function HoldingScreen() {
   const keyExtractor = useCallback((item: BaselineItemTypes) => item.assetId, []);
 
   const depositButton = (
-    <Pressable onPress={handleDeposit} hitSlop={8} className="mr-[12px] flex-row items-center gap-[4px]">
+    <Pressable
+      onPress={handleDeposit}
+      hitSlop={8}
+      className="mr-[12px] flex-row items-center gap-[4px]">
       <Icon as={PlusCircle} size={18} className="text-primary" />
       <Text className="text-primary text-sm font-semibold">추가 입금</Text>
     </Pressable>
   );
+
+  if (isLoading || isFetching) {
+    return (
+      <Container>
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" />
+        </View>
+      </Container>
+    );
+  }
 
   return (
     <Container>
@@ -70,12 +83,6 @@ export default function HoldingScreen() {
       <Spacer height={12} />
 
       <View className="flex-1 px-[16px]">
-        {isLoading && (
-          <View className="flex-1 items-center justify-center">
-            <ActivityIndicator />
-          </View>
-        )}
-
         {data && (
           <>
             <HoldingSummaryCard

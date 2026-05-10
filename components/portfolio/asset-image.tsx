@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 import { Image as ExpoImage } from 'expo-image';
 import { Text } from '@/components/ui/text';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useResolveClassNames } from 'uniwind';
 import { cn } from '@/lib/utils';
 
@@ -16,6 +16,10 @@ export const AssetImage = ({ imageUrl, name, className, size = 36 }: AssetImageP
   const resolvedStyle = useResolveClassNames(className || '');
   const imageUrls = Array.isArray(imageUrl) ? imageUrl : imageUrl ? [imageUrl] : [];
   const [urlIndex, setUrlIndex] = useState(0);
+
+  useEffect(() => {
+    setUrlIndex(0);
+  }, [imageUrl]);
 
   const handleError = useCallback(() => {
     setUrlIndex((prev) => prev + 1);

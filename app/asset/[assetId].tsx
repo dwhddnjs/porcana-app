@@ -6,7 +6,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Image } from '@/components/ui/image';
+import { AssetImage } from '@/components/portfolio/asset-image';
 import { Spacer } from '@/components/ui/spacer';
 import { ChartRangeTypes } from '@/lib/api/asset';
 import { cn } from '@/lib/utils';
@@ -83,10 +83,10 @@ export default function AssetDetailScreen() {
         <View>
           <View className="gap-y-[12px] px-[20px]">
             <View className="flex-row items-center gap-3">
-              <Image
-                source={data.imageUrl}
-                className="bg-background border-primary/10 h-12 w-12 rounded-full border"
-                contentFit="contain"
+              <AssetImage
+                imageUrl={data.imageUrl}
+                name={data.name}
+                size={48}
               />
               <View className="flex-1">
                 <View className="flex-row items-center justify-between gap-2">
@@ -116,12 +116,11 @@ export default function AssetDetailScreen() {
                 </View>
               ) : null}
             </View>
-            {/* {data.description ? (
-              <>
-                <Spacer height={8} />
-                <Text className="text-muted-foreground text-sm">{data.description}</Text>
-              </>
-            ) : null} */}
+            {(data.impactHint ?? data.description) ? (
+              <Text className="text-muted-foreground text-sm leading-relaxed">
+                {data.impactHint ?? data.description}
+              </Text>
+            ) : null}
           </View>
 
           <Spacer height={24} />
