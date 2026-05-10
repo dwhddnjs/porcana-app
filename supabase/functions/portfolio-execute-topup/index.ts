@@ -122,10 +122,10 @@ serve(async (req: Request) => {
   if (upsertErr) return jsonRes({ error: upsertErr.message }, 500);
 
   const remaining = additionalCash - totalPurchaseAmount;
-  if (addRemainingCashToBaseline && remaining > 0) {
+  if (addRemainingCashToBaseline) {
     const { error: updateErr } = await admin
       .from('portfolios')
-      .update({ seed_money: seedMoney + remaining })
+      .update({ seed_money: seedMoney + additionalCash })
       .eq('portfolio_id', portfolioId);
     if (updateErr) return jsonRes({ error: updateErr.message }, 500);
   }

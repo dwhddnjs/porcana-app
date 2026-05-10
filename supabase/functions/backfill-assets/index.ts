@@ -91,8 +91,17 @@ const US_TICKER_SECTOR_MAP: Record<string, SectorTypes> = {
   WULF: 'INFORMATION_TECHNOLOGY',
   CIFR: 'INFORMATION_TECHNOLOGY',
   BMNR: 'INFORMATION_TECHNOLOGY',
+  AAOI: 'INFORMATION_TECHNOLOGY',  // Applied Optoelectronics — 광섬유 통신용 광학 부품
+  AKAM: 'INFORMATION_TECHNOLOGY',  // Akamai — CDN·클라우드 보안
+  BBAI: 'INFORMATION_TECHNOLOGY',  // BigBear.ai — 국방·정보기관 AI 분석
+  HPQ:  'INFORMATION_TECHNOLOGY',  // HP Inc. — PC·프린터 글로벌 하드웨어
+  INOD: 'INFORMATION_TECHNOLOGY',  // Innodata — AI 데이터 어노테이션
+  MCHP: 'INFORMATION_TECHNOLOGY',  // Microchip Technology — 마이크로컨트롤러·아날로그 반도체
+  TOST: 'INFORMATION_TECHNOLOGY',  // Toast — 레스토랑 전용 POS·결제 플랫폼
+  TSM:  'INFORMATION_TECHNOLOGY',  // TSMC — 세계 최대 반도체 파운드리
 
   // Communication Services
+  ASTS: 'COMMUNICATION_SERVICES',  // AST SpaceMobile — 위성 기반 스마트폰 인터넷
   GOOGL: 'COMMUNICATION_SERVICES',
   GOOG: 'COMMUNICATION_SERVICES',
   META: 'COMMUNICATION_SERVICES',
@@ -152,6 +161,9 @@ const US_TICKER_SECTOR_MAP: Record<string, SectorTypes> = {
   BUD: 'CONSUMER_STAPLES',
 
   // Health Care
+  HIMS: 'HEALTH_CARE',  // Hims & Hers — 디지털 헬스케어·원격진료 플랫폼
+  LFST: 'HEALTH_CARE',  // LifeStance Health — 미국 디지털 정신건강 의료
+  MRNA: 'HEALTH_CARE',  // Moderna — mRNA 기술 기반 글로벌 바이오텍
   UNH: 'HEALTH_CARE',
   LLY: 'HEALTH_CARE',
   JNJ: 'HEALTH_CARE',
@@ -182,6 +194,7 @@ const US_TICKER_SECTOR_MAP: Record<string, SectorTypes> = {
   ZTS: 'HEALTH_CARE',
 
   // Financials
+  LYG: 'FINANCIALS',  // Lloyds Banking Group — 영국 최대 소매은행
   JPM: 'FINANCIALS',
   BAC: 'FINANCIALS',
   WFC: 'FINANCIALS',
@@ -232,6 +245,10 @@ const US_TICKER_SECTOR_MAP: Record<string, SectorTypes> = {
   BN: 'FINANCIALS',
 
   // Industrials
+  CNH:  'INDUSTRIALS',  // CNH Industrial — 케이스·뉴홀랜드 농기계·건설장비
+  ONDS: 'INDUSTRIALS',  // Ondas — 드론·철도 무선통신 솔루션
+  RDW:  'INDUSTRIALS',  // Redwire — 우주 인프라·위성 제조
+  RKLB: 'INDUSTRIALS',  // Rocket Lab — 소형 발사체 전문 우주 기업
   HON: 'INDUSTRIALS',
   GE: 'INDUSTRIALS',
   CAT: 'INDUSTRIALS',
@@ -508,6 +525,10 @@ const KR_TICKER_SECTOR_MAP: Record<string, SectorTypes> = {
   '051600': 'UTILITIES', // 한전KPS
   '052690': 'UTILITIES', // 한전기술
 
+  // sync-assets 추가 종목
+  '001430': 'MATERIALS',   // 세아베스틸지주 — 특수강·봉형강 세아그룹 지주
+  '229640': 'INDUSTRIALS', // LS에코에너지 — LS그룹 전선·에너지 솔루션
+
   // 테마형 ETF — 섹터 있는 것만 매핑 (광범위 지수 ETF는 null)
   '091160': 'INFORMATION_TECHNOLOGY', // KODEX 반도체
   '133690': 'INFORMATION_TECHNOLOGY', // TIGER 미국나스닥100
@@ -534,22 +555,49 @@ const KR_TICKER_SECTOR_MAP: Record<string, SectorTypes> = {
   '488770': 'FINANCIALS', // KODEX 머니마켓액티브
 };
 
+// 섹터 룰 힌트보다 구체적인 설명이 필요한 종목 개별 힌트
+const US_TICKER_HINT_OVERRIDE: Record<string, string> = {
+  TSM:  '세계 최대 반도체 위탁 생산 기업 TSMC',
+  MRNA: 'mRNA 기술로 코로나 백신을 만든 바이오텍',
+  AKAM: '글로벌 CDN·클라우드 보안 플랫폼',
+  HPQ:  '글로벌 PC·프린터 하드웨어 기업',
+  MCHP: '마이크로컨트롤러·아날로그 반도체 전문 기업',
+  BBAI: '국방·정보기관 특화 AI 분석 플랫폼',
+  RKLB: '소형 로켓 발사체 전문 우주 기업 로켓랩',
+  ASTS: '위성 기반 스마트폰 브로드밴드 스타트업',
+  HIMS: '디지털 헬스케어·원격진료 플랫폼',
+  TOST: '레스토랑 전용 POS·결제 플랫폼',
+  LYG:  '영국 최대 소매은행 그룹',
+  INOD: 'AI 데이터 어노테이션·디지털 서비스 기업',
+  ONDS: '드론·철도 무선통신 솔루션 기업',
+  RDW:  '우주 인프라·위성 제조 기업',
+  AAOI: '광섬유 통신용 광학 부품 제조사',
+  AUR:  '자율주행 트럭 전문 AI 스타트업',
+  NET:  '글로벌 클라우드 네트워크·보안 플랫폼',
+  LFST: '미국 최대 디지털 정신건강 의료 기업',
+  CNH:  '케이스·뉴홀랜드 브랜드 농기계·건설장비 기업',
+};
+
+const KR_TICKER_HINT_OVERRIDE: Record<string, string> = {
+  '001430': '특수강·봉형강 전문 세아그룹 지주회사',
+  '229640': 'LS그룹 전선·친환경 에너지 솔루션 기업',
+};
+
 const US_SECTOR_RULES: Record<string, { risk: number; hint: string }> = {
-  INFORMATION_TECHNOLOGY: { risk: 4, hint: 'Leading US technology and semiconductor company' },
-  HEALTH_CARE: { risk: 4, hint: 'US healthcare and pharmaceutical company' },
-  FINANCIALS: { risk: 2, hint: 'US financial services and banking company' },
-  CONSUMER_DISCRETIONARY: { risk: 3, hint: 'US consumer discretionary and retail company' },
-  CONSUMER_STAPLES: { risk: 2, hint: 'US consumer staples and essential goods company' },
-  COMMUNICATION_SERVICES: { risk: 3, hint: 'US communication and media services company' },
-  INDUSTRIALS: { risk: 3, hint: 'US industrial and manufacturing company' },
-  ENERGY: { risk: 3, hint: 'US energy sector company' },
-  MATERIALS: { risk: 3, hint: 'US materials and mining company' },
-  REAL_ESTATE: { risk: 2, hint: 'US real estate and REIT company' },
-  UTILITIES: { risk: 1, hint: 'US utilities and power company' },
+  INFORMATION_TECHNOLOGY: { risk: 4, hint: '미국 IT·기술 대표 기업' },
+  HEALTH_CARE: { risk: 4, hint: '미국 헬스케어·제약 기업' },
+  FINANCIALS: { risk: 2, hint: '미국 금융·은행 서비스 기업' },
+  CONSUMER_DISCRETIONARY: { risk: 3, hint: '미국 소비재·유통 기업' },
+  CONSUMER_STAPLES: { risk: 2, hint: '미국 생활필수품 기업' },
+  COMMUNICATION_SERVICES: { risk: 3, hint: '미국 통신·미디어 서비스 기업' },
+  INDUSTRIALS: { risk: 3, hint: '미국 산업재·제조 기업' },
+  ENERGY: { risk: 3, hint: '미국 에너지 기업' },
+  MATERIALS: { risk: 3, hint: '미국 소재·광업 기업' },
+  REAL_ESTATE: { risk: 2, hint: '미국 부동산·리츠 기업' },
+  UTILITIES: { risk: 1, hint: '미국 유틸리티·전력 기업' },
 };
 
 // 섹터 기본 리스크와 크게 다른 종목 개별 오버라이드
-// 아레나 추천 정확도를 위해 섹터 평균과 편차가 큰 종목만 명시
 const TICKER_RISK_OVERRIDE: Record<string, number> = {
   // ── risk 5: 투기/초기단계/극변동 ──
   // 크립토 마이닝 (IT 기본값 4보다 높음)
@@ -574,8 +622,19 @@ const TICKER_RISK_OVERRIDE: Record<string, number> = {
   QS: 5,     // EV 배터리 전고체, 상용화 전
   FLNC: 4,   // 에너지스토리지 성장주
   BE: 4,     // 블룸에너지 연료전지
+  AAOI: 5,   // 소형 광통신 부품, 극변동
+  BBAI: 5,   // 소형 AI 방산 스타트업, 고변동
+  INOD: 5,   // 소형 AI 데이터 서비스, 고변동
+  ONDS: 5,   // 소형 드론·철도 통신, 고변동
+  RDW: 5,    // 소형 우주 인프라 스타트업
+  RKLB: 4,   // 소형 로켓 기업, 성장세 (Industrials 기본값 3보다 높음)
+  TOST: 4,   // 성장형 레스토랑 SaaS
+  MCHP: 3,   // 성숙 반도체 (IT 기본값 4보다 낮음)
+  TSM: 3,    // 대형 파운드리, 안정적이나 지정학 리스크
+  HPQ: 2,    // 성숙 IT, 안정적 배당주 (IT 기본값 4보다 낮음)
 
   // ── risk 4: Communication Services 기본값(3)보다 높음 ──
+  ASTS: 5,   // 위성 스타트업, 적자 초기단계
   PINS: 4, SPOT: 4, SOUN: 4,
 
   // ── risk 3: Financials 기본값(2)보다 높음 ──
@@ -583,6 +642,14 @@ const TICKER_RISK_OVERRIDE: Record<string, number> = {
   SOFI: 3,   // 핀테크 성장주
   NU: 3,     // 신흥국 핀테크, 높은 성장 리스크
   RKT: 3,    // 모기지 경기민감
+
+  // ── risk 4: Health Care 기본값 유지이나 개별 명시 ──
+  MRNA: 4,   // mRNA 바이오텍, 고변동 (HC 기본값과 동일)
+  HIMS: 4,   // 성장형 원격진료, 수익성 불확실
+  LFST: 4,   // 디지털 정신건강, 적자 성장주
+
+  // ── risk 2: Financials 기본값(2) 유지이나 개별 명시 ──
+  LYG: 2,    // 영국 대형 소매은행, 안정적
 
   // ── risk 3: Health Care 기본값(4)보다 낮음 (대형 안정 제약) ──
   JNJ: 3, PFE: 3, MRK: 3, ABT: 3, MDT: 3, CVS: 3, MCK: 3,
@@ -622,11 +689,11 @@ const KR_ETF_SECTOR_HINT: Record<string, string> = {
 };
 
 const US_ETF_SECTOR_HINT: Record<string, string> = {
-  INFORMATION_TECHNOLOGY: 'Technology-focused US ETF',
-  INDUSTRIALS: 'Industrial sector US ETF',
-  MATERIALS: 'Commodities and materials US ETF',
-  FINANCIALS: 'Bond and financial US ETF',
-  ENERGY: 'Energy sector US ETF',
+  INFORMATION_TECHNOLOGY: '미국 기술주 테마 ETF',
+  INDUSTRIALS: '미국 산업재 ETF',
+  MATERIALS: '미국 원자재·소재 ETF',
+  FINANCIALS: '미국 채권·금융 ETF',
+  ENERGY: '미국 에너지 ETF',
 };
 
 const KR_SECTOR_RULES: Record<string, { risk: number; hint: string }> = {
@@ -695,7 +762,7 @@ serve(async (_req: Request) => {
           const etfHint = isEtf
             ? (US_ETF_SECTOR_HINT[sector ?? ''] ?? 'Diversified US market ETF')
             : null;
-          updatePayload.impact_hint = etfHint ?? rule?.hint ?? 'US listed company';
+          updatePayload.impact_hint = etfHint ?? US_TICKER_HINT_OVERRIDE[asset.ticker] ?? rule?.hint ?? '미국 상장 기업';
           updatePayload.personality = isEtf
             ? { growth: 20, stability: 60, income: 20 }
             : riskLevel >= 4
@@ -728,7 +795,7 @@ serve(async (_req: Request) => {
           const krEtfHint = isEtf
             ? (KR_ETF_SECTOR_HINT[sector ?? ''] ?? '국내 시장 분산 ETF')
             : null;
-          updatePayload.impact_hint = krEtfHint ?? rule?.hint ?? '국내 주요 상장 기업';
+          updatePayload.impact_hint = krEtfHint ?? KR_TICKER_HINT_OVERRIDE[asset.ticker] ?? rule?.hint ?? '국내 주요 상장 기업';
           updatePayload.personality = isEtf
             ? { growth: 20, stability: 60, income: 20 }
             : riskLevel >= 4

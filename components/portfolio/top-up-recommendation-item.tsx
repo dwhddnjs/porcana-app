@@ -35,7 +35,7 @@ export const TopUpRecommendationItem = ({
           현재 {item.currentWeightPct.toFixed(1)}%
         </Text>
         <Text className="text-muted-foreground mx-[6px] text-sm">→</Text>
-        <Text className="text-success text-sm font-semibold">
+        <Text className="text-weight text-sm font-semibold">
           매수 후 {item.weightAfterBuy.toFixed(1)}%
         </Text>
       </View>
@@ -43,11 +43,11 @@ export const TopUpRecommendationItem = ({
       <View className="bg-secondary mt-[12px] flex-row rounded-lg px-[14px] py-[10px]">
         <View className="flex-1 gap-[2px]">
           <Text className="text-muted-foreground text-xs">추천 수량</Text>
-          <Text className="text-success text-base font-bold">{item.recommendedQuantity}주</Text>
+          <Text className="text-weight text-base font-bold">{item.recommendedQuantity}주</Text>
         </View>
         <View className="flex-1 items-end gap-[2px]">
           <Text className="text-muted-foreground text-xs">추천 금액</Text>
-          <Text className="text-success text-base font-bold">
+          <Text className="text-weight text-base font-bold">
             {currencyUnit}
             {formatCurrency(item.recommendedAmount)}
           </Text>

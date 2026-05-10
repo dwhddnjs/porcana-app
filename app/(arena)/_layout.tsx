@@ -40,7 +40,7 @@ function CustomDrawerContent() {
                   <Text
                     numberOfLines={1}
                     ellipsizeMode="tail"
-                    className="text-foreground max-w-[140px] text-sm font-semibold text-ellipsis">
+                    className="text-foreground max-w-[160px] text-sm font-semibold text-ellipsis">
                     {card.name}
                   </Text>
                   <Text className="text-muted-foreground text-xs" numberOfLines={1}>

@@ -35,6 +35,7 @@ export type AssetDetailTypes = {
   sector: string | null;
   currency: string | null;
   imageUrl: string | string[];
+  impactHint: string | null;
   description: string | null;
   personality: AssetPersonalityTypes | null;
 };
@@ -169,6 +170,7 @@ type DbAssetDetailRowTypes = {
   market: string;
   sector: string | null;
   image_url: string | null;
+  impact_hint: string | null;
   description: string | null;
   website_domain: string | null;
   personality: AssetPersonalityTypes | null;
@@ -179,7 +181,7 @@ export const getAsset = async ({ assetId }: { assetId: string }): Promise<AssetD
   const { data, error } = await supabase
     .from('assets')
     .select(
-      `asset_id, ticker, name, market, sector, image_url, description,
+      `asset_id, ticker, name, market, sector, image_url, impact_hint, description,
        website_domain, personality,
        asset_prices ( currency )`
     )
@@ -198,6 +200,7 @@ export const getAsset = async ({ assetId }: { assetId: string }): Promise<AssetD
     sector: data.sector,
     currency,
     imageUrl: resolveAssetImageUrl(data.market, data.ticker, data.website_domain, data.image_url),
+    impactHint: data.impact_hint,
     description: data.description,
     personality: data.personality,
   };

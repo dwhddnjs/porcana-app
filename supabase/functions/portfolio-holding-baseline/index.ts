@@ -143,6 +143,7 @@ serve(async (req: Request) => {
   });
 
   const totalValue = items.reduce((s, i) => s + i.currentValue, 0);
+  const totalCostBasis = items.reduce((s, i) => s + i.quantity * i.avgPrice, 0);
 
   return jsonRes({
     exists: true,
@@ -152,7 +153,7 @@ serve(async (req: Request) => {
     baseCurrency,
     seedMoney,
     totalValue,
-    cashAmount: seedMoney - totalValue,
+    cashAmount: seedMoney - totalCostBasis,
     confirmedAt: '',
     items,
   });
