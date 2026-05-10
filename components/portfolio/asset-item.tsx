@@ -1,13 +1,13 @@
 import { Pressable, TextInput, View } from 'react-native';
 import { Text } from '@/components/ui/text';
-import { Image } from '@/components/ui/image';
+import { AssetImage } from '@/components/portfolio/asset-image';
 import { cn } from '@/lib/utils';
 import { roundToTwoDecimals } from '@/lib/constant/function';
 import { useRef } from 'react';
 
 export type AssetItemDataTypes = {
   assetId: string;
-  imageUrl: string | null;
+  imageUrl: string | string[];
   name: string;
   ticker: string;
   weightPct: number;
@@ -22,6 +22,7 @@ type AssetItemProps = {
   onPress?: () => void;
   className?: string;
   isEditMode?: boolean;
+  showContribution?: boolean;
   weightValue?: string;
   onWeightChange?: (value: string) => void;
 };
@@ -33,6 +34,7 @@ export const AssetItem = ({
   onPress,
   className,
   isEditMode = false,
+  showContribution = false,
   weightValue,
   onWeightChange,
 }: AssetItemProps) => {
@@ -50,15 +52,16 @@ export const AssetItem = ({
       )}
       style={({ pressed }) => (onPress && !isEditMode && pressed ? { opacity: 0.8 } : undefined)}>
       <View className="flex-1 flex-row items-center gap-3">
-        <Image
-          source={item.imageUrl}
-          className="bg-background border-primary/10 h-10 w-10 rounded-full border"
-          contentFit="contain"
+        <AssetImage
+          imageUrl={item.imageUrl ?? ''}
+          name={item.name}
+          size={40}
+          className="border-primary/10 border"
         />
         <View className="flex-1 gap-[2px]">
           <View className="flex-row items-center gap-[4px]">
             <Text
-              className="max-w-[150px] min-w-[150px] text-base font-semibold text-ellipsis"
+              className="max-w-[160px] min-w-[160px] text-base font-semibold text-ellipsis"
               numberOfLines={1}
               ellipsizeMode="tail">
               {item.name}
@@ -94,14 +97,25 @@ export const AssetItem = ({
           </Text>
         </View>
       </View>
-      <View>
+      <View className="items-end">
         <Text
           className={cn(
             'text-md font-semibold',
-            item.returnPct > 0 ? 'text-stock-up' : 'text-stock-down'
+            roundToTwoDecimals(item.returnPct) === 0
+              ? 'text-foreground'
+              : item.returnPct > 0
+                ? 'text-stock-up'
+                : 'text-stock-down'
           )}>
+          {item.returnPct > 0 ? '+' : ''}
           {roundToTwoDecimals(item.returnPct)}%
         </Text>
+        {!isEditMode && showContribution && (
+          <Text className="text-muted-foreground text-xs">
+            ({item.returnPct * (item.targetWeightPct / 100) > 0 ? '+' : ''}
+            {roundToTwoDecimals(item.returnPct * (item.targetWeightPct / 100))}%)
+          </Text>
+        )}
       </View>
     </Pressable>
   );

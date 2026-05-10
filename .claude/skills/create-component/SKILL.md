@@ -15,7 +15,18 @@ allowed-tools: Read, Write, Glob, Grep
 - 두 번째 인수가 feature명(예: `portfolio`, `arena`)이면 `components/<feature>/` 에 생성합니다.
 - 두 번째 인수를 생략하면 어디에 만들 것인지 물어보세요.
 
-> 네이밍, 스타일링, 타입, 이벤트 핸들러 등 일반 규칙은 CLAUDE.md를 따릅니다.
+> 네이밍, 타입, 이벤트 핸들러 등 일반 규칙은 CLAUDE.md를 따릅니다.
+
+## 스타일링 규칙
+
+- 인라인 스타일 지향, Uniwind 문법 사용 (https://docs.uniwind.dev/)
+- 색상은 `global.css`의 색상 변수 사용 (예: `text-foreground`, `bg-primary`)
+- variant는 CVA(Class Variance Authority), 클래스 병합은 `cn()` (`lib/utils.ts`)
+- 다크/라이트 모드 지원 (Uniwind ThemeProvider) — 색상 변수는 양쪽 자동 처리됨
+- React Native 기본 컴포넌트보다 react-native-reusables 우선 (`Alert.alert` ✗ → `AlertDialog` ✓)
+  - 참고: https://reactnativereusables.com/docs
+- 커스텀 애니메이션: react-native-reanimated
+  - 참고: https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/getting-started
 
 ## 절차
 

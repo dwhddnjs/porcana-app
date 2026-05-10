@@ -8,65 +8,51 @@ export interface AssetTypes {
   market: string;
   assetClass: string | null;
   currentRiskLevel: number;
-  imageUrl: string;
+  imageUrl: string | string[];
   impactHint: string;
 }
 
 interface ArenaStateTypes {
   name: string;
-  portfolioId: string;
-  sessionId: string;
-  status: string;
-  currentRound: number;
   picked: {
     riskProfile: string;
     sectors: string[];
   } | null;
   selectedCards: AssetTypes[];
+  shownAssetIds: string[];
 
-  setPortfolio: ({
-    name,
-    portfolioId,
-    sessionId,
-    status,
-    currentRound,
-  }: {
-    name: string;
-    portfolioId: string;
-    sessionId: string;
-    status: string;
-    currentRound: number;
-  }) => void;
-  setPicked: (picked: { riskProfile: string; sectors: string[] }, currentRound: number) => void;
+  setName: (name: string) => void;
+  setPicked: (picked: { riskProfile: string; sectors: string[] }) => void;
   addCard: (card: AssetTypes) => void;
+  addShown: (ids: string[]) => void;
   clearCards: () => void;
   resetArena: () => void;
 }
 
 export const useArenaStore = create<ArenaStateTypes>((set) => ({
   name: '',
-  portfolioId: '',
-  sessionId: '',
-  status: '',
-  currentRound: 0,
   picked: null,
   selectedCards: [],
-  setPortfolio: ({ name, portfolioId, sessionId, status, currentRound }) =>
-    set({ name, portfolioId, sessionId, status, currentRound }),
-  setPicked: (picked, currentRound) => set({ picked, currentRound }),
+  shownAssetIds: [],
+  setName: (name) => set({ name }),
+  setPicked: (picked) => set({ picked }),
   addCard: (card) =>
     set((state) => ({
       selectedCards: [...state.selectedCards, card],
     })),
-  clearCards: () => set({ selectedCards: [] }),
+  addShown: (ids) =>
+    set((state) => {
+      const merged = new Set(state.shownAssetIds);
+      ids.forEach((id) => merged.add(id));
+      if (merged.size === state.shownAssetIds.length) return state;
+      return { shownAssetIds: Array.from(merged) };
+    }),
+  clearCards: () => set({ selectedCards: [], shownAssetIds: [] }),
   resetArena: () =>
     set({
       name: '',
-      portfolioId: '',
-      sessionId: '',
-      status: '',
-      currentRound: 0,
       picked: null,
       selectedCards: [],
+      shownAssetIds: [],
     }),
 }));

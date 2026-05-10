@@ -16,6 +16,7 @@ import { Image } from '@/components/ui/image';
 import { Star, TriangleAlert } from 'lucide-react-native';
 import { getRiskStarColor } from '@/lib/constant/function';
 import { sectorLabels } from '@/lib/constant/variables';
+import { AssetImage } from '@/components/portfolio/asset-image';
 
 const logoBlack = require('@/assets/images/logo-black.png');
 const logoWhite = require('@/assets/images/logo-white.png');
@@ -132,15 +133,11 @@ export const FlipCard = memo(function FlipCard({
       <Animated.View
         style={backAnimatedStyle}
         className="bg-card absolute h-full w-full rounded-xl shadow-lg shadow-black/25">
-        <View className="border-primary h-full w-full rounded-xl border-[1.5px] px-[11px] py-[7px]">
+        <View className="border-primary h-full w-full rounded-xl border-[1.5px] px-[8px] py-[8px]">
           {/* 상단: 이미지 + 티커 */}
 
           <View className="flex-row items-center gap-[6px]">
-            <Image
-              source={asset.imageUrl}
-              className="bg-background h-9 w-9 rounded-full"
-              contentFit="contain"
-            />
+            <AssetImage imageUrl={asset.imageUrl} name={asset.name} size={36} />
             <View className="flex-1">
               <Text
                 numberOfLines={1}
@@ -174,10 +171,8 @@ export const FlipCard = memo(function FlipCard({
             </View>
           )}
 
-          <View className="flex-1 items-center justify-center">
-            <Text className="text-primary text-center text-xs" numberOfLines={2}>
-              {asset.impactHint}
-            </Text>
+          <View className="flex-1 items-center justify-center px-1">
+            <Text className="text-primary text-center text-xs">{asset.impactHint}</Text>
           </View>
 
           {/* 리스크 레벨 */}

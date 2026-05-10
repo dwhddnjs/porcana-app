@@ -124,3 +124,53 @@ export const parseEmailFromIdentityToken = (identityToken: string | null): strin
 export const roundToTwoDecimals = (num: number): number => {
   return Number(num.toFixed(2));
 };
+
+export const formatCurrency = (value: number): string => {
+  return Math.round(value)
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+};
+
+export const formatWithComma = (value: string): string => {
+  const num = value.replace(/[^0-9]/g, '');
+  return num.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+};
+
+export const formatKoreanUnit = (value: number): string => {
+  if (value === 0) return '0';
+  const eok = Math.floor(value / 100_000_000);
+  const man = Math.floor((value % 100_000_000) / 10_000);
+  const rest = value % 10_000;
+  const parts: string[] = [];
+  if (eok > 0) parts.push(`${eok.toLocaleString()}억`);
+  if (man > 0) parts.push(`${man.toLocaleString()}만`);
+  if (rest > 0) parts.push(rest.toLocaleString());
+  return parts.join(' ');
+};
+
+export const formatCompactValue = (value: number, currencyUnit: string, isUsd = false): string => {
+  if (isUsd) {
+    if (value >= 1_000_000_000) return `${currencyUnit}${(value / 1_000_000_000).toFixed(1)}B`;
+    if (value >= 1_000_000) return `${currencyUnit}${(value / 1_000_000).toFixed(1)}M`;
+    return `${currencyUnit}${Math.round(value).toLocaleString()}`;
+  }
+  if (value >= 100_000_000) return `${currencyUnit}${(value / 100_000_000).toFixed(1)}억`;
+  if (value >= 1_000_000) return `${currencyUnit}${(value / 1_000_000).toFixed(1)}M`;
+  return `${currencyUnit}${Math.round(value).toLocaleString()}`;
+};
+
+export const formatSignedCurrency = (value: number): string => {
+  const sign = value > 0 ? '+' : value < 0 ? '-' : '';
+  return `${sign}${formatCurrency(Math.abs(value))}`;
+};
+
+export const formatSignedPercent = (value: number): string => {
+  const sign = value > 0 ? '+' : value < 0 ? '' : '';
+  return `${sign}${roundToTwoDecimals(value)}%`;
+};
+
+export const getReturnColorClass = (value: number): string => {
+  if (value > 0) return 'text-stock-up';
+  if (value < 0) return 'text-stock-down';
+  return 'text-muted-foreground';
+};

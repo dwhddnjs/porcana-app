@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { Keyboard, View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Label } from '@/components/ui/label';
 import { Controller, useForm } from 'react-hook-form';
@@ -35,6 +35,9 @@ export default function EnterEmailScreen() {
 
   const emailValue = watch('email');
 
+  const handleShouldSetResponder = () => true;
+  const handleResponderRelease = () => Keyboard.dismiss();
+
   const onSubmit = async (data: EmailFormDataTypes) => {
     clearErrors('email');
     try {
@@ -51,10 +54,13 @@ export default function EnterEmailScreen() {
   };
 
   return (
-    <Container isKeyboardAvoiding>
+    <Container>
       <Header title="" />
       <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-        <View className="flex-1 px-[20px]">
+        <View
+          className="flex-1 px-[20px]"
+          onStartShouldSetResponder={handleShouldSetResponder}
+          onResponderRelease={handleResponderRelease}>
           <Spacer height={24} />
           <View className="gap-y-[24px]">
             <Label htmlFor="email" className="text-xl font-bold">

@@ -13,12 +13,12 @@ import * as ScreenOrientation from 'expo-screen-orientation';
 import { router, useFocusEffect } from 'expo-router';
 import { Button } from '@/components/ui/button';
 import { useNavigation, DrawerActions } from '@react-navigation/native';
-import { useGetArenaSessionRoundsQuery } from '@/lib/hooks/query/arena';
-import { usePickArenaSessionAssetMutation } from '@/lib/hooks/mutation/arena';
+import { useRecommendArenaCardsQuery } from '@/lib/hooks/query/arena';
 import { useArenaStore, AssetTypes } from '@/lib/hooks/zustand/use-arena-store';
 import { THEME } from '@/lib/theme';
 import { useQueryClient } from '@tanstack/react-query';
 import * as Haptics from 'expo-haptics';
+import { recommendArenaCards } from '@/lib/api/arena';
 
 const MAX_ROUNDS = 10;
 
@@ -26,7 +26,9 @@ export default function Arena() {
   const colorScheme = useColorScheme() ?? 'light';
   const { height: screenHeight } = useWindowDimensions();
   const navigation = useNavigation();
-  const { selectedCards, addCard, clearCards, resetArena } = useArenaStore();
+  const { selectedCards, addCard, addShown, clearCards, resetArena } = useArenaStore();
+  const picked = useArenaStore((state) => state.picked);
+  const shownAssetIds = useArenaStore((state) => state.shownAssetIds);
   const queryClient = useQueryClient();
 
   const [round, setRound] = useState(1);
@@ -38,19 +40,14 @@ export default function Arena() {
 
   // 타이머 정리를 위한 ref (React Native에서는 setTimeout이 number 반환)
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const waitingForNewCardsRef = useRef(false);
 
-  const {
-    data: arenaSessionRounds,
-    refetch,
-    isLoading,
-    isPending,
-  } = useGetArenaSessionRoundsQuery();
-  const { mutate: pickAsset } = usePickArenaSessionAssetMutation();
+  const { data: recommendedAssets, refetch, isLoading, isPending } = useRecommendArenaCardsQuery();
 
-  // 서버에서 받아온 assets (3장) - useMemo로 불필요한 재생성 방지
+  // 추천된 assets (3장) - useMemo로 불필요한 재생성 방지
   const currentAssets: AssetTypes[] = useMemo(
-    () => arenaSessionRounds?.assets || [],
-    [arenaSessionRounds?.assets]
+    () => recommendedAssets ?? [],
+    [recommendedAssets]
   );
 
   // 타이머 정리 함수
@@ -71,7 +68,7 @@ export default function Arena() {
   const handleBack = useCallback(async () => {
     clearAllTimers();
     resetArena();
-    queryClient.removeQueries({ queryKey: ['arena-session-rounds'] });
+    queryClient.removeQueries({ queryKey: ['arena-recommend'] });
     setHasInitialFlip(false);
     setRound(1);
     setIsFlipped(false);
@@ -121,6 +118,27 @@ export default function Arena() {
     }
   }, [currentAssets.length, hasInitialFlip]);
 
+  // 추천된 카드들을 shownAssetIds에 누적 → 같은 라운드에 보여진 3장 모두 다음에 제외
+  useEffect(() => {
+    if (recommendedAssets && recommendedAssets.length > 0) {
+      addShown(recommendedAssets.map((a) => a.assetId));
+    }
+  }, [recommendedAssets, addShown]);
+
+  // 새 라운드 카드 데이터 도착 감지: recommendedAssets 참조가 바뀔 때 반응
+  // length 기반이 아닌 참조 기반으로 감지 → prefetch 캐시 히트(3→3) 상황도 정확히 처리
+  useEffect(() => {
+    if (!waitingForNewCardsRef.current || !recommendedAssets || recommendedAssets.length === 0) return;
+    waitingForNewCardsRef.current = false;
+    setRound((prev) => prev + 1);
+    setShowCards(true);
+    const timer = setTimeout(() => {
+      setIsFlipped(true);
+      setIsTransitioning(false);
+    }, 500);
+    timersRef.current.push(timer);
+  }, [recommendedAssets]);
+
   const handleCardSelect = useCallback(
     (cardIndex: number) => {
       if (round > MAX_ROUNDS || isTransitioning || currentAssets.length === 0) return;
@@ -128,59 +146,51 @@ export default function Arena() {
       const selectedAsset = currentAssets[cardIndex];
 
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      addCard(selectedAsset);
       setSelectedCardIndex(cardIndex);
       setIsTransitioning(true);
 
-      // 서버에 선택 전송
-      pickAsset(
-        { pickedAssetId: selectedAsset.assetId },
-        {
-          onSuccess: () => {
-            // 1초 동안 선택된 카드가 커진 상태 유지
-            const timer1 = setTimeout(() => {
-              setShowCards(false);
-              setSelectedCardIndex(null);
+      // 선택 즉시 다음 라운드 카드 prefetch (1초 확대 애니메이션 동안 데이터 준비)
+      if (picked && round < MAX_ROUNDS) {
+        const nextExcludeIds = [...shownAssetIds, selectedAsset.assetId];
+        queryClient.prefetchQuery({
+          queryKey: ['arena-recommend', picked.riskProfile, picked.sectors, selectedCards.length + 1],
+          queryFn: () => recommendArenaCards({
+            riskProfile: picked.riskProfile,
+            sectors: picked.sectors,
+            excludeIds: nextExcludeIds,
+          }),
+          staleTime: Infinity,
+        });
+      }
 
-              if (round < MAX_ROUNDS) {
-                // 새 데이터를 먼저 fetch
-                refetch().then(() => {
-                  // 데이터 로드 후 카드 표시
-                  const timer2 = setTimeout(() => {
-                    setRound((prev) => prev + 1);
-                    setIsFlipped(false);
-                    setShowCards(true);
+      // 1단계: 1초 동안 선택된 카드 확대 표시
+      const timer1 = setTimeout(() => {
+        // 2단계: 카드 뒤집기 복원 + 페이드 아웃
+        setIsFlipped(false);
+        setShowCards(false);
+        setSelectedCardIndex(null);
 
-                    // 새 카드가 나타난 후 뒤집기
-                    const timer3 = setTimeout(() => {
-                      setIsFlipped(true);
-                      setIsTransitioning(false);
-                    }, 300);
-                    timersRef.current.push(timer3);
-                  }, 100);
-                  timersRef.current.push(timer2);
-                });
-              } else {
-                // 10라운드 완료 - 세로 모드로 전환 후 완료 페이지로 이동
-                clearAllTimers();
-                ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).then(
-                  () => {
-                    router.replace('/(arena)/complete');
-                  }
-                );
+        // 3단계: 카드가 사라진 후 addCard → query 자동 refetch, 데이터 도착 시 useEffect가 카드 표시
+        const timer2 = setTimeout(() => {
+          if (round >= MAX_ROUNDS) {
+            addCard(selectedAsset);
+            clearAllTimers();
+            ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).then(
+              () => {
+                router.replace('/(arena)/complete');
               }
-            }, 1000);
-            timersRef.current.push(timer1);
-          },
-          onError: (error) => {
-            console.error('Asset pick failed:', error);
-            setIsTransitioning(false);
-            setSelectedCardIndex(null);
-          },
-        }
-      );
+            );
+            return;
+          }
+
+          waitingForNewCardsRef.current = true;
+          addCard(selectedAsset);
+        }, 350);
+        timersRef.current.push(timer2);
+      }, 1000);
+      timersRef.current.push(timer1);
     },
-    [round, currentAssets, isTransitioning, pickAsset, addCard, refetch, clearAllTimers]
+    [round, currentAssets, isTransitioning, addCard, clearAllTimers]
   );
 
   return (
@@ -191,7 +201,7 @@ export default function Arena() {
 
       {/* 카드 영역 */}
       <View className="flex-1 items-center justify-center">
-        {isLoading || isPending ? (
+        {(isLoading || isPending) && !isTransitioning ? (
           <ActivityIndicator size="large" color={THEME[colorScheme].mutedForeground} />
         ) : (
           showCards &&

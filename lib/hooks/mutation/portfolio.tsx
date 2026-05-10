@@ -1,93 +1,23 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useUserStore } from '../zustand/use-user-store';
 import { useLoadingStore } from '../zustand/use-loading-store';
 import {
-  createPortfolio,
   directCreatePortfolio,
   deletePortfolio,
+  executeTopUp,
+  getRebalancingPlan,
+  getSeedPreview,
+  getTopUpPlan,
   setMainPortfolio,
+  setSeed,
+  triggerRecalc,
   updatePortfolioWeights,
   type PortfolioTypes,
+  type TopUpExecuteRequestTypes,
   type UpdateWeightItemTypes,
 } from '@/lib/api/portfolio';
 import { useCustomPortfolioStore } from '../zustand/use-custom-portfolio-store';
 import { toast } from 'sonner-native';
-import { useArenaStore } from '../zustand/use-arena-store';
 import { useRouter } from 'expo-router';
-import { InteractionManager } from 'react-native';
-import { createArenaSessions, pickArenaSessionPreference } from '@/lib/api/arena';
-import { createGuestSession } from '@/lib/api/auth';
-import { setGuestSessionId } from '@/lib/api';
-import * as ScreenOrientation from 'expo-screen-orientation';
-
-export const useCreatePortfolioMutation = () => {
-  const { user } = useUserStore((state) => state);
-  const { setPortfolio, setPicked, resetArena } = useArenaStore((state) => state);
-  const { show, hide } = useLoadingStore();
-  const router = useRouter();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({
-      name,
-      riskProfile,
-      sectors,
-    }: {
-      name: string;
-      riskProfile: string;
-      sectors: string[];
-    }) => {
-      if (!user?.userId) {
-        const { guestSessionId } = await createGuestSession();
-        setGuestSessionId(guestSessionId);
-      }
-
-      // 1. 포트폴리오 생성
-      const portfolio = await createPortfolio({ name });
-
-      // 2. 아레나 세션 생성
-      const session = await createArenaSessions({ portfolioId: portfolio.portfolioId });
-
-      // 3. 선호도 설정
-      const preference = await pickArenaSessionPreference({
-        sessionId: session.sessionId,
-        riskProfile,
-        sectors,
-      });
-
-      return { portfolio, session, preference };
-    },
-    onMutate: () => {
-      resetArena();
-      queryClient.removeQueries({ queryKey: ['arena-session-rounds'] });
-      show('포트폴리오 생성 중...');
-    },
-    onSuccess: ({ portfolio, session, preference }) => {
-      setPortfolio({
-        name: portfolio.name,
-        portfolioId: portfolio.portfolioId,
-        sessionId: session.sessionId,
-        status: session.status,
-        currentRound: session.currentRound,
-      });
-      setPicked(preference.picked, preference.currentRound);
-      router.dismiss();
-
-      InteractionManager.runAfterInteractions(() => {
-        router.push('/(arena)');
-        ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
-      });
-    },
-    onError: (error) => {
-      console.error('Portfolio creation failed:', error);
-    },
-    onSettled: () => {
-      hide();
-      queryClient.invalidateQueries({ queryKey: ['portfolios'] });
-      queryClient.invalidateQueries({ queryKey: ['home'] });
-    },
-  });
-};
 
 export const useDirectCreatePortfolioMutation = () => {
   const { show, hide } = useLoadingStore();
@@ -107,6 +37,7 @@ export const useDirectCreatePortfolioMutation = () => {
       show('포트폴리오 생성 중...');
     },
     onSuccess: (data) => {
+      triggerRecalc({ portfolioId: data.portfolioId }).catch(() => {});
       queryClient.invalidateQueries({ queryKey: ['portfolios'] });
       queryClient.invalidateQueries({ queryKey: ['home'] });
       clearAssets();
@@ -117,39 +48,6 @@ export const useDirectCreatePortfolioMutation = () => {
     onError: (error) => {
       console.error('Direct portfolio creation failed:', error);
       toast.error('포트폴리오 생성에 실패했습니다');
-    },
-    onSettled: () => {
-      hide();
-    },
-  });
-};
-
-export const usePickArenaSessionPreferenceMutation = () => {
-  const setPicked = useArenaStore((state) => state.setPicked);
-  const { show, hide } = useLoadingStore();
-  const router = useRouter();
-
-  return useMutation({
-    mutationFn: ({ riskProfile, sectors }: { riskProfile: string; sectors: string[] }) => {
-      // 최신 sessionId를 가져옴
-      const sessionId = useArenaStore.getState().sessionId;
-      if (!sessionId) {
-        return Promise.reject(new Error('Session not found'));
-      }
-      return pickArenaSessionPreference({ sessionId, riskProfile, sectors });
-    },
-    onMutate: () => {
-      show('설정 중...');
-    },
-    onSuccess: (data) => {
-      setPicked(data.picked, data.currentRound);
-      router.dismiss();
-      InteractionManager.runAfterInteractions(() => {
-        router.push('/(arena)');
-      });
-    },
-    onError: (error) => {
-      console.error('Arena session preference picking failed:', error);
     },
     onSettled: () => {
       hide();
@@ -216,6 +114,111 @@ export const useDeletePortfolioMutation = () => {
   });
 };
 
+export const useSetSeedMutation = () => {
+  const queryClient = useQueryClient();
+  const { show, hide } = useLoadingStore();
+
+  return useMutation({
+    mutationFn: ({
+      portfolioId,
+      seedMoney,
+      baseCurrency,
+    }: {
+      portfolioId: string;
+      seedMoney: number;
+      baseCurrency?: string;
+    }) => setSeed({ portfolioId, seedMoney, baseCurrency }),
+    onMutate: () => {
+      show('시드 금액 설정 중...');
+    },
+    onSuccess: (_data, { portfolioId }) => {
+      queryClient.invalidateQueries({ queryKey: ['holding-baseline', portfolioId] });
+      queryClient.invalidateQueries({ queryKey: ['portfolios', portfolioId] });
+      queryClient.invalidateQueries({ queryKey: ['portfolios'] });
+      queryClient.invalidateQueries({ queryKey: ['home'] });
+    },
+    onError: (error) => {
+      console.error('Set seed failed:', error);
+    },
+    onSettled: () => {
+      hide();
+    },
+  });
+};
+
+export const useSeedPreviewMutation = () => {
+  return useMutation({
+    mutationFn: ({
+      portfolioId,
+      seedMoney,
+      baseCurrency,
+    }: {
+      portfolioId: string;
+      seedMoney: number;
+      baseCurrency?: string;
+    }) => getSeedPreview({ portfolioId, seedMoney, baseCurrency }),
+    onError: (error) => {
+      console.error('Seed preview failed:', error);
+    },
+  });
+};
+
+export const useGetRebalancingPlanMutation = () => {
+  return useMutation({
+    mutationFn: ({
+      portfolioId,
+      thresholdPct,
+    }: {
+      portfolioId: string;
+      thresholdPct?: number;
+    }) => getRebalancingPlan({ portfolioId, thresholdPct }),
+  });
+};
+
+export const useGetTopUpPlanMutation = () => {
+  return useMutation({
+    mutationFn: ({
+      portfolioId,
+      additionalCash,
+    }: {
+      portfolioId: string;
+      additionalCash: number;
+    }) => getTopUpPlan({ portfolioId, additionalCash }),
+  });
+};
+
+export const useExecuteTopUpMutation = () => {
+  const queryClient = useQueryClient();
+  const { show, hide } = useLoadingStore();
+
+  return useMutation({
+    mutationFn: ({
+      portfolioId,
+      additionalCash,
+      purchases,
+      addRemainingCashToBaseline,
+    }: {
+      portfolioId: string;
+    } & TopUpExecuteRequestTypes) =>
+      executeTopUp({ portfolioId, additionalCash, purchases, addRemainingCashToBaseline }),
+    onMutate: () => {
+      show('추가 입금 처리 중...');
+    },
+    onSuccess: (_data, { portfolioId }) => {
+      queryClient.invalidateQueries({ queryKey: ['holding-baseline', portfolioId] });
+      queryClient.invalidateQueries({ queryKey: ['portfolios', portfolioId] });
+      queryClient.invalidateQueries({ queryKey: ['portfolios'] });
+      queryClient.invalidateQueries({ queryKey: ['home'] });
+    },
+    onError: (error) => {
+      console.error('Execute top-up failed:', error);
+    },
+    onSettled: () => {
+      hide();
+    },
+  });
+};
+
 export const useSetMainPortfolioMutation = () => {
   const queryClient = useQueryClient();
 
@@ -263,6 +266,7 @@ export const useSetMainPortfolioMutation = () => {
       queryClient.invalidateQueries({ queryKey: ['portfolios', portfolioId] });
       queryClient.invalidateQueries({ queryKey: ['portfolios'] });
       queryClient.invalidateQueries({ queryKey: ['home'] });
+      queryClient.invalidateQueries({ queryKey: ['holding-baseline'] });
     },
   });
 };

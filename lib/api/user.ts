@@ -1,4 +1,5 @@
 import { api } from './client';
+import { supabase } from '@/lib/supabase/client';
 
 type UpdateProfileRequestTypes = {
   nickname?: string;
@@ -12,15 +13,24 @@ type UpdateProfileResponseTypes = {
 export const updateProfile = async ({
   nickname,
 }: UpdateProfileRequestTypes): Promise<UpdateProfileResponseTypes> => {
-  try {
-    const response = await api.patch<UpdateProfileResponseTypes>('me', {
-      nickname,
-    });
-    return response.data;
-  } catch (error: any) {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({ nickname })
+    .eq('user_id', user.id)
+    .select('user_id, nickname')
+    .single();
+
+  if (error) {
     console.error('Update Profile Error:', error);
     throw error;
   }
+
+  return { userId: data.user_id, nickname: data.nickname };
 };
 
 export const getProfile = async (): Promise<UpdateProfileResponseTypes> => {

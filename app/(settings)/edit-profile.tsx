@@ -7,13 +7,13 @@ import { Text } from '@/components/ui/text';
 import { useUpdateProfileMutation } from '@/lib/hooks/mutation/user';
 import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { useState } from 'react';
-import { Platform, View } from 'react-native';
+import { Keyboard, Platform, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 
 export default function EditProfileScreen() {
   const insets = useSafeAreaInsets();
-  const { user, accessToken } = useUserStore();
+  const { user } = useUserStore();
   const [nickname, setNickname] = useState(user?.nickname ?? '');
   const { mutate } = useUpdateProfileMutation();
 
@@ -23,11 +23,17 @@ export default function EditProfileScreen() {
     mutate({ nickname: nickname.trim() });
   };
 
+  const handleShouldSetResponder = () => true;
+  const handleResponderRelease = () => Keyboard.dismiss();
+
   return (
-    <Container isKeyboardAvoiding>
+    <Container>
       <Header title="닉네임 변경" />
       <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-        <View className="flex-1 px-4 pt-[20px]">
+        <View
+          className="flex-1 px-4 pt-[20px]"
+          onStartShouldSetResponder={handleShouldSetResponder}
+          onResponderRelease={handleResponderRelease}>
           <Input
             value={nickname}
             onChangeText={setNickname}

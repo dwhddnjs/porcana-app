@@ -1,7 +1,8 @@
 import { THEME } from '@/lib/theme';
 import { ActivityIndicator, Dimensions, LayoutChangeEvent, View } from 'react-native';
-import { CandlestickChart } from 'react-native-wagmi-charts';
-import { useMemo, useState } from 'react';
+import { CandlestickChart, useCandleData } from 'react-native-wagmi-charts';
+import { runOnJS, useAnimatedReaction } from 'react-native-reanimated';
+import { useCallback, useMemo, useState } from 'react';
 import { useUniwind } from 'uniwind';
 import { Text } from '../ui/text';
 import { Spacer } from '@/components/ui/spacer';
@@ -10,9 +11,7 @@ import { ChartPointTypes } from '@/lib/api/asset';
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const CONTAINER_HEIGHT = SCREEN_HEIGHT * 0.4;
 const LEGEND_PADDING = 80;
-const CHART_HEIGHT = CONTAINER_HEIGHT - LEGEND_PADDING;
 
-// wagmi 캔들스틱 차트에서 요구하는 데이터 타입
 type CandleDataTypes = {
   timestamp: number;
   open: number;
@@ -21,16 +20,81 @@ type CandleDataTypes = {
   close: number;
 };
 
+type PriceCellPropsTypes = {
+  label: string;
+  type: 'open' | 'high' | 'low' | 'close';
+  textColor: string;
+  currency: string | null | undefined;
+};
+
+const formatPrice = (num: number, currency: string | null | undefined): string => {
+  if (!isFinite(num) || num <= 0) return '';
+  const isKrw = currency === 'KRW';
+  const fixed = isKrw ? Math.round(num).toFixed(0) : num.toFixed(2);
+  const parts = fixed.split('.');
+  const chars = parts[0].split('');
+  let intPart = '';
+  for (let i = 0; i < chars.length; i++) {
+    if (i > 0 && (chars.length - i) % 3 === 0) intPart += ',';
+    intPart += chars[i];
+  }
+  const sym = isKrw ? '₩' : '$';
+  return sym + intPart + (parts[1] !== undefined ? '.' + parts[1] : '');
+};
+
+const PriceCell = ({ label, type, textColor, currency }: PriceCellPropsTypes) => {
+  const candle = useCandleData();
+  const [text, setText] = useState('');
+
+  const updateText = useCallback(
+    (value: number) => {
+      setText(formatPrice(value, currency));
+    },
+    [currency]
+  );
+
+  useAnimatedReaction(
+    () => candle.value[type],
+    (value, prev) => {
+      if (value === prev) return;
+      runOnJS(updateText)(value);
+    },
+    [type, updateText]
+  );
+
+  return (
+    <View className="bg-muted/50 flex-1 flex-row items-center justify-between rounded-md px-3 py-1">
+      <Text className="text-muted-foreground text-xs">{label}</Text>
+      <Text
+        numberOfLines={1}
+        adjustsFontSizeToFit
+        minimumFontScale={0.7}
+        style={{
+          color: textColor,
+          fontSize: 11,
+          fontWeight: '600',
+          flexShrink: 1,
+          textAlign: 'right',
+          marginLeft: 8,
+        }}>
+        {text}
+      </Text>
+    </View>
+  );
+};
+
 type AssetCandlestickChartProps = {
   points?: ChartPointTypes[];
   isLoading?: boolean;
   containerHeight?: number;
+  currency?: string | null;
 };
 
 export const AssetCandlestickChart = ({
   points,
   isLoading,
   containerHeight,
+  currency,
 }: AssetCandlestickChartProps) => {
   const { theme } = useUniwind();
   const colors = theme === 'dark' ? THEME.dark : THEME.light;
@@ -39,7 +103,6 @@ export const AssetCandlestickChart = ({
   const resolvedContainerHeight = containerHeight ?? CONTAINER_HEIGHT;
   const resolvedChartHeight = resolvedContainerHeight - LEGEND_PADDING;
 
-  // API points 데이터를 wagmi 캔들스틱 포맷으로 변환
   const chartData: CandleDataTypes[] = useMemo(
     () =>
       (points ?? []).map((point) => ({
@@ -54,7 +117,7 @@ export const AssetCandlestickChart = ({
 
   const onLayout = (e: LayoutChangeEvent) => {
     const w = Math.round(e.nativeEvent.layout.width);
-    setWidth((prev) => (prev === w ? prev : w));
+    setWidth((prev: number) => (prev === w ? prev : w));
   };
 
   if (isLoading) {
@@ -85,6 +148,7 @@ export const AssetCandlestickChart = ({
               positiveColor={colors.stockUp}
               negativeColor={colors.stockDown}
             />
+            {/* <CandlestickChart.Crosshair /> */}
             <CandlestickChart.Crosshair>
               <CandlestickChart.Tooltip
                 style={{
@@ -125,39 +189,36 @@ export const AssetCandlestickChart = ({
               </CandlestickChart.Tooltip>
             </CandlestickChart.Crosshair>
           </CandlestickChart>
-          <View className="mt-2 flex-row justify-between px-[32px]">
-            <View className="items-center">
-              <Text className="text-muted-foreground text-xs">시가</Text>
-              <CandlestickChart.PriceText
-                type="open"
-                style={{ color: colors.foreground, fontSize: 12, fontWeight: '600', minWidth: 42 }}
-              />
-            </View>
-            <View className="items-center">
-              <Text className="text-muted-foreground text-xs">고가</Text>
-              <CandlestickChart.PriceText
-                type="high"
-                style={{ color: colors.stockUp, fontSize: 12, fontWeight: '600', minWidth: 42 }}
-              />
-            </View>
-            <View className="items-center">
-              <Text className="text-muted-foreground text-xs">저가</Text>
-              <CandlestickChart.PriceText
-                type="low"
-                style={{ color: colors.stockDown, fontSize: 12, fontWeight: '600', minWidth: 42 }}
-              />
-            </View>
-            <View className="items-center">
-              <Text className="text-muted-foreground text-xs">종가</Text>
-              <CandlestickChart.PriceText
-                type="close"
-                style={{
-                  color: colors.foreground,
-                  fontSize: 12,
-                  fontWeight: '600',
 
-                  minWidth: 42,
-                }}
+          <CandlestickChart.DatetimeText
+            style={{
+              color: colors.mutedForeground,
+              fontSize: 11,
+              fontWeight: '500',
+              textAlign: 'center',
+              marginTop: 6,
+              height: 16,
+            }}
+            options={{ year: 'numeric', month: '2-digit', day: '2-digit' }}
+          />
+
+          <View className="mt-2 px-4" style={{ gap: 6 }}>
+            <View style={{ flexDirection: 'row', gap: 6 }}>
+              <PriceCell
+                label="시가"
+                type="open"
+                textColor={colors.foreground}
+                currency={currency}
+              />
+              <PriceCell label="고가" type="high" textColor={colors.stockUp} currency={currency} />
+            </View>
+            <View style={{ flexDirection: 'row', gap: 6 }}>
+              <PriceCell label="저가" type="low" textColor={colors.stockDown} currency={currency} />
+              <PriceCell
+                label="종가"
+                type="close"
+                textColor={colors.foreground}
+                currency={currency}
               />
             </View>
           </View>

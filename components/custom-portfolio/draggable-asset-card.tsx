@@ -2,6 +2,7 @@ import { View } from 'react-native';
 import { useEffect } from 'react';
 import { Text } from '@/components/ui/text';
 import { Image } from '@/components/ui/image';
+import { AssetImage } from '@/components/portfolio/asset-image';
 import { Icon } from '@/components/ui/icon';
 import { Star, TriangleAlert, Check } from 'lucide-react-native';
 import Animated, {
@@ -197,14 +198,10 @@ export const DraggableAssetCard = ({
             frontFaceStyle,
           ]}>
           <View
-            className={`bg-card border-primary h-full w-full rounded-xl border px-[10px] py-[8px] shadow-lg shadow-black/25 ${disabled ? 'opacity-40' : isSelected ? 'opacity-50' : ''}`}>
+            className={`bg-card border-primary h-full w-full rounded-xl border px-[8px] py-[8px] shadow-lg shadow-black/25 ${disabled ? 'opacity-40' : isSelected ? 'opacity-50' : ''}`}>
             <View className="flex-row items-center gap-[6px]">
-              <Image
-                source={asset.imageUrl}
-                className="bg-background h-8 w-8 rounded-full"
-                contentFit="contain"
-              />
-              <View className="flex-1">
+              <AssetImage imageUrl={asset.imageUrl} name={asset.name} size={32} />
+              <View className="flex-1 gap-[2px]">
                 <Text
                   numberOfLines={1}
                   ellipsizeMode="tail"
@@ -236,7 +233,15 @@ export const DraggableAssetCard = ({
               </View>
             )}
 
-            <View className="flex-1" />
+            <View className="flex-1 items-center justify-center px-[2px]">
+              {asset.impactHint ? (
+                <Text
+                  className="text-muted-foreground text-center text-[11px] leading-[15px]"
+                  numberOfLines={4}>
+                  {asset.impactHint}
+                </Text>
+              ) : null}
+            </View>
 
             <View className="mt-auto items-center justify-start gap-1.5">
               <View className="flex-row items-center gap-1">

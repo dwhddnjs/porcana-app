@@ -1,6 +1,6 @@
 import { Pressable, View } from 'react-native';
 import { Text } from '@/components/ui/text';
-import { Image } from '@/components/ui/image';
+import { AssetImage } from '@/components/portfolio/asset-image';
 import { cn } from '@/lib/utils';
 import { Star, TrendingUp } from 'lucide-react-native';
 import { Icon } from '@/components/ui/icon';
@@ -55,10 +55,11 @@ export const PortfolioListItem = ({ portfolio, onSelect, onSetMain }: PortfolioL
             <View className="border-primary/10 mt-1 gap-1">
               {portfolio.topAssets.map((asset) => (
                 <View key={asset.assetId} className="flex-row items-center gap-3 py-[2px] pt-2">
-                  <Image
-                    source={asset.imageUrl}
-                    className="bg-background border-primary/10 h-8 w-8 rounded-full border"
-                    contentFit="contain"
+                  <AssetImage
+                    imageUrl={asset.imageUrl}
+                    name={asset.name}
+                    size={32}
+                    className="border-primary/10 border"
                   />
                   <View className="gap-y-[2px]">
                     <Text

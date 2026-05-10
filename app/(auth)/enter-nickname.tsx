@@ -1,4 +1,4 @@
-import { View } from "react-native";
+import { Keyboard, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Text } from "@/components/ui/text";
 import { Label } from "@/components/ui/label";
@@ -34,20 +34,26 @@ export default function EnterNicknameScreen() {
 
   const nicknameValue = watch('nickname');
 
+  const handleShouldSetResponder = () => true;
+  const handleResponderRelease = () => Keyboard.dismiss();
+
   const onSubmit = async (data: NicknameFormDataTypes) => {
     setNickname(data.nickname);
     router.push('/(auth)/enter-email');
   };
 
   return (
-    <Container isKeyboardAvoiding>
+    <Container>
       <Header title="" />
       <KeyboardAvoidingView
         behavior="padding"
         style={{ flex: 1 }}
       >
         
-        <View className="flex-1  px-[20px]">
+        <View
+          className="flex-1  px-[20px]"
+          onStartShouldSetResponder={handleShouldSetResponder}
+          onResponderRelease={handleResponderRelease}>
         <Spacer height={24} />
           <View className="gap-y-[24px]">
             <Label htmlFor="nickname" className="text-xl font-bold">닉네임을 입력해주세요</Label>

@@ -5,20 +5,14 @@ import Container from '@/components/ui/container';
 import { Header } from '@/components/ui/header';
 import { ImageCarousel } from '@/components/ui/image-carousel';
 import { Link, useRouter } from 'expo-router';
-import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { CAROUSEL_ITEMS } from '@/lib/constant/variables';
 
 export default function LandingScreen() {
-  const { accessToken, refreshToken, user, reset } = useUserStore();
   const router = useRouter();
 
   const handleStart = () => {
     router.push('/modal/pick-preferences');
   };
-
-  // console.log('accessToken', accessToken);
-  // console.log('refreshToken', refreshToken);
-  // console.log('user', user);
 
   return (
     <Container>

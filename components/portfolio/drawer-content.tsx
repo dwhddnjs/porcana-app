@@ -14,10 +14,7 @@ import { useRouter } from 'expo-router';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import { Spacer } from '@/components/ui/spacer';
-import { useDrawerStatus } from '@react-navigation/drawer';
-
 export function PortfolioDrawerContent(props: DrawerContentComponentProps) {
-  const drawerStatus = useDrawerStatus();
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -25,8 +22,6 @@ export function PortfolioDrawerContent(props: DrawerContentComponentProps) {
 
   const { data: portfolios, isLoading } = useGetPortfoliosQuery();
   const { mutate: setMainPortfolio } = useSetMainPortfolioMutation();
-
-  if (drawerStatus === 'closed') return <View />;
 
   const handleSelectPortfolio = (portfolioId: string) => {
     props.navigation.closeDrawer();
@@ -64,7 +59,7 @@ export function PortfolioDrawerContent(props: DrawerContentComponentProps) {
     // API 요청
     setMainPortfolio(portfolioId, {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['home'] });
+        queryClient.refetchQueries({ queryKey: ['home'] });
       },
       onError: () => {
         // 실패 시 롤백

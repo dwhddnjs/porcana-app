@@ -132,7 +132,7 @@ export const AssetDetailPanel = ({ assetId, onClose }: AssetDetailPanelPropsType
                   <Text className="text-lg font-semibold" numberOfLines={1}>
                     {data.name}
                   </Text>
-                  <Text className="text-success text-sm">{data.exchange}</Text>
+                  <Text className="text-success text-sm">{data.market}</Text>
                 </View>
                 <Text className="text-muted-foreground text-base">{data.ticker}</Text>
               </View>
@@ -272,6 +272,7 @@ export const AssetDetailPanel = ({ assetId, onClose }: AssetDetailPanelPropsType
               points={chartData?.points}
               isLoading={isChartLoading}
               containerHeight={CHART_CONTAINER_HEIGHT}
+              currency={data?.currency}
             />
             <Spacer height={120} />
           </ScrollView>
