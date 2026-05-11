@@ -13,6 +13,7 @@ export type AssetItemDataTypes = {
   weightPct: number;
   targetWeightPct: number;
   returnPct: number;
+  contributionPct?: number;
 };
 
 type AssetItemProps = {
@@ -61,7 +62,7 @@ export const AssetItem = ({
         <View className="flex-1 gap-[2px]">
           <View className="flex-row items-center gap-[4px]">
             <Text
-              className="max-w-[160px] min-w-[160px] text-base font-semibold text-ellipsis"
+              className="max-w-[150px] min-w-[150px] text-base font-semibold text-ellipsis"
               numberOfLines={1}
               ellipsizeMode="tail">
               {item.name}
@@ -86,9 +87,9 @@ export const AssetItem = ({
                 />
               </Pressable>
             ) : (
-              <Text className="text-weight text-sm font-semibold">
+              <Text className="text-weight max-w-[120px] text-sm font-semibold">
                 {' '}
-                {item.weightPct} / {item.targetWeightPct}%
+                {+item.weightPct.toFixed(1)} / {+item.targetWeightPct.toFixed(1)}%
               </Text>
             )}
           </View>
@@ -112,8 +113,8 @@ export const AssetItem = ({
         </Text>
         {!isEditMode && showContribution && (
           <Text className="text-muted-foreground text-xs">
-            ({item.returnPct * (item.targetWeightPct / 100) > 0 ? '+' : ''}
-            {roundToTwoDecimals(item.returnPct * (item.targetWeightPct / 100))}%)
+            ({(item.contributionPct ?? 0) > 0 ? '+' : ''}
+            {roundToTwoDecimals(item.contributionPct ?? 0)}%)
           </Text>
         )}
       </View>

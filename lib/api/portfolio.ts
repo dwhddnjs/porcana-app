@@ -15,32 +15,15 @@ type DbAssetDetailTypes = DbAssetBasicTypes & {
   sector: string | null;
 };
 
-type DbAssetWithPricesTypes = DbAssetDetailTypes & {
-  market: string;
-  asset_prices: { current_price: number | null; range: string }[];
-};
-
 type DbHoldingBasicTypes = {
   target_weight_pct: number;
   assets: DbAssetBasicTypes;
 };
 
-type PricePointTypes = { t: string; c: number };
-
 type DbHoldingDetailTypes = {
-  target_weight_pct: number;
-  assets: DbAssetDetailTypes & {
-    asset_prices: { range: string; points: unknown; current_price: number | null }[];
-  };
-};
-
-type DbHoldingWithPricesTypes = {
-  holding_id: string;
   asset_id: string;
-  quantity: number | null;
-  avg_price: number | null;
   target_weight_pct: number;
-  assets: DbAssetWithPricesTypes;
+  assets: DbAssetDetailTypes;
 };
 
 export type PositionTypes = {
@@ -49,6 +32,7 @@ export type PositionTypes = {
   imageUrl: string | string[];
   name: string;
   returnPct: number;
+  contributionPct: number;
   ticker: string;
   weightPct: number;
   targetWeightPct: number;
@@ -132,10 +116,8 @@ export const getPortfolio = async ({
     .select(
       `portfolio_id, name, status, is_main, total_return_pct, average_risk_level, started_at, created_at,
       portfolio_holdings (
-        target_weight_pct,
-        assets ( asset_id, ticker, name, market, current_risk_level, image_url, website_domain, sector,
-          asset_prices ( range, points, current_price )
-        )
+        asset_id, target_weight_pct,
+        assets ( asset_id, ticker, name, market, current_risk_level, image_url, website_domain, sector )
       )`
     )
     .eq('portfolio_id', portfolioId)
@@ -144,6 +126,24 @@ export const getPortfolio = async ({
   if (error) throw error;
 
   const holdings = (data.portfolio_holdings ?? []) as unknown as DbHoldingDetailTypes[];
+
+  const { data: holdingReturnsRows } = await supabase
+    .from('portfolio_holding_returns')
+    .select('asset_id, cumulative_return_pct, contribution_pct, base_price, latest_price')
+    .eq('portfolio_id', portfolioId);
+
+  const returnsByAsset = new Map<
+    string,
+    { cumulative_return_pct: number; contribution_pct: number; base_price: number; latest_price: number }
+  >();
+  for (const r of holdingReturnsRows ?? []) {
+    returnsByAsset.set(r.asset_id, {
+      cumulative_return_pct: Number(r.cumulative_return_pct ?? 0),
+      contribution_pct: Number(r.contribution_pct ?? 0),
+      base_price: Number(r.base_price ?? 0),
+      latest_price: Number(r.latest_price ?? 0),
+    });
+  }
 
   const sectors = new Set(holdings.map((h) => h.assets.sector).filter(Boolean));
   const diversityLevel: DiversityLevelTypes =
@@ -155,24 +155,28 @@ export const getPortfolio = async ({
     riskDistribution[level] = (riskDistribution[level] ?? 0) + Number(h.target_weight_pct);
   });
 
-  const positions: PositionTypes[] = holdings.map((h) => {
-    const prices = h.assets.asset_prices ?? [];
-    const price1Y = prices.find((p) => p.range === '1Y');
-    const points = (price1Y?.points as PricePointTypes[]) ?? [];
+  // 동적 현재 비중: target_weight × (latest_price / base_price) 로 가격 변화 반영
+  const currentValues = holdings.map((h) => {
+    const r = returnsByAsset.get(h.asset_id);
+    const weight = Number(h.target_weight_pct);
+    return r && r.base_price > 0 && r.latest_price > 0
+      ? weight * (r.latest_price / r.base_price)
+      : weight;
+  });
+  const totalValue = currentValues.reduce((s, v) => s + v, 0);
 
-    const currentPrice = points.length >= 1 ? points[points.length - 1].c : 0;
-    const prevClose = points.length >= 2 ? points[points.length - 2].c : 0;
-
-    const returnPct =
-      prevClose > 0 && currentPrice > 0 ? ((currentPrice - prevClose) / prevClose) * 100 : 0;
+  const positions: PositionTypes[] = holdings.map((h, i) => {
+    const returns = returnsByAsset.get(h.asset_id);
+    const currentWeightPct = (currentValues[i] / totalValue) * 100;
     return {
       assetId: h.assets.asset_id,
       currentRiskLevel: h.assets.current_risk_level,
       imageUrl: resolveAssetImageUrl(h.assets.market, h.assets.ticker, h.assets.website_domain, h.assets.image_url),
       name: h.assets.name,
-      returnPct,
+      returnPct: returns?.cumulative_return_pct ?? 0,
+      contributionPct: returns?.contribution_pct ?? 0,
       ticker: h.assets.ticker,
-      weightPct: Number(h.target_weight_pct),
+      weightPct: currentWeightPct,
       targetWeightPct: Number(h.target_weight_pct),
     };
   });
