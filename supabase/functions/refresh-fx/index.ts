@@ -23,14 +23,26 @@ serve(async (_req: Request) => {
     const krwRate = json?.rates?.KRW;
     if (!krwRate || typeof krwRate !== 'number') throw new Error('KRW rate not found');
 
+    const nowIso = new Date().toISOString();
     const { error } = await admin.from('fx_rates').upsert(
       [
-        { base: 'USD', quote: 'KRW', rate: krwRate, fetched_at: new Date().toISOString() },
-        { base: 'KRW', quote: 'USD', rate: 1 / krwRate, fetched_at: new Date().toISOString() },
+        { base: 'USD', quote: 'KRW', rate: krwRate, fetched_at: nowIso },
+        { base: 'KRW', quote: 'USD', rate: 1 / krwRate, fetched_at: nowIso },
       ],
       { onConflict: 'base,quote' }
     );
     if (error) throw error;
+
+    // KST 날짜로 일별 history 추가 (recalc-portfolio-returns에서 사용)
+    const kstDate = new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    const { error: histError } = await admin.from('fx_rates_history').upsert(
+      [
+        { base: 'USD', quote: 'KRW', date: kstDate, rate: krwRate },
+        { base: 'KRW', quote: 'USD', date: kstDate, rate: 1 / krwRate },
+      ],
+      { onConflict: 'base,quote,date' }
+    );
+    if (histError) throw histError;
 
     return new Response(JSON.stringify({ ok: true, usdKrw: krwRate }), {
       status: 200,
