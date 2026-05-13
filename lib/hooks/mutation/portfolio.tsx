@@ -3,16 +3,9 @@ import { useLoadingStore } from '../zustand/use-loading-store';
 import {
   directCreatePortfolio,
   deletePortfolio,
-  executeTopUp,
-  getRebalancingPlan,
-  getSeedPreview,
-  getTopUpPlan,
   setMainPortfolio,
-  setSeed,
-  triggerRecalc,
   updatePortfolioWeights,
   type PortfolioTypes,
-  type TopUpExecuteRequestTypes,
   type UpdateWeightItemTypes,
 } from '@/lib/api/portfolio';
 import { useCustomPortfolioStore } from '../zustand/use-custom-portfolio-store';
@@ -37,7 +30,6 @@ export const useDirectCreatePortfolioMutation = () => {
       show('포트폴리오 생성 중...');
     },
     onSuccess: (data) => {
-      triggerRecalc({ portfolioId: data.portfolioId }).catch(() => {});
       queryClient.invalidateQueries({ queryKey: ['portfolios'] });
       queryClient.invalidateQueries({ queryKey: ['home'] });
       clearAssets();
@@ -114,111 +106,6 @@ export const useDeletePortfolioMutation = () => {
   });
 };
 
-export const useSetSeedMutation = () => {
-  const queryClient = useQueryClient();
-  const { show, hide } = useLoadingStore();
-
-  return useMutation({
-    mutationFn: ({
-      portfolioId,
-      seedMoney,
-      baseCurrency,
-    }: {
-      portfolioId: string;
-      seedMoney: number;
-      baseCurrency?: string;
-    }) => setSeed({ portfolioId, seedMoney, baseCurrency }),
-    onMutate: () => {
-      show('시드 금액 설정 중...');
-    },
-    onSuccess: (_data, { portfolioId }) => {
-      queryClient.invalidateQueries({ queryKey: ['holding-baseline', portfolioId] });
-      queryClient.invalidateQueries({ queryKey: ['portfolios', portfolioId] });
-      queryClient.invalidateQueries({ queryKey: ['portfolios'] });
-      queryClient.invalidateQueries({ queryKey: ['home'] });
-    },
-    onError: (error) => {
-      console.error('Set seed failed:', error);
-    },
-    onSettled: () => {
-      hide();
-    },
-  });
-};
-
-export const useSeedPreviewMutation = () => {
-  return useMutation({
-    mutationFn: ({
-      portfolioId,
-      seedMoney,
-      baseCurrency,
-    }: {
-      portfolioId: string;
-      seedMoney: number;
-      baseCurrency?: string;
-    }) => getSeedPreview({ portfolioId, seedMoney, baseCurrency }),
-    onError: (error) => {
-      console.error('Seed preview failed:', error);
-    },
-  });
-};
-
-export const useGetRebalancingPlanMutation = () => {
-  return useMutation({
-    mutationFn: ({
-      portfolioId,
-      thresholdPct,
-    }: {
-      portfolioId: string;
-      thresholdPct?: number;
-    }) => getRebalancingPlan({ portfolioId, thresholdPct }),
-  });
-};
-
-export const useGetTopUpPlanMutation = () => {
-  return useMutation({
-    mutationFn: ({
-      portfolioId,
-      additionalCash,
-    }: {
-      portfolioId: string;
-      additionalCash: number;
-    }) => getTopUpPlan({ portfolioId, additionalCash }),
-  });
-};
-
-export const useExecuteTopUpMutation = () => {
-  const queryClient = useQueryClient();
-  const { show, hide } = useLoadingStore();
-
-  return useMutation({
-    mutationFn: ({
-      portfolioId,
-      additionalCash,
-      purchases,
-      addRemainingCashToBaseline,
-    }: {
-      portfolioId: string;
-    } & TopUpExecuteRequestTypes) =>
-      executeTopUp({ portfolioId, additionalCash, purchases, addRemainingCashToBaseline }),
-    onMutate: () => {
-      show('추가 입금 처리 중...');
-    },
-    onSuccess: (_data, { portfolioId }) => {
-      queryClient.invalidateQueries({ queryKey: ['holding-baseline', portfolioId] });
-      queryClient.invalidateQueries({ queryKey: ['portfolios', portfolioId] });
-      queryClient.invalidateQueries({ queryKey: ['portfolios'] });
-      queryClient.invalidateQueries({ queryKey: ['home'] });
-    },
-    onError: (error) => {
-      console.error('Execute top-up failed:', error);
-    },
-    onSettled: () => {
-      hide();
-    },
-  });
-};
-
 export const useSetMainPortfolioMutation = () => {
   const queryClient = useQueryClient();
 
@@ -266,7 +153,7 @@ export const useSetMainPortfolioMutation = () => {
       queryClient.invalidateQueries({ queryKey: ['portfolios', portfolioId] });
       queryClient.invalidateQueries({ queryKey: ['portfolios'] });
       queryClient.invalidateQueries({ queryKey: ['home'] });
-      queryClient.invalidateQueries({ queryKey: ['holding-baseline'] });
+      queryClient.invalidateQueries({ queryKey: ['simulation', 'baseline'] });
     },
   });
 };

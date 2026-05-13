@@ -1,4 +1,5 @@
-// 보유 자산 현황 조회: 저장된 quantity/avg_price 기준, 현재가에 환율 적용
+// 모의투자 보유 자산 현황 조회
+// simulations + simulation_holdings 기준. 현재가는 asset_prices 에서 가져와 환율 적용.
 
 // @ts-expect-error Deno 표준 라이브러리
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
@@ -40,11 +41,10 @@ const resolveImageUrl = (
   return imageUrl ?? '';
 };
 
-type HoldingRowTypes = {
+type SimHoldingRowTypes = {
   asset_id: string;
-  quantity: number | null;
-  avg_price: number | null;
-  target_weight_pct: number;
+  quantity: number;
+  avg_price: number;
   assets: {
     ticker: string;
     name: string;
@@ -53,6 +53,11 @@ type HoldingRowTypes = {
     website_domain: string | null;
     asset_prices: { range: string; current_price: number | null }[];
   };
+};
+
+type PortfolioHoldingRowTypes = {
+  asset_id: string;
+  target_weight_pct: number;
 };
 
 serve(async (req: Request) => {
@@ -71,32 +76,27 @@ serve(async (req: Request) => {
   const { portfolioId } = await req.json();
   if (!portfolioId) return jsonRes({ error: 'portfolioId required' }, 400);
 
-  const { data: portfolio, error: pErr } = await client
-    .from('portfolios')
+  const { data: simulation } = await client
+    .from('simulations')
     .select(
-      `portfolio_id, seed_money, base_currency,
-      portfolio_holdings (
-        asset_id, quantity, avg_price, target_weight_pct,
+      `simulation_id, portfolio_id, seed_money, base_currency, started_at,
+      simulation_holdings (
+        asset_id, quantity, avg_price,
         assets ( ticker, name, market, image_url, website_domain,
           asset_prices ( range, current_price )
         )
       )`
     )
     .eq('portfolio_id', portfolioId)
-    .single();
+    .maybeSingle();
 
-  if (pErr || !portfolio) return jsonRes({ error: pErr?.message ?? 'not found' }, 404);
-
-  const baseCurrency = portfolio.base_currency ?? 'KRW';
-  const seedMoney = Number(portfolio.seed_money ?? 0);
-
-  if (!portfolio.seed_money) {
+  if (!simulation) {
     return jsonRes({
       exists: false,
-      baselineId: '',
+      simulationId: '',
       portfolioId,
       sourceType: '',
-      baseCurrency,
+      baseCurrency: 'KRW',
       seedMoney: 0,
       totalValue: 0,
       cashAmount: 0,
@@ -104,6 +104,21 @@ serve(async (req: Request) => {
       items: [],
     });
   }
+
+  const baseCurrency = simulation.base_currency ?? 'KRW';
+  const seedMoney = Number(simulation.seed_money ?? 0);
+
+  // 자산별 target_weight_pct 매핑 (포트폴리오 비중 변경 반영)
+  const { data: portfolioHoldings } = await client
+    .from('portfolio_holdings')
+    .select('asset_id, target_weight_pct')
+    .eq('portfolio_id', portfolioId);
+  const weightByAsset = new Map<string, number>(
+    ((portfolioHoldings ?? []) as PortfolioHoldingRowTypes[]).map((h) => [
+      h.asset_id,
+      Number(h.target_weight_pct),
+    ])
+  );
 
   const { data: fxRow } = await client
     .from('fx_rates')
@@ -113,7 +128,7 @@ serve(async (req: Request) => {
     .single();
   const usdToKrw = Number(fxRow?.rate ?? 1380);
 
-  const holdings = (portfolio.portfolio_holdings ?? []) as unknown as HoldingRowTypes[];
+  const holdings = (simulation.simulation_holdings ?? []) as unknown as SimHoldingRowTypes[];
 
   const items = holdings.map((h) => {
     const prices = h.assets.asset_prices ?? [];
@@ -135,7 +150,7 @@ serve(async (req: Request) => {
       market: h.assets.market,
       quantity: qty,
       avgPrice,
-      targetWeightPct: Number(h.target_weight_pct),
+      targetWeightPct: weightByAsset.get(h.asset_id) ?? 0,
       currentPrice,
       currentValue: qty * currentPrice,
       imageUrl: resolveImageUrl(h.assets.market, h.assets.ticker, h.assets.website_domain, h.assets.image_url),
@@ -147,14 +162,14 @@ serve(async (req: Request) => {
 
   return jsonRes({
     exists: true,
-    baselineId: portfolioId,
+    simulationId: simulation.simulation_id,
     portfolioId,
     sourceType: 'MANUAL',
     baseCurrency,
     seedMoney,
     totalValue,
     cashAmount: seedMoney - totalCostBasis,
-    confirmedAt: '',
+    confirmedAt: simulation.started_at ?? '',
     items,
   });
 });

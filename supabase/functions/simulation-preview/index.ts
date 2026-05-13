@@ -1,4 +1,5 @@
-// 시드머니 미리보기: DB write 없이 자산별 매수 수량 계산 (환율 적용)
+// 모의투자 시드머니 미리보기: DB write 없이 자산별 매수 수량 계산 (환율 적용)
+// 포트폴리오의 target_weight_pct 와 입력 seedMoney 기반.
 
 // @ts-expect-error Deno 표준 라이브러리
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
@@ -129,7 +130,7 @@ serve(async (req: Request) => {
 
   return jsonRes({
     exists: false,
-    baselineId: '',
+    simulationId: '',
     portfolioId,
     sourceType: 'MANUAL',
     baseCurrency,

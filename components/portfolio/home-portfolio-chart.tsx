@@ -119,7 +119,8 @@ export const HomePortfolioChart = ({ data, totalReturnPct = 0 }: HomePortfolioCh
                     fontSize: 14,
                     fontWeight: '600',
                   }}>
-                  {items[0].value.toFixed(2)}%
+                  {items[0].value - 100 >= 0 ? '+' : ''}
+                  {(items[0].value - 100).toFixed(2)}%
                 </Text>
               </View>
             );

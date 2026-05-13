@@ -13,9 +13,12 @@ import {
   type Option,
 } from '@/components/ui/select';
 import { BaselineItem } from '@/components/portfolio/baseline-item';
-import { useSeedPreviewMutation, useSetSeedMutation } from '@/lib/hooks/mutation/portfolio';
+import {
+  useSimulationPreviewMutation,
+  useStartSimulationMutation,
+} from '@/lib/hooks/mutation/simulation';
 import { useKeyboardVisible } from '@/lib/hooks/use-keyboard-visible';
-import { type BaselineItemTypes } from '@/lib/api/portfolio';
+import { type SimulationBaselineItemTypes } from '@/lib/api/simulation';
 import { FlashList } from '@shopify/flash-list';
 import { CheckIcon } from 'lucide-react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -47,8 +50,8 @@ export default function SimulationScreen() {
     data: baselineData,
     isPending,
     reset: resetPreview,
-  } = useSeedPreviewMutation();
-  const { mutate: confirmSeed, isPending: isConfirming } = useSetSeedMutation();
+  } = useSimulationPreviewMutation();
+  const { mutate: confirmSeed, isPending: isConfirming } = useStartSimulationMutation();
 
   const titleOpacity = useSharedValue(0);
   const inputOpacity = useSharedValue(0);
@@ -141,7 +144,7 @@ export default function SimulationScreen() {
   }, [id, baselineData, baseCurrency, confirmSeed, isConfirming, router]);
 
   const renderItem = useCallback(
-    ({ item, index }: { item: BaselineItemTypes; index: number }) => (
+    ({ item, index }: { item: SimulationBaselineItemTypes; index: number }) => (
       <AnimatedListItem index={index}>
         <BaselineItem item={item} currencyUnit={currencyUnit} showTopBorder={index === 0} />
       </AnimatedListItem>
@@ -150,7 +153,7 @@ export default function SimulationScreen() {
   );
 
   const keyExtractor = useCallback(
-    (item: BaselineItemTypes) => `${previewVersion}-${item.assetId}`,
+    (item: SimulationBaselineItemTypes) => `${previewVersion}-${item.assetId}`,
     [previewVersion]
   );
 

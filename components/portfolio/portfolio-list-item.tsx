@@ -29,14 +29,18 @@ export const PortfolioListItem = ({ portfolio, onSelect, onSetMain }: PortfolioL
                 <Text className="font-semibold">{portfolio.name}</Text>
               </View>
 
-              <Text
-                className={cn(
-                  'text-sm font-semibold',
-                  portfolio.totalReturnPct >= 0 ? 'text-stock-up' : 'text-stock-down'
-                )}>
-                {portfolio.totalReturnPct >= 0 ? '+' : ''}
-                {portfolio.totalReturnPct.toFixed(2)}%
-              </Text>
+              {portfolio.hasSimulation ? (
+                <Text
+                  className={cn(
+                    'text-sm font-semibold',
+                    portfolio.totalReturnPct >= 0 ? 'text-stock-up' : 'text-stock-down'
+                  )}>
+                  {portfolio.totalReturnPct >= 0 ? '+' : ''}
+                  {portfolio.totalReturnPct.toFixed(2)}%
+                </Text>
+              ) : (
+                <Text className="text-muted-foreground text-xs">시작 전</Text>
+              )}
             </View>
 
             <Pressable

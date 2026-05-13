@@ -3,11 +3,11 @@ import { Text } from '@/components/ui/text';
 import { format, isValid } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import {
-  useGetPortfolioQuery,
-  useGetHoldingBaselineQuery,
   useGetPortfolioChartQuery,
+  useGetPortfolioQuery,
   useGetPortfolioReturnsQuery,
 } from '@/lib/hooks/query/portfolio';
+import { useGetSimulationBaselineQuery } from '@/lib/hooks/query/simulation';
 import { cn } from '@/lib/utils';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ActivityIndicator, Keyboard, Pressable, View, useColorScheme } from 'react-native';
@@ -41,9 +41,10 @@ import {
   useSetMainPortfolioMutation,
   useUpdatePortfolioWeightsMutation,
 } from '@/lib/hooks/mutation/portfolio';
+import { useResetSimulationMutation } from '@/lib/hooks/mutation/simulation';
 import { useCallback, useState } from 'react';
 import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
-import { HomeChartDataTypes } from '@/lib/api/home';
+import { PortfolioChartPointTypes } from '@/lib/api/portfolio';
 
 const distributeWithRemainder = (rawValues: number[]): string[] => {
   const rounded = rawValues.map((v) => Math.round(v * 100) / 100);
@@ -63,7 +64,8 @@ export default function PortfolioDetailScreen() {
   const { mutate: setMainPortfolio } = useSetMainPortfolioMutation();
   const { mutate: updateWeights } = useUpdatePortfolioWeightsMutation();
   const { mutate: deletePortfolio, isPending: isDeleting } = useDeletePortfolioMutation();
-  const { data: holdingData, isLoading: isHoldingLoading } = useGetHoldingBaselineQuery(id);
+  const { mutate: resetSimulation } = useResetSimulationMutation();
+  const { data: holdingData, isLoading: isHoldingLoading } = useGetSimulationBaselineQuery(id);
   const [chartRange, setChartRange] = useState<'1M' | '3M' | '1Y'>('1Y');
   const { data: chartData } = useGetPortfolioChartQuery(id, chartRange);
   const { data: returnsData } = useGetPortfolioReturnsQuery(id);
@@ -165,6 +167,11 @@ export default function PortfolioDetailScreen() {
     if (!id) return;
     router.push(`/portfolio/simulation/${id}`);
   }, [id, router]);
+
+  const handleResetSimulation = useCallback(() => {
+    if (!id) return;
+    resetSimulation({ portfolioId: id });
+  }, [id, resetSimulation]);
 
   const handleHolding = useCallback(() => {
     if (!id) return;
@@ -327,9 +334,12 @@ export default function PortfolioDetailScreen() {
             </View>
             <RiskDistributionChart data={data.riskDistribution} />
             {returnsData &&
-              [returnsData.return1D, returnsData.return1W, returnsData.return1M, returnsData.return1Y].some(
-                (v) => v !== null
-              ) && (
+              [
+                returnsData.return1D,
+                returnsData.return1W,
+                returnsData.return1M,
+                returnsData.return1Y,
+              ].some((v) => v !== null) && (
                 <View className="flex-row justify-between">
                   {(
                     [
@@ -363,7 +373,7 @@ export default function PortfolioDetailScreen() {
         {/* 차트 */}
         {(chartData ?? []).length >= 2 && (
           <View>
-            <View className="flex-row justify-end gap-[4px] px-[8px] pb-[8px]">
+            {/* <View className="flex-row justify-end gap-[4px] px-[8px] pb-[8px]">
               {(['1M', '3M', '1Y'] as const).map((r) => (
                 <Pressable
                   key={r}
@@ -381,9 +391,9 @@ export default function PortfolioDetailScreen() {
                   </Text>
                 </Pressable>
               ))}
-            </View>
+            </View> */}
             <HomePortfolioChart
-              data={chartData as HomeChartDataTypes[]}
+              data={chartData as PortfolioChartPointTypes[]}
               totalReturnPct={data.totalReturnPct}
             />
           </View>
@@ -396,6 +406,7 @@ export default function PortfolioDetailScreen() {
             baseCurrency={holdingData.baseCurrency}
             onPressHolding={handleHolding}
             onPressDeposit={handleDeposit}
+            onPressReset={handleResetSimulation}
           />
         )}
         {!isEditMode && !isHoldingLoading && !holdingData?.exists && (
