@@ -4,7 +4,7 @@ import { PieChart } from 'react-native-gifted-charts';
 import { useUniwind } from 'uniwind';
 import { Text } from '@/components/ui/text';
 import { THEME } from '@/lib/theme';
-import { type BaselineItemTypes } from '@/lib/api/portfolio';
+import { type SimulationBaselineItemTypes as BaselineItemTypes } from '@/lib/api/simulation';
 import { roundToTwoDecimals } from '@/lib/constant/function';
 
 type AllocationDonutPropsTypes = {

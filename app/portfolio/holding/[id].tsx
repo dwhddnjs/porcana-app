@@ -6,12 +6,9 @@ import { BaselineItem } from '@/components/portfolio/baseline-item';
 import { HoldingSummaryCard } from '@/components/portfolio/holding-summary-card';
 import { HoldingSubStats } from '@/components/portfolio/holding-sub-stats';
 import { AllocationDonut } from '@/components/portfolio/allocation-donut';
-import { RebalanceAlertBanner } from '@/components/portfolio/rebalance-alert-banner';
-import {
-  useGetHoldingBaselineQuery,
-  useGetRebalanceStatusQuery,
-} from '@/lib/hooks/query/portfolio';
-import { type BaselineItemTypes } from '@/lib/api/portfolio';
+
+import { useGetSimulationBaselineQuery } from '@/lib/hooks/query/simulation';
+import { type SimulationBaselineItemTypes } from '@/lib/api/simulation';
 import { FlashList } from '@shopify/flash-list';
 import { PlusCircle } from 'lucide-react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -22,14 +19,13 @@ import { Spacer } from '@/components/ui/spacer';
 export default function HoldingScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { data, isLoading, isFetching } = useGetHoldingBaselineQuery(id);
-  const { data: rebalanceStatus } = useGetRebalanceStatusQuery(id);
+  const { data, isLoading, isFetching } = useGetSimulationBaselineQuery(id);
 
   const currencyUnit = data?.baseCurrency === 'USD' ? '$' : '원';
 
   const handleGoBack = useCallback(() => {
-    if (router.canGoBack()) router.back();
-  }, [router]);
+    router.dismissTo(`/portfolio/${id}`);
+  }, [router, id]);
 
   const handleDeposit = useCallback(() => {
     if (!id) return;
@@ -44,7 +40,7 @@ export default function HoldingScreen() {
   );
 
   const renderItem = useCallback(
-    ({ item, index }: { item: BaselineItemTypes; index: number }) => (
+    ({ item, index }: { item: SimulationBaselineItemTypes; index: number }) => (
       <BaselineItem
         item={item}
         currencyUnit={currencyUnit}
@@ -55,7 +51,7 @@ export default function HoldingScreen() {
     [currencyUnit, handleAssetPress]
   );
 
-  const keyExtractor = useCallback((item: BaselineItemTypes) => item.assetId, []);
+  const keyExtractor = useCallback((item: SimulationBaselineItemTypes) => item.assetId, []);
 
   const depositButton = (
     <Pressable
@@ -97,12 +93,7 @@ export default function HoldingScreen() {
               cashAmount={data.cashAmount ?? 0}
               currencyUnit={currencyUnit}
             />
-            {rebalanceStatus && (
-              <View className="pt-[12px] pb-[8px]">
-                <RebalanceAlertBanner status={rebalanceStatus} />
-              </View>
-            )}
-
+            <Spacer height={12} />
             <FlashList
               data={data.items}
               renderItem={renderItem}
@@ -110,7 +101,6 @@ export default function HoldingScreen() {
               showsVerticalScrollIndicator={false}
               ListHeaderComponent={
                 <View>
-                  <Spacer height={12} />
                   <AllocationDonut
                     items={data.items}
                     totalValue={data.totalValue ?? 0}

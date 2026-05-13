@@ -1,4 +1,5 @@
-// 시드머니 확정: portfolios.seed_money 업데이트 + portfolio_holdings.quantity/avg_price 저장
+// 모의투자 시작/확정: simulations + simulation_holdings 에 기록
+// (portfolios / portfolio_holdings 의 데이터는 건드리지 않음)
 
 // @ts-expect-error Deno 표준 라이브러리
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
@@ -76,7 +77,7 @@ serve(async (req: Request) => {
   const { data: portfolio, error: pErr } = await userClient
     .from('portfolios')
     .select(
-      `portfolio_id,
+      `portfolio_id, user_id,
       portfolio_holdings (
         holding_id, asset_id, target_weight_pct,
         assets ( ticker, name, market, image_url, website_domain,
@@ -127,44 +128,63 @@ serve(async (req: Request) => {
     };
   });
 
-  // portfolios 업데이트
-  const { error: updateErr } = await admin
-    .from('portfolios')
-    .update({
-      seed_money: seedMoney,
-      base_currency: baseCurrency,
-      started_at: new Date().toISOString(),
-    })
-    .eq('portfolio_id', portfolioId);
-  if (updateErr) return jsonRes({ error: updateErr.message }, 500);
+  const nowIso = new Date().toISOString();
 
-  // holdings quantity/avg_price 저장
-  const upsertRows = items.map((item) => ({
-    portfolio_id: portfolioId,
-    asset_id: item.assetId,
-    quantity: item.quantity,
-    avg_price: item.avgPrice,
-  }));
+  // simulations upsert (portfolio_id unique). 기존 row 있으면 재시작 동작.
+  const { data: simRow, error: simErr } = await admin
+    .from('simulations')
+    .upsert(
+      {
+        portfolio_id: portfolioId,
+        user_id: user.id,
+        seed_money: seedMoney,
+        base_currency: baseCurrency,
+        status: 'ACTIVE',
+        total_return_pct: 0,
+        started_at: nowIso,
+        ended_at: null,
+      },
+      { onConflict: 'portfolio_id' }
+    )
+    .select('simulation_id')
+    .single();
+  if (simErr || !simRow) return jsonRes({ error: simErr?.message ?? 'simulation upsert failed' }, 500);
 
-  if (upsertRows.length > 0) {
-    const { error: upsertErr } = await admin
-      .from('portfolio_holdings')
-      .upsert(upsertRows, { onConflict: 'portfolio_id,asset_id' });
-    if (upsertErr) return jsonRes({ error: upsertErr.message }, 500);
+  const simulationId = simRow.simulation_id as string;
+
+  // 기존 holdings 삭제 후 재삽입 (자산 비중이 바뀌었을 수 있음)
+  await admin.from('simulation_holdings').delete().eq('simulation_id', simulationId);
+
+  const insertRows = items
+    .filter((item) => item.quantity > 0 || item.avgPrice > 0)
+    .map((item) => ({
+      simulation_id: simulationId,
+      asset_id: item.assetId,
+      quantity: item.quantity,
+      avg_price: item.avgPrice,
+    }));
+
+  if (insertRows.length > 0) {
+    const { error: insertErr } = await admin.from('simulation_holdings').insert(insertRows);
+    if (insertErr) return jsonRes({ error: insertErr.message }, 500);
   }
+
+  // 이전 모의투자의 수익률/시계열은 리셋
+  await admin.from('simulation_value_history').delete().eq('simulation_id', simulationId);
+  await admin.from('simulation_holding_returns').delete().eq('simulation_id', simulationId);
 
   const totalValue = items.reduce((s, i) => s + i.currentValue, 0);
 
   return jsonRes({
     exists: true,
-    baselineId: portfolioId,
+    simulationId,
     portfolioId,
     sourceType: 'MANUAL',
     baseCurrency,
     seedMoney,
     totalValue,
     cashAmount: seedMoney - totalValue,
-    confirmedAt: new Date().toISOString(),
+    confirmedAt: nowIso,
     items: items.map(({ holdingId: _h, ...rest }) => rest),
   });
 });

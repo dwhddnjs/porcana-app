@@ -1,7 +1,18 @@
 import { View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { AssetImage } from '@/components/portfolio/asset-image';
-import { type TopUpRecommendationTypes } from '@/lib/api/portfolio';
+type TopUpRecommendationTypes = {
+  assetId: string;
+  name: string;
+  symbol: string;
+  currentWeightPct: number;
+  weightAfterBuy: number;
+  recommendedQuantity: number;
+  recommendedAmount: number;
+  currentPrice: number;
+  imageUrl?: string | string[] | null;
+  reason?: string;
+};
 import { formatCurrency } from '@/lib/constant/function';
 
 type TopUpRecommendationItemPropsTypes = {

@@ -1,8 +1,10 @@
-// 포트폴리오 수익률 재계산: asset_prices 갱신 후 pg_cron으로 호출
-// - ACTIVE 포트폴리오(또는 특정 portfolioId)의 일별 가중 지수를 portfolio_value_history에 upsert
-// - 종목별 누적/기여 수익률을 portfolio_holding_returns에 upsert
-// - portfolios.total_return_pct 갱신
+// 모의투자 수익률 재계산: asset_prices 갱신 후 pg_cron으로 호출.
+// - status='ACTIVE' simulation 들의 일별 가중 지수를 simulation_value_history 에 upsert
+// - 종목별 누적/기여 수익률을 simulation_holding_returns 에 upsert
+// - simulations.total_return_pct 갱신
 // - 다중 통화: base_currency 기준으로 일별 환율 적용 (fx_rates_history 사용, 없으면 fx_rates fallback)
+//
+// 포트폴리오 본체(portfolios) 의 수익률/시계열은 더 이상 갱신하지 않음.
 
 // @ts-expect-error Deno 표준 라이브러리
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
@@ -22,15 +24,18 @@ type HoldingRowTypes = {
   };
 };
 
-type PortfolioRowTypes = {
+type SimulationRowTypes = {
+  simulation_id: string;
   portfolio_id: string;
-  created_at: string;
+  started_at: string;
   base_currency: string | null;
-  portfolio_holdings: HoldingRowTypes[];
+  portfolios: {
+    portfolio_holdings: HoldingRowTypes[];
+  };
 };
 
 type HistoryRowTypes = {
-  portfolio_id: string;
+  simulation_id: string;
   date: string;
   index_value: number;
   return_pct: number;
@@ -38,7 +43,7 @@ type HistoryRowTypes = {
 };
 
 type HoldingReturnRowTypes = {
-  portfolio_id: string;
+  simulation_id: string;
   asset_id: string;
   cumulative_return_pct: number;
   contribution_pct: number;
@@ -54,8 +59,6 @@ const corsHeaders = {
 
 const marketToCurrency = (market: string) => (market === 'US' ? 'USD' : 'KRW');
 
-// 일별 환율 맵을 만들어 base_currency 기준으로 가격을 환산
-// fxByDate: date -> { 'USD->KRW': rate, 'KRW->USD': rate }
 const convertPrice = (
   price: number,
   fromCcy: string,
@@ -79,12 +82,11 @@ type CalcResultTypes = {
 
 const calcWeightedIndex = (
   holdings: HoldingRowTypes[],
-  createdDate: string,
+  startDate: string,
   baseCurrency: string,
   fxByDate: Map<string, Map<string, number>>,
   fxFallback: Map<string, number>
 ): CalcResultTypes => {
-  // 종목별 환산 가격 시계열 + 기준 가격 산출
   const enriched = holdings.map((h) => {
     const range1Y = (h.assets?.asset_prices ?? []).find((p) => p.range === '1Y');
     const points: PricePointTypes[] = range1Y?.points ?? [];
@@ -97,7 +99,7 @@ const calcWeightedIndex = (
     });
 
     const sortedDates = [...convertedMap.keys()].sort();
-    const onOrBefore = sortedDates.filter((d) => d <= createdDate);
+    const onOrBefore = sortedDates.filter((d) => d <= startDate);
     const baseDate = onOrBefore.length ? onOrBefore[onOrBefore.length - 1] : null;
     const firstPrice = baseDate ? (convertedMap.get(baseDate) ?? 0) : 0;
 
@@ -116,14 +118,13 @@ const calcWeightedIndex = (
   if (enriched.length === 0) return { history: [], holdingReturns: [] };
 
   const allDates = [...new Set(enriched.flatMap((e) => [...e.priceMap.keys()]))]
-    .filter((d) => d >= createdDate)
+    .filter((d) => d >= startDate)
     .sort();
   if (allDates.length === 0) return { history: [], holdingReturns: [] };
 
   const totalWeight = enriched.reduce((s, e) => s + e.weight, 0);
   if (totalWeight === 0) return { history: [], holdingReturns: [] };
 
-  // 종목별 forward-fill용 마지막 가격 추적
   const lastSeenPrice = new Map<string, number>();
   const indexValues: number[] = [];
 
@@ -178,17 +179,19 @@ serve(async (req: Request) => {
   const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
   const admin = createClient(supabaseUrl, serviceKey);
 
+  // body 로 portfolioId 또는 simulationId 단일 처리 가능
   let targetPortfolioId: string | null = null;
+  let targetSimulationId: string | null = null;
   try {
     if (req.headers.get('content-type')?.includes('application/json')) {
       const body = await req.json();
       targetPortfolioId = body?.portfolioId ?? null;
+      targetSimulationId = body?.simulationId ?? null;
     }
   } catch {
     // body 없으면 전체 처리
   }
 
-  // 환율 데이터 로드: history(일별) + fallback(최신)
   const fxByDate = new Map<string, Map<string, number>>();
   const { data: fxHistory } = await admin
     .from('fx_rates_history')
@@ -206,28 +209,33 @@ serve(async (req: Request) => {
     fxFallback.set(`${row.base}->${row.quote}`, Number(row.rate));
   }
 
-  // ACTIVE 포트폴리오 조회 (created_at + base_currency + market 포함)
+  // ACTIVE simulation 조회 (portfolio_holdings 와 가격 시계열 포함)
   let query = admin
-    .from('portfolios')
+    .from('simulations')
     .select(
-      `portfolio_id,
-      created_at,
+      `simulation_id,
+      portfolio_id,
+      started_at,
       base_currency,
-      portfolio_holdings (
-        asset_id, target_weight_pct,
-        assets (
-          market,
-          asset_prices ( range, points )
+      portfolios!inner (
+        portfolio_holdings (
+          asset_id, target_weight_pct,
+          assets (
+            market,
+            asset_prices ( range, points )
+          )
         )
       )`
     )
     .eq('status', 'ACTIVE');
 
-  if (targetPortfolioId) {
+  if (targetSimulationId) {
+    query = query.eq('simulation_id', targetSimulationId);
+  } else if (targetPortfolioId) {
     query = query.eq('portfolio_id', targetPortfolioId);
   }
 
-  const { data: portfolios, error: fetchError } = await query;
+  const { data: simulations, error: fetchError } = await query;
 
   if (fetchError) {
     return new Response(JSON.stringify({ error: fetchError.message }), {
@@ -240,50 +248,50 @@ serve(async (req: Request) => {
   let skipped = 0;
   const errors: string[] = [];
 
-  for (const portfolio of (portfolios ?? []) as unknown as PortfolioRowTypes[]) {
+  for (const sim of (simulations ?? []) as unknown as SimulationRowTypes[]) {
     try {
-      const holdings = portfolio.portfolio_holdings ?? [];
+      const holdings = sim.portfolios?.portfolio_holdings ?? [];
       if (holdings.length === 0) {
         skipped++;
         continue;
       }
 
-      const baseCurrency = portfolio.base_currency ?? 'KRW';
-      const kstDate = new Date(new Date(portfolio.created_at).getTime() + 9 * 60 * 60 * 1000);
-      const createdDate = kstDate.toISOString().slice(0, 10);
+      const baseCurrency = sim.base_currency ?? 'KRW';
+      const kstDate = new Date(new Date(sim.started_at).getTime() + 9 * 60 * 60 * 1000);
+      const startDate = kstDate.toISOString().slice(0, 10);
 
       const { history, holdingReturns } = calcWeightedIndex(
         holdings,
-        createdDate,
+        startDate,
         baseCurrency,
         fxByDate,
         fxFallback
       );
 
       if (history.length === 0) {
-        console.log(`skip portfolio ${portfolio.portfolio_id}: 생성일 이후 가격 데이터 없음`);
+        console.log(`skip simulation ${sim.simulation_id}: 시작일 이후 가격 데이터 없음`);
         skipped++;
         continue;
       }
 
-      // 생성일 이전 데이터가 있을 때만 정리
+      // 시작일 이전 데이터가 있을 때만 정리
       const { data: oldestRow } = await admin
-        .from('portfolio_value_history')
+        .from('simulation_value_history')
         .select('date')
-        .eq('portfolio_id', portfolio.portfolio_id)
-        .lt('date', createdDate)
+        .eq('simulation_id', sim.simulation_id)
+        .lt('date', startDate)
         .limit(1);
 
       if (oldestRow && oldestRow.length > 0) {
         await admin
-          .from('portfolio_value_history')
+          .from('simulation_value_history')
           .delete()
-          .eq('portfolio_id', portfolio.portfolio_id)
-          .lt('date', createdDate);
+          .eq('simulation_id', sim.simulation_id)
+          .lt('date', startDate);
       }
 
       const rows: HistoryRowTypes[] = history.map((h) => ({
-        portfolio_id: portfolio.portfolio_id,
+        simulation_id: sim.simulation_id,
         date: h.date,
         index_value: h.index_value,
         return_pct: h.return_pct,
@@ -291,18 +299,17 @@ serve(async (req: Request) => {
       }));
 
       const { error: upsertError } = await admin
-        .from('portfolio_value_history')
-        .upsert(rows, { onConflict: 'portfolio_id,date' });
+        .from('simulation_value_history')
+        .upsert(rows, { onConflict: 'simulation_id,date' });
 
       if (upsertError) {
-        errors.push(`[${portfolio.portfolio_id}] value_history upsert 실패: ${upsertError.message}`);
+        errors.push(`[${sim.simulation_id}] value_history upsert 실패: ${upsertError.message}`);
         continue;
       }
 
-      // 종목별 누적/기여 수익률 upsert
       const computedAt = new Date().toISOString();
       const holdingRows: HoldingReturnRowTypes[] = holdingReturns.map((h) => ({
-        portfolio_id: portfolio.portfolio_id,
+        simulation_id: sim.simulation_id,
         asset_id: h.asset_id,
         cumulative_return_pct: h.cumulative_return_pct,
         contribution_pct: h.contribution_pct,
@@ -312,29 +319,29 @@ serve(async (req: Request) => {
       }));
 
       const { error: holdingUpsertError } = await admin
-        .from('portfolio_holding_returns')
-        .upsert(holdingRows, { onConflict: 'portfolio_id,asset_id' });
+        .from('simulation_holding_returns')
+        .upsert(holdingRows, { onConflict: 'simulation_id,asset_id' });
 
       if (holdingUpsertError) {
-        errors.push(`[${portfolio.portfolio_id}] holding_returns upsert 실패: ${holdingUpsertError.message}`);
+        errors.push(`[${sim.simulation_id}] holding_returns upsert 실패: ${holdingUpsertError.message}`);
         continue;
       }
 
       const latestReturnPct = history[history.length - 1].return_pct;
       const { error: updateError } = await admin
-        .from('portfolios')
+        .from('simulations')
         .update({ total_return_pct: latestReturnPct })
-        .eq('portfolio_id', portfolio.portfolio_id);
+        .eq('simulation_id', sim.simulation_id);
 
       if (updateError) {
-        errors.push(`[${portfolio.portfolio_id}] total_return_pct 갱신 실패: ${updateError.message}`);
+        errors.push(`[${sim.simulation_id}] total_return_pct 갱신 실패: ${updateError.message}`);
         continue;
       }
 
       processed++;
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      errors.push(`[${portfolio.portfolio_id}] 처리 중 오류: ${msg}`);
+      errors.push(`[${sim.simulation_id}] 처리 중 오류: ${msg}`);
     }
   }
 

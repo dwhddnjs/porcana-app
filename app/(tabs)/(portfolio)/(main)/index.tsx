@@ -5,7 +5,7 @@ import { Icon } from '@/components/ui/icon';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
 
 import { useGetHomeQuery } from '@/lib/hooks/query/home';
-import { useGetHoldingBaselineQuery } from '@/lib/hooks/query/portfolio';
+import { useGetSimulationBaselineQuery } from '@/lib/hooks/query/simulation';
 import { useLoadingStore } from '@/lib/hooks/zustand/use-loading-store';
 import HomePortfolioChart from '@/components/portfolio/home-portfolio-chart';
 import { AssetItem } from '@/components/portfolio/asset-item';
@@ -22,7 +22,7 @@ export default function PortfolioScreen() {
   const { show, hide } = useLoadingStore();
 
   const { data, isLoading, isPending } = useGetHomeQuery();
-  const { data: holdingData } = useGetHoldingBaselineQuery(data?.mainPortfolio?.portfolioId);
+  const { data: holdingData } = useGetSimulationBaselineQuery(data?.mainPortfolio?.portfolioId);
 
   useEffect(() => {
     if (isLoading) {
