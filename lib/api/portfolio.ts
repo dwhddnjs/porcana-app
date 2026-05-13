@@ -26,6 +26,14 @@ type DbHoldingDetailTypes = {
   assets: DbAssetDetailTypes;
 };
 
+export type PortfolioReturnsTypes = {
+  totalReturnPct: number;
+  return1D: number | null;
+  return1W: number | null;
+  return1M: number | null;
+  return1Y: number | null;
+};
+
 export type PositionTypes = {
   assetId: string;
   currentRiskLevel: number;
@@ -63,17 +71,19 @@ export type PortfolioTypes = {
   riskDistribution?: RiskDistributionTypes;
   startedAt?: string;
   topAssets?: TopAssetTypes[];
+  hasSimulation?: boolean;
 };
 
 export const getPortfolios = async (): Promise<PortfolioTypes[]> => {
   const { data, error } = await supabase
     .from('portfolios')
     .select(
-      `portfolio_id, name, status, is_main, total_return_pct, average_risk_level, started_at, created_at,
+      `portfolio_id, name, status, is_main, average_risk_level, created_at, total_return_pct, started_at,
       portfolio_holdings (
         target_weight_pct,
         assets ( asset_id, ticker, name, market, image_url, website_domain )
-      )`
+      ),
+      simulations ( simulation_id, total_return_pct, started_at )`
     )
     .order('created_at', { ascending: false });
 
@@ -92,15 +102,27 @@ export const getPortfolios = async (): Promise<PortfolioTypes[]> => {
       weight: Number(h.target_weight_pct),
     }));
 
+    type SimSummary = { simulation_id: string; total_return_pct: number | null; started_at: string | null };
+    const sim = (row.simulations ?? []) as unknown as SimSummary[];
+    const simRow = sim[0] ?? null;
+
+    const totalReturnPct = simRow
+      ? Number(simRow.total_return_pct ?? 0)
+      : Number((row as unknown as { total_return_pct: number | null }).total_return_pct ?? 0);
+    const startedAt = simRow?.started_at
+      ?? (row as unknown as { started_at: string | null }).started_at
+      ?? undefined;
+
     return {
       portfolioId: row.portfolio_id,
       name: row.name,
       status: row.status,
       isMain: row.is_main,
-      totalReturnPct: Number(row.total_return_pct ?? 0),
+      totalReturnPct,
       createdAt: row.created_at,
       averageRiskLevel: row.average_risk_level,
-      startedAt: row.started_at ?? undefined,
+      startedAt: startedAt ?? undefined,
+      hasSimulation: !!simRow || totalReturnPct !== 0,
       topAssets,
     };
   });
@@ -114,7 +136,7 @@ export const getPortfolio = async ({
   const { data, error } = await supabase
     .from('portfolios')
     .select(
-      `portfolio_id, name, status, is_main, total_return_pct, average_risk_level, started_at, created_at,
+      `portfolio_id, name, status, is_main, average_risk_level, created_at, total_return_pct,
       portfolio_holdings (
         asset_id, target_weight_pct,
         assets ( asset_id, ticker, name, market, current_risk_level, image_url, website_domain, sector )
@@ -127,15 +149,16 @@ export const getPortfolio = async ({
 
   const holdings = (data.portfolio_holdings ?? []) as unknown as DbHoldingDetailTypes[];
 
+  const returnsByAsset = new Map<
+    string,
+    { cumulative_return_pct: number; contribution_pct: number; base_price: number; latest_price: number }
+  >();
+
   const { data: holdingReturnsRows } = await supabase
     .from('portfolio_holding_returns')
     .select('asset_id, cumulative_return_pct, contribution_pct, base_price, latest_price')
     .eq('portfolio_id', portfolioId);
 
-  const returnsByAsset = new Map<
-    string,
-    { cumulative_return_pct: number; contribution_pct: number; base_price: number; latest_price: number }
-  >();
   for (const r of holdingReturnsRows ?? []) {
     returnsByAsset.set(r.asset_id, {
       cumulative_return_pct: Number(r.cumulative_return_pct ?? 0),
@@ -155,7 +178,7 @@ export const getPortfolio = async ({
     riskDistribution[level] = (riskDistribution[level] ?? 0) + Number(h.target_weight_pct);
   });
 
-  // 동적 현재 비중: target_weight × (latest_price / base_price) 로 가격 변화 반영
+  // 동적 현재 비중: target_weight × (latest_price / base_price)
   const currentValues = holdings.map((h) => {
     const r = returnsByAsset.get(h.asset_id);
     const weight = Number(h.target_weight_pct);
@@ -167,7 +190,7 @@ export const getPortfolio = async ({
 
   const positions: PositionTypes[] = holdings.map((h, i) => {
     const returns = returnsByAsset.get(h.asset_id);
-    const currentWeightPct = (currentValues[i] / totalValue) * 100;
+    const currentWeightPct = totalValue > 0 ? (currentValues[i] / totalValue) * 100 : 0;
     return {
       assetId: h.assets.asset_id,
       currentRiskLevel: h.assets.current_risk_level,
@@ -197,13 +220,12 @@ export const getPortfolio = async ({
     name: data.name,
     status: data.status,
     isMain: data.is_main,
-    totalReturnPct: Number(data.total_return_pct ?? 0),
+    totalReturnPct: Number((data as unknown as { total_return_pct: number | null }).total_return_pct ?? 0),
     createdAt: data.created_at,
     averageRiskLevel: data.average_risk_level,
     diversityLevel,
     positions,
     riskDistribution,
-    startedAt: data.started_at ?? undefined,
     topAssets,
   };
 };
@@ -211,6 +233,74 @@ export const getPortfolio = async ({
 export type UpdateWeightItemTypes = {
   assetId: string;
   weightPct: number;
+};
+
+export type PortfolioChartPointTypes = {
+  date: string;
+  value: number;
+};
+
+export const getPortfolioChart = async ({
+  portfolioId,
+  range = '1Y',
+}: {
+  portfolioId: string;
+  range?: '1M' | '3M' | '1Y';
+}): Promise<PortfolioChartPointTypes[]> => {
+  const limitDays: Record<string, number> = { '1M': 30, '3M': 90 };
+  let query = supabase
+    .from('portfolio_value_history')
+    .select('date, index_value')
+    .eq('portfolio_id', portfolioId)
+    .order('date', { ascending: true });
+
+  if (range !== '1Y') {
+    const fromDate = new Date();
+    fromDate.setDate(fromDate.getDate() - limitDays[range]);
+    query = query.gte('date', fromDate.toISOString().slice(0, 10));
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+  return (data ?? []).map((row) => ({ date: row.date, value: Number(row.index_value) }));
+};
+
+export const getPortfolioReturns = async ({
+  portfolioId,
+}: {
+  portfolioId: string;
+}): Promise<PortfolioReturnsTypes> => {
+  const { data, error } = await supabase
+    .from('portfolio_value_history')
+    .select('date, index_value, return_pct')
+    .eq('portfolio_id', portfolioId)
+    .order('date', { ascending: false })
+    .limit(366);
+
+  if (error) throw error;
+
+  const rows = data ?? [];
+  if (rows.length === 0) {
+    return { totalReturnPct: 0, return1D: null, return1W: null, return1M: null, return1Y: null };
+  }
+
+  const latest = rows[0];
+  const latestIndex = Number(latest.index_value);
+
+  const calcReturn = (daysAgo: number): number | null => {
+    const target = rows[daysAgo];
+    if (!target) return null;
+    const prevIndex = Number(target.index_value);
+    return prevIndex > 0 ? (latestIndex / prevIndex) * 100 - 100 : null;
+  };
+
+  return {
+    totalReturnPct: Number(latest.return_pct),
+    return1D: calcReturn(1),
+    return1W: calcReturn(7),
+    return1M: calcReturn(30),
+    return1Y: calcReturn(365),
+  };
 };
 
 export const updatePortfolioWeights = async ({
@@ -323,200 +413,6 @@ export const directCreatePortfolio = async ({
   };
 };
 
-export type BaselineItemTypes = {
-  assetId: string;
-  symbol: string;
-  name: string;
-  market: string;
-  quantity: number;
-  avgPrice: number;
-  targetWeightPct: number;
-  currentPrice: number;
-  currentValue: number;
-  imageUrl?: string | string[] | null;
-};
-
-export type BaselineResponseTypes = {
-  exists: boolean;
-  baselineId: string;
-  portfolioId: string;
-  sourceType: string;
-  baseCurrency: string;
-  seedMoney: number;
-  totalValue: number;
-  cashAmount: number;
-  confirmedAt: string;
-  items: BaselineItemTypes[];
-};
-
-export type SetSeedRequestTypes = {
-  seedMoney: number;
-  baseCurrency?: string;
-};
-
-export const setSeed = async ({
-  portfolioId,
-  seedMoney,
-  baseCurrency,
-}: {
-  portfolioId: string;
-} & SetSeedRequestTypes): Promise<BaselineResponseTypes> => {
-  const { data, error } = await supabase.functions.invoke('portfolio-set-seed', {
-    body: { portfolioId, seedMoney, baseCurrency: baseCurrency ?? 'KRW' },
-  });
-  if (error) throw error;
-  return data as BaselineResponseTypes;
-};
-
-export const getSeedPreview = async ({
-  portfolioId,
-  seedMoney,
-  baseCurrency,
-}: {
-  portfolioId: string;
-} & SetSeedRequestTypes): Promise<BaselineResponseTypes> => {
-  const { data, error } = await supabase.functions.invoke('portfolio-seed-preview', {
-    body: { portfolioId, seedMoney, baseCurrency: baseCurrency ?? 'KRW' },
-  });
-  if (error) throw error;
-  return data as BaselineResponseTypes;
-};
-
-export const getHoldingBaseline = async ({
-  portfolioId,
-}: {
-  portfolioId: string;
-}): Promise<BaselineResponseTypes> => {
-  const { data, error } = await supabase.functions.invoke('portfolio-holding-baseline', {
-    body: { portfolioId },
-  });
-  if (error) throw error;
-  return data as BaselineResponseTypes;
-};
-
-export type RebalanceStatusItemTypes = {
-  assetId: string;
-  symbol: string;
-  name: string;
-  targetWeightPct: number;
-  currentWeightPct: number;
-  deviationPct: number;
-  overThreshold: boolean;
-};
-
-export type RebalanceStatusSummaryTypes = {
-  totalAssets: number;
-  overThresholdCount: number;
-};
-
-export type RebalanceStatusResponseTypes = {
-  portfolioId: string;
-  hasBaseline: boolean;
-  needsRebalancing: boolean;
-  checkedAt: string;
-  thresholdPct: number;
-  baseCurrency: string;
-  summary: RebalanceStatusSummaryTypes;
-  items: RebalanceStatusItemTypes[];
-};
-
-export const getRebalanceStatus = async ({
-  portfolioId,
-  thresholdPct = 5,
-}: {
-  portfolioId: string;
-  thresholdPct?: number;
-}): Promise<RebalanceStatusResponseTypes> => {
-  const { data, error } = await supabase.functions.invoke('portfolio-rebalance-status', {
-    body: { portfolioId, thresholdPct },
-  });
-  if (error) throw error;
-  return data as RebalanceStatusResponseTypes;
-};
-
-export type RebalancingPlanActionTypes = {
-  assetId: string;
-  symbol: string;
-  name: string;
-  action: string;
-  quantity: number;
-  price: number;
-  amount: number;
-  fromWeightPct: number;
-  toWeightPct: number;
-};
-
-export type RebalancingPlanSummaryTypes = {
-  totalBuyAmount: number;
-  totalSellAmount: number;
-  netAmount: number;
-};
-
-export type RebalancingPlanResponseTypes = {
-  portfolioId: string;
-  baselineId: string;
-  needsRebalancing: boolean;
-  thresholdPct: number;
-  baseCurrency: string;
-  summary: RebalancingPlanSummaryTypes;
-  actions: RebalancingPlanActionTypes[];
-};
-
-export const getRebalancingPlan = async ({
-  portfolioId,
-  thresholdPct = 5,
-}: {
-  portfolioId: string;
-  thresholdPct?: number;
-}): Promise<RebalancingPlanResponseTypes> => {
-  const baseline = await getHoldingBaseline({ portfolioId });
-
-  const actions: RebalancingPlanActionTypes[] = [];
-
-  if (baseline.exists && baseline.totalValue > 0) {
-    baseline.items.forEach((item) => {
-      const currentWeightPct = (item.currentValue / baseline.totalValue) * 100;
-      const targetValue = baseline.totalValue * (item.targetWeightPct / 100);
-      const diff = targetValue - item.currentValue;
-
-      if (Math.abs(currentWeightPct - item.targetWeightPct) > thresholdPct && item.currentPrice > 0) {
-        const quantity = Math.abs(Math.floor(diff / item.currentPrice));
-        if (quantity > 0) {
-          actions.push({
-            assetId: item.assetId,
-            symbol: item.symbol,
-            name: item.name,
-            action: diff > 0 ? 'BUY' : 'SELL',
-            quantity,
-            price: item.currentPrice,
-            amount: quantity * item.currentPrice,
-            fromWeightPct: currentWeightPct,
-            toWeightPct: item.targetWeightPct,
-          });
-        }
-      }
-    });
-  }
-
-  const totalBuyAmount = actions
-    .filter((a) => a.action === 'BUY')
-    .reduce((sum, a) => sum + a.amount, 0);
-  const totalSellAmount = actions
-    .filter((a) => a.action === 'SELL')
-    .reduce((sum, a) => sum + a.amount, 0);
-
-  return {
-    portfolioId,
-    baselineId: portfolioId,
-    needsRebalancing: actions.length > 0,
-    thresholdPct,
-    baseCurrency: baseline.baseCurrency,
-    summary: { totalBuyAmount, totalSellAmount, netAmount: totalBuyAmount - totalSellAmount },
-    actions,
-  };
-};
-
-
 export const setMainPortfolio = async ({
   portfolioId,
 }: {
@@ -546,194 +442,10 @@ export const setMainPortfolio = async ({
     .eq('user_id', user.id);
   if (profileError) throw profileError;
 
-  // user_metadata에도 동기화 → 앱 재시작 시 index.tsx 라우팅 조건에 사용됨
   const { error: metaError } = await supabase.auth.updateUser({
     data: { main_portfolio_id: portfolioId },
   });
   if (metaError) throw metaError;
 
   return { mainPortfolioId: portfolioId };
-};
-
-export type TopUpPlanRequestTypes = {
-  additionalCash: number;
-};
-
-export type TopUpRecommendationTypes = {
-  assetId: string;
-  symbol: string;
-  name: string;
-  market: string;
-  targetWeightPct: number;
-  currentWeightPct: number;
-  weightAfterBuy: number;
-  currentPrice: number;
-  recommendedQuantity: number;
-  recommendedAmount: number;
-  reason: string;
-  imageUrl?: string | string[] | null;
-};
-
-export type TopUpPlanResponseTypes = {
-  portfolioId: string;
-  additionalCash: number;
-  baseCurrency: string;
-  currentTotalValue: number;
-  newTotalValue: number;
-  remainingCash: number;
-  recommendations: TopUpRecommendationTypes[];
-};
-
-export type TopUpPurchaseItemTypes = {
-  assetId: string;
-  quantity: number;
-  purchasePrice: number;
-};
-
-export type TopUpExecuteRequestTypes = {
-  additionalCash: number;
-  purchases: TopUpPurchaseItemTypes[];
-  addRemainingCashToBaseline?: boolean;
-};
-
-export type TopUpSummaryTypes = {
-  additionalCash: number;
-  totalPurchaseAmount: number;
-  remainingCash: number;
-  previousTotalValue: number;
-  newTotalValue: number;
-  newCashAmount: number;
-};
-
-export type TopUpUpdatedItemTypes = {
-  assetId: string;
-  symbol: string;
-  name: string;
-  previousQuantity: number;
-  addedQuantity: number;
-  newQuantity: number;
-  previousAvgPrice: number;
-  newAvgPrice: number;
-};
-
-export type TopUpExecuteResponseTypes = {
-  portfolioId: string;
-  baselineId: string;
-  baseCurrency: string;
-  summary: TopUpSummaryTypes;
-  updatedItems: TopUpUpdatedItemTypes[];
-};
-
-export const getTopUpPlan = async ({
-  portfolioId,
-  additionalCash,
-}: {
-  portfolioId: string;
-} & TopUpPlanRequestTypes): Promise<TopUpPlanResponseTypes> => {
-  const { data, error } = await supabase.functions.invoke('portfolio-topup-plan', {
-    body: { portfolioId, additionalCash },
-  });
-  if (error) throw error;
-  return data as TopUpPlanResponseTypes;
-};
-
-export type PortfolioChartPointTypes = {
-  date: string;
-  value: number;
-};
-
-export type PortfolioReturnsTypes = {
-  totalReturnPct: number;
-  return1D: number | null;
-  return1W: number | null;
-  return1M: number | null;
-  return1Y: number | null;
-};
-
-export const getPortfolioChart = async ({
-  portfolioId,
-  range = '1Y',
-}: {
-  portfolioId: string;
-  range?: '1M' | '3M' | '1Y';
-}): Promise<PortfolioChartPointTypes[]> => {
-  const limitDays: Record<string, number> = { '1M': 30, '3M': 90 };
-  let query = supabase
-    .from('portfolio_value_history')
-    .select('date, index_value')
-    .eq('portfolio_id', portfolioId)
-    .order('date', { ascending: true });
-
-  if (range !== '1Y') {
-    const fromDate = new Date();
-    fromDate.setDate(fromDate.getDate() - limitDays[range]);
-    query = query.gte('date', fromDate.toISOString().slice(0, 10));
-  }
-
-  const { data, error } = await query;
-  if (error) throw error;
-
-  return (data ?? []).map((row) => ({
-    date: row.date,
-    value: Number(row.index_value),
-  }));
-};
-
-export const getPortfolioReturns = async ({
-  portfolioId,
-}: {
-  portfolioId: string;
-}): Promise<PortfolioReturnsTypes> => {
-  const { data, error } = await supabase
-    .from('portfolio_value_history')
-    .select('date, index_value, return_pct')
-    .eq('portfolio_id', portfolioId)
-    .order('date', { ascending: false })
-    .limit(366);
-
-  if (error) throw error;
-
-  const rows = data ?? [];
-  if (rows.length === 0) {
-    return { totalReturnPct: 0, return1D: null, return1W: null, return1M: null, return1Y: null };
-  }
-
-  const latest = rows[0];
-  const latestIndex = Number(latest.index_value);
-
-  const calcReturn = (daysAgo: number): number | null => {
-    const target = rows[daysAgo];
-    if (!target) return null;
-    const prevIndex = Number(target.index_value);
-    return prevIndex > 0 ? (latestIndex / prevIndex) * 100 - 100 : null;
-  };
-
-  return {
-    totalReturnPct: Number(latest.return_pct),
-    return1D: calcReturn(1),
-    return1W: calcReturn(7),
-    return1M: calcReturn(30),
-    return1Y: calcReturn(365),
-  };
-};
-
-export const executeTopUp = async ({
-  portfolioId,
-  additionalCash,
-  purchases,
-  addRemainingCashToBaseline,
-}: {
-  portfolioId: string;
-} & TopUpExecuteRequestTypes): Promise<TopUpExecuteResponseTypes> => {
-  const { data, error } = await supabase.functions.invoke('portfolio-execute-topup', {
-    body: { portfolioId, additionalCash, purchases, addRemainingCashToBaseline },
-  });
-  if (error) throw error;
-  return data as TopUpExecuteResponseTypes;
-};
-
-export const triggerRecalc = async ({ portfolioId }: { portfolioId: string }): Promise<void> => {
-  await supabase.functions.invoke('recalc-portfolio-returns', {
-    body: { portfolioId },
-  });
 };

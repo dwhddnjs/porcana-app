@@ -2,7 +2,11 @@ import { View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Icon } from '@/components/ui/icon';
 import { TriangleAlert } from 'lucide-react-native';
-import { type RebalanceStatusResponseTypes } from '@/lib/api/portfolio';
+type RebalanceStatusResponseTypes = {
+  needsRebalancing: boolean;
+  thresholdPct: number;
+  summary: { overThresholdCount: number };
+};
 
 type RebalanceAlertBannerPropsTypes = {
   status: RebalanceStatusResponseTypes;

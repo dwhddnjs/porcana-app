@@ -5,15 +5,18 @@ import { Header } from '@/components/ui/header';
 import { AmountInput } from '@/components/portfolio/amount-input';
 import { AnimatedListItem } from '@/components/portfolio/animated-list-item';
 import { TopUpRecommendationItem } from '@/components/portfolio/top-up-recommendation-item';
-import { useGetHoldingBaselineQuery } from '@/lib/hooks/query/portfolio';
-import { useExecuteTopUpMutation, useGetTopUpPlanMutation } from '@/lib/hooks/mutation/portfolio';
+import { useGetSimulationBaselineQuery } from '@/lib/hooks/query/simulation';
+import {
+  useExecuteSimulationTopUpMutation,
+  useGetSimulationTopUpPlanMutation,
+} from '@/lib/hooks/mutation/simulation';
 import { useKeyboardVisible } from '@/lib/hooks/use-keyboard-visible';
 import { formatCompactValue } from '@/lib/constant/function';
-import { type TopUpRecommendationTypes } from '@/lib/api/portfolio';
+import { type TopUpRecommendationTypes } from '@/lib/api/simulation';
 import { FlashList } from '@shopify/flash-list';
 import { ArrowRight } from 'lucide-react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Keyboard, Pressable, View } from 'react-native';
+import { ActivityIndicator, Keyboard, Pressable, View } from 'react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner-native';
 import Animated, {
@@ -35,14 +38,14 @@ export default function DepositScreen() {
 
   const isKeyboardVisible = useKeyboardVisible();
 
-  const { data: holdingData } = useGetHoldingBaselineQuery(id);
+  const { data: holdingData } = useGetSimulationBaselineQuery(id);
   const {
     mutate: fetchTopUpPlan,
     data: topUpPlanData,
     isPending,
     reset: resetTopUpPlan,
-  } = useGetTopUpPlanMutation();
-  const { mutate: executeTopUp, isPending: isExecuting } = useExecuteTopUpMutation();
+  } = useGetSimulationTopUpPlanMutation();
+  const { mutate: executeTopUp, isPending: isExecuting } = useExecuteSimulationTopUpMutation();
 
   const isUsd = holdingData?.baseCurrency === 'USD';
   const currencyUnit = isUsd ? '$' : '₩';
@@ -85,7 +88,11 @@ export default function DepositScreen() {
     fetchTopUpPlan(
       { portfolioId: id, additionalCash: amount },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
+          if (!data.recommendations || data.recommendations.length === 0) {
+            toast.error('추천 종목이 없습니다');
+            return;
+          }
           setHasExpanded(true);
           setPlanVersion((v) => v + 1);
         },
@@ -136,11 +143,7 @@ export default function DepositScreen() {
   const renderItem = useCallback(
     ({ item, index }: { item: TopUpRecommendationTypes; index: number }) => (
       <AnimatedListItem index={index}>
-        <TopUpRecommendationItem
-          item={item}
-          currencyUnit={currencyUnit}
-          imageUrl={item.imageUrl}
-        />
+        <TopUpRecommendationItem item={item} currencyUnit={currencyUnit} imageUrl={item.imageUrl} />
       </AnimatedListItem>
     ),
     [currencyUnit]
@@ -193,8 +196,12 @@ export default function DepositScreen() {
                 onPress={handleFetchPlan}
                 disabled={isPending}
                 className="bg-primary mt-[8px] items-center rounded-full py-[12px]"
-                style={({ pressed }) => ({ opacity: pressed || isPending ? 0.7 : 1 })}>
-                <Text className="text-primary-foreground text-lg font-semibold">추천안 보기</Text>
+                style={({ pressed }) => ({ opacity: pressed ? 0.7 : isPending ? 0.7 : 1 })}>
+                {isPending ? (
+                  <ActivityIndicator size="small" color="black" />
+                ) : (
+                  <Text className="text-primary-foreground text-lg font-semibold">추천안 보기</Text>
+                )}
               </Pressable>
             )}
           </Animated.View>

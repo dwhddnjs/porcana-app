@@ -2,7 +2,7 @@ import { View, Pressable } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Card, CardContent } from '@/components/ui/card';
 import { Icon } from '@/components/ui/icon';
-import { Briefcase, ClipboardList, PlusCircle } from 'lucide-react-native';
+import { Briefcase, ClipboardList, PlusCircle, RotateCcw } from 'lucide-react-native';
 import { cn } from '@/lib/utils';
 
 type InvestmentManagementCardPropsTypes = {
@@ -11,6 +11,7 @@ type InvestmentManagementCardPropsTypes = {
   baseCurrency: string;
   onPressHolding: () => void;
   onPressDeposit: () => void;
+  onPressReset: () => void;
 };
 
 const formatCurrency = (value: number): string => {
@@ -25,6 +26,7 @@ export const InvestmentManagementCard = ({
   baseCurrency,
   onPressHolding,
   onPressDeposit,
+  onPressReset,
 }: InvestmentManagementCardPropsTypes) => {
   const profit = totalValue - seedMoney;
   const isPositive = profit >= 0;
@@ -87,6 +89,13 @@ export const InvestmentManagementCard = ({
             <Text className="text-primary-foreground text-sm font-bold">추가 입금</Text>
           </Pressable>
         </View>
+        <Pressable
+          onPress={onPressReset}
+          className="flex-row items-center justify-center gap-1 py-[4px]"
+          style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}>
+          <Icon as={RotateCcw} size={13} className="text-muted-foreground" />
+          <Text className="text-muted-foreground text-xs">모의투자 리셋</Text>
+        </Pressable>
       </CardContent>
     </Card>
   );
