@@ -22,7 +22,7 @@ import { type SimulationBaselineItemTypes } from '@/lib/api/simulation';
 import { FlashList } from '@shopify/flash-list';
 import { CheckIcon } from 'lucide-react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Keyboard, Pressable, View } from 'react-native';
+import { ActivityIndicator, Keyboard, Pressable, View } from 'react-native';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner-native';
 import Animated, {
@@ -207,13 +207,19 @@ export default function SimulationScreen() {
               </View>
             </AmountInput>
 
-            <Pressable
-              onPress={handleSetSeed}
-              disabled={isPending}
-              className="bg-primary items-center rounded-full py-[12px]"
-              style={({ pressed }) => ({ opacity: pressed || isPending ? 0.7 : 1 })}>
-              <Text className="text-primary-foreground text-lg font-semibold">미리보기</Text>
-            </Pressable>
+            {!hasExpanded && (
+              <Pressable
+                onPress={handleSetSeed}
+                disabled={isPending}
+                className="bg-primary mt-[8px] items-center rounded-full py-[12px]"
+                style={({ pressed }) => ({ opacity: pressed ? 0.7 : isPending ? 0.7 : 1 })}>
+                {isPending ? (
+                  <ActivityIndicator size="small" color="black" />
+                ) : (
+                  <Text className="text-primary-foreground text-lg font-semibold">미리보기</Text>
+                )}
+              </Pressable>
+            )}
           </Animated.View>
         </Animated.View>
 
