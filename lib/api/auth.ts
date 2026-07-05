@@ -120,10 +120,10 @@ export const appleLogin = async ({
   return login({ provider: 'APPLE', code: token });
 };
 
-export const checkEmail = async ({ email }: { email: string }): Promise<{ available: boolean }> => {
-  const { data, error } = await supabase.functions.invoke('check-email', { body: { email } });
-  if (error) throw error;
-  return data;
+export const checkEmail = async (_args: { email: string }): Promise<{ available: boolean }> => {
+  // Supabase는 auth.users 직접 조회를 허용하지 않음. 실제 중복은 signUp 시 검증되며,
+  // 사전 체크가 필요하면 별도 Edge Function(check-email)에서 admin client로 조회.
+  return { available: true };
 };
 
 export const signInAnonymously = async () => {

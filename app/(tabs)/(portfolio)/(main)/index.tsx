@@ -1,5 +1,5 @@
 import { Text } from '@/components/ui/text';
-import { Pressable, View } from 'react-native';
+import { ActivityIndicator, Pressable, View } from 'react-native';
 import { MenuIcon } from 'lucide-react-native';
 import { Icon } from '@/components/ui/icon';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
@@ -9,12 +9,12 @@ import { useGetSimulationBaselineQuery } from '@/lib/hooks/query/simulation';
 import { useLoadingStore } from '@/lib/hooks/zustand/use-loading-store';
 import HomePortfolioChart from '@/components/portfolio/home-portfolio-chart';
 import { AssetItem } from '@/components/portfolio/asset-item';
-import { ScreenLoading } from '@/components/ui/screen-state';
 import { useCallback, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { roundToTwoDecimals } from '@/lib/constant/function';
 import { LargeHeader } from '@/components/ui/large-header';
 import { Spacer } from '@/components/ui/spacer';
+import { HomePositionTypes } from '@/lib/api/home';
 
 export default function PortfolioScreen() {
   const navigation = useNavigation();
@@ -37,14 +37,18 @@ export default function PortfolioScreen() {
   }, [navigation]);
 
   const handleAssetPress = useCallback(
-    (assetId: string) => {
-      router.push(`/asset/${assetId}`);
+    (item: HomePositionTypes) => {
+      router.push(`/asset/${item.assetId}`);
     },
     [router]
   );
 
   if (isPending || isLoading) {
-    return <ScreenLoading />;
+    return (
+      <View className="bg-background flex-1 items-center justify-center">
+        <ActivityIndicator size="large" />
+      </View>
+    );
   }
 
   if (!data?.hasMainPortfolio) {
@@ -95,7 +99,7 @@ export default function PortfolioScreen() {
                 item={item}
                 showTopBorder={index === 0}
                 showContribution={(data.chart ?? []).length >= 2}
-                onPress={handleAssetPress}
+                onPress={() => handleAssetPress(item)}
               />
             ))}
           </View>

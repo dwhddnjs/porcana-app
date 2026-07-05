@@ -12,9 +12,6 @@ interface AssetImageProps {
   size?: number;
 }
 
-// 로고 로딩/전환 중 표시되는 단색 회색 placeholder (bg-muted 톤과 맞춤)
-const PLACEHOLDER_BLURHASH = 'L0NdO8fQfQfQfQfQfQfQfQfQfQfQ';
-
 export const AssetImage = ({ imageUrl, name, className, size = 36 }: AssetImageProps) => {
   const resolvedStyle = useResolveClassNames(className || '');
   const imageUrls = Array.isArray(imageUrl) ? imageUrl : imageUrl ? [imageUrl] : [];
@@ -46,9 +43,6 @@ export const AssetImage = ({ imageUrl, name, className, size = 36 }: AssetImageP
         source={{ uri: imageUrls[urlIndex] }}
         contentFit="contain"
         cachePolicy="memory-disk"
-        placeholder={{ blurhash: PLACEHOLDER_BLURHASH }}
-        placeholderContentFit="contain"
-        recyclingKey={imageUrls[0] ?? name}
         transition={150}
         style={{ width: size, height: size }}
         onError={handleError}
