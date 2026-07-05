@@ -17,10 +17,12 @@ export type UserProfileTypes = {
 export interface UserStateTypes {
   user: UserProfileTypes | null;
   themeMode: ThemeModeTypes;
+  hasCompletedInstall: boolean;
   setUser: (user: UserProfileTypes | null) => void;
   syncFromSession: (session: Session | null) => void;
   isAuthenticated: () => boolean;
   setThemeMode: (mode: ThemeModeTypes) => void;
+  setHasCompletedInstall: (value: boolean) => void;
   reset: () => void;
 }
 
@@ -49,6 +51,7 @@ export const useUserStore = create<UserStateTypes>()(
     (set, get) => ({
       user: null,
       themeMode: 'system',
+      hasCompletedInstall: false,
       setUser: (user) => set({ user }),
       syncFromSession: (session) => set({ user: sessionToProfile(session) }),
       isAuthenticated: () => {
@@ -56,12 +59,16 @@ export const useUserStore = create<UserStateTypes>()(
         return !!u && !u.isAnonymous;
       },
       setThemeMode: (mode) => set({ themeMode: mode }),
+      setHasCompletedInstall: (value) => set({ hasCompletedInstall: value }),
       reset: () => set({ user: null }),
     }),
     {
       name: 'user-storage',
       storage: createJSONStorage(() => zustandStorage),
-      partialize: (state) => ({ themeMode: state.themeMode }),
+      partialize: (state) => ({
+        themeMode: state.themeMode,
+        hasCompletedInstall: state.hasCompletedInstall,
+      }),
     }
   )
 );
