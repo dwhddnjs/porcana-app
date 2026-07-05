@@ -6,7 +6,6 @@ import { ThemeModeTypes, useUserStore } from '@/lib/hooks/zustand/use-user-store
 import { CheckIcon } from 'lucide-react-native';
 import { Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useCallback } from 'react';
 
 const THEME_OPTIONS: { mode: ThemeModeTypes; label: string }[] = [
   { mode: 'dark', label: '다크 모드' },
@@ -14,41 +13,15 @@ const THEME_OPTIONS: { mode: ThemeModeTypes; label: string }[] = [
   { mode: 'system', label: '시스템 기본 설정' },
 ];
 
-type ThemeOptionRowProps = {
-  mode: ThemeModeTypes;
-  label: string;
-  isSelected: boolean;
-  onSelect: (mode: ThemeModeTypes) => void;
-};
-
-const ThemeOptionRow = ({ mode, label, isSelected, onSelect }: ThemeOptionRowProps) => {
-  const handlePress = useCallback(() => {
-    onSelect(mode);
-  }, [onSelect, mode]);
-
-  return (
-    <Pressable
-      onPress={handlePress}
-      disabled={isSelected}
-      className="flex-row items-center px-4 py-3.5 active:opacity-70">
-      <Text className="flex-1 text-base">{label}</Text>
-      {isSelected && <Icon as={CheckIcon} className="text-primary size-5" />}
-    </Pressable>
-  );
-};
-
 export default function ColorModeScreen() {
   const insets = useSafeAreaInsets();
   const themeMode = useUserStore((s) => s.themeMode);
   const setThemeMode = useUserStore((s) => s.setThemeMode);
 
-  const handleSelect = useCallback(
-    (mode: ThemeModeTypes) => {
-      if (mode === themeMode) return;
-      setThemeMode(mode);
-    },
-    [themeMode, setThemeMode]
-  );
+  const handleSelect = (mode: ThemeModeTypes) => {
+    if (mode === themeMode) return;
+    setThemeMode(mode);
+  };
 
   return (
     <View className="bg-background flex-1" style={{ paddingTop: insets.top }}>
@@ -59,12 +32,15 @@ export default function ColorModeScreen() {
           {THEME_OPTIONS.map((option, index) => (
             <View key={option.mode}>
               {index > 0 && <Spacer isDivider className="mx-4" />}
-              <ThemeOptionRow
-                mode={option.mode}
-                label={option.label}
-                isSelected={option.mode === themeMode}
-                onSelect={handleSelect}
-              />
+              <Pressable
+                onPress={() => handleSelect(option.mode)}
+                disabled={option.mode === themeMode}
+                className="flex-row items-center px-4 py-3.5 active:opacity-70">
+                <Text className="flex-1 text-base">{option.label}</Text>
+                {option.mode === themeMode && (
+                  <Icon as={CheckIcon} className="text-primary size-5" />
+                )}
+              </Pressable>
             </View>
           ))}
         </View>

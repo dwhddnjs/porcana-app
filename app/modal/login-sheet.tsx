@@ -7,7 +7,6 @@ import { Mail } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useGoogleAuth } from '@/lib/hooks/mutation/google-auth';
 import { useAppleAuth } from '@/lib/hooks/mutation/apple-auth';
-import { GrabberHandle } from '@/components/ui/grabber-handle';
 
 export default function LoginSheet() {
   const insets = useSafeAreaInsets();
@@ -21,7 +20,9 @@ export default function LoginSheet() {
   return (
     <View className="bg-background flex-1 px-4" style={{ paddingBottom: insets.bottom + 16 }}>
       {/* 드래그 핸들 */}
-      <GrabberHandle className="bg-muted-foreground/30" />
+      <View className="items-center py-3">
+        <View className="bg-muted-foreground/30 h-1 w-10 rounded-full" />
+      </View>
 
       {/* 로그인 버튼들 */}
       <View className="gap-3 pt-[24px]">

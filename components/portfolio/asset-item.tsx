@@ -3,7 +3,7 @@ import { Text } from '@/components/ui/text';
 import { AssetImage } from '@/components/portfolio/asset-image';
 import { cn } from '@/lib/utils';
 import { roundToTwoDecimals } from '@/lib/constant/function';
-import { useCallback, useRef } from 'react';
+import { useRef } from 'react';
 
 export type AssetItemDataTypes = {
   assetId: string;
@@ -20,12 +20,12 @@ type AssetItemProps = {
   item: AssetItemDataTypes;
   showTopBorder?: boolean;
   showBottomBorder?: boolean;
-  onPress?: (assetId: string) => void;
+  onPress?: () => void;
   className?: string;
   isEditMode?: boolean;
   showContribution?: boolean;
   weightValue?: string;
-  onWeightChange?: (assetId: string, value: string) => void;
+  onWeightChange?: (value: string) => void;
 };
 
 export const AssetItem = ({
@@ -41,27 +41,9 @@ export const AssetItem = ({
 }: AssetItemProps) => {
   const inputRef = useRef<TextInput>(null);
 
-  const handlePress = useCallback(() => {
-    onPress?.(item.assetId);
-  }, [onPress, item.assetId]);
-
-  const handleFocusInput = useCallback(() => {
-    inputRef.current?.focus();
-  }, []);
-
-  const handleChangeText = useCallback(
-    (text: string) => {
-      const cleaned = text.replace(/[^0-9.]/g, '');
-      const parts = cleaned.split('.');
-      const formatted = parts.length > 2 ? parts[0] + '.' + parts.slice(1).join('') : cleaned;
-      onWeightChange?.(item.assetId, formatted);
-    },
-    [onWeightChange, item.assetId]
-  );
-
   return (
     <Pressable
-      onPress={isEditMode ? undefined : handlePress}
+      onPress={isEditMode ? undefined : onPress}
       disabled={isEditMode || !onPress}
       className={cn(
         'flex-row items-center justify-between gap-4 rounded-md px-[4px] py-[8px]',
@@ -86,11 +68,19 @@ export const AssetItem = ({
               {item.name}
             </Text>
             {isEditMode ? (
-              <Pressable className="flex-row items-center" onPress={handleFocusInput}>
+              <Pressable
+                className="flex-row items-center"
+                onPress={() => inputRef.current?.focus()}>
                 <TextInput
                   ref={inputRef}
                   value={weightValue}
-                  onChangeText={handleChangeText}
+                  onChangeText={(text) => {
+                    const cleaned = text.replace(/[^0-9.]/g, '');
+                    const parts = cleaned.split('.');
+                    const formatted =
+                      parts.length > 2 ? parts[0] + '.' + parts.slice(1).join('') : cleaned;
+                    onWeightChange?.(formatted);
+                  }}
                   keyboardType="decimal-pad"
                   className="text-weight border-b-primary/40 min-w-[40px] border-b px-2 pb-1 text-center text-sm font-semibold"
                   selectTextOnFocus

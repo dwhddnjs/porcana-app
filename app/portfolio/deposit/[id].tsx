@@ -5,23 +5,28 @@ import { Header } from '@/components/ui/header';
 import { AmountInput } from '@/components/portfolio/amount-input';
 import { AnimatedListItem } from '@/components/portfolio/animated-list-item';
 import { TopUpRecommendationItem } from '@/components/portfolio/top-up-recommendation-item';
-import { AmountPreviewButton } from '@/components/portfolio/amount-preview-button';
 import { useGetSimulationBaselineQuery } from '@/lib/hooks/query/simulation';
 import {
   useExecuteSimulationTopUpMutation,
   useGetSimulationTopUpPlanMutation,
 } from '@/lib/hooks/mutation/simulation';
 import { useKeyboardVisible } from '@/lib/hooks/use-keyboard-visible';
-import { useFadeInSequence } from '@/lib/hooks/use-fade-in-sequence';
-import { formatCompactValue, sanitizeDigits } from '@/lib/constant/function';
+import { formatCompactValue } from '@/lib/constant/function';
 import { type TopUpRecommendationTypes } from '@/lib/api/simulation';
 import { FlashList } from '@shopify/flash-list';
 import { ArrowRight } from 'lucide-react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Keyboard, Pressable, View } from 'react-native';
-import { useCallback, useMemo, useState } from 'react';
+import { ActivityIndicator, Keyboard, Pressable, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner-native';
-import Animated, { FadeInDown, LinearTransition } from 'react-native-reanimated';
+import Animated, {
+  FadeInDown,
+  LinearTransition,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withTiming,
+} from 'react-native-reanimated';
 
 export default function DepositScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -45,7 +50,16 @@ export default function DepositScreen() {
   const isUsd = holdingData?.baseCurrency === 'USD';
   const currencyUnit = isUsd ? '$' : '₩';
 
-  const { titleAnimatedStyle, inputAnimatedStyle } = useFadeInSequence();
+  const titleOpacity = useSharedValue(0);
+  const inputOpacity = useSharedValue(0);
+
+  useEffect(() => {
+    titleOpacity.value = withTiming(1, { duration: 400 });
+    inputOpacity.value = withDelay(200, withTiming(1, { duration: 400 }));
+  }, []);
+
+  const titleAnimatedStyle = useAnimatedStyle(() => ({ opacity: titleOpacity.value }));
+  const inputAnimatedStyle = useAnimatedStyle(() => ({ opacity: inputOpacity.value }));
 
   const handleGoBack = useCallback(() => {
     if (router.canGoBack()) router.back();
@@ -53,7 +67,8 @@ export default function DepositScreen() {
 
   const handleAmountChange = useCallback(
     (text: string) => {
-      setDepositAmount(sanitizeDigits(text));
+      const cleaned = text.replace(/[^0-9]/g, '');
+      setDepositAmount(cleaned);
       if (hasExpanded) {
         setHasExpanded(false);
         resetTopUpPlan();
@@ -177,11 +192,17 @@ export default function DepositScreen() {
             <AmountInput value={depositAmount} onChangeText={handleAmountChange} isUsd={isUsd} />
 
             {!hasExpanded && (
-              <AmountPreviewButton
-                label="추천안 보기"
+              <Pressable
                 onPress={handleFetchPlan}
-                isPending={isPending}
-              />
+                disabled={isPending}
+                className="bg-primary mt-[8px] items-center rounded-full py-[12px]"
+                style={({ pressed }) => ({ opacity: pressed ? 0.7 : isPending ? 0.7 : 1 })}>
+                {isPending ? (
+                  <ActivityIndicator size="small" color="black" />
+                ) : (
+                  <Text className="text-primary-foreground text-lg font-semibold">추천안 보기</Text>
+                )}
+              </Pressable>
             )}
           </Animated.View>
         </Animated.View>

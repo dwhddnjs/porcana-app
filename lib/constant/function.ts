@@ -174,10 +174,3 @@ export const getReturnColorClass = (value: number): string => {
   if (value < 0) return 'text-stock-down';
   return 'text-muted-foreground';
 };
-
-/**
- * 숫자 외 문자를 제거합니다. (금액 입력값 정제 등에 사용)
- */
-export const sanitizeDigits = (value: string): string => {
-  return value.replace(/[^0-9]/g, '');
-};

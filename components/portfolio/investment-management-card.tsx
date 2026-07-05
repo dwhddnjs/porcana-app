@@ -4,7 +4,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Icon } from '@/components/ui/icon';
 import { Briefcase, ClipboardList, PlusCircle, RotateCcw } from 'lucide-react-native';
 import { cn } from '@/lib/utils';
-import { formatCurrency } from '@/lib/constant/function';
 
 type InvestmentManagementCardPropsTypes = {
   seedMoney: number;
@@ -13,6 +12,12 @@ type InvestmentManagementCardPropsTypes = {
   onPressHolding: () => void;
   onPressDeposit: () => void;
   onPressReset: () => void;
+};
+
+const formatCurrency = (value: number): string => {
+  return Math.round(value)
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
 
 export const InvestmentManagementCard = ({

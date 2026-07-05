@@ -6,7 +6,6 @@ import { Star, TrendingUp } from 'lucide-react-native';
 import { Icon } from '@/components/ui/icon';
 import { PortfolioTypes } from '@/lib/api/portfolio';
 import { Spacer } from '@/components/ui/spacer';
-import { useCallback } from 'react';
 
 type PortfolioListItemProps = {
   portfolio: PortfolioTypes;
@@ -15,21 +14,13 @@ type PortfolioListItemProps = {
 };
 
 export const PortfolioListItem = ({ portfolio, onSelect, onSetMain }: PortfolioListItemProps) => {
-  const handleSelect = useCallback(() => {
-    onSelect(portfolio.portfolioId);
-  }, [onSelect, portfolio.portfolioId]);
-
-  const handleSetMain = useCallback(() => {
-    onSetMain(portfolio.portfolioId, portfolio.isMain);
-  }, [onSetMain, portfolio.portfolioId, portfolio.isMain]);
-
   return (
     <View
       className={cn(
         'border-primary/10 flex-row items-center justify-between rounded-md border px-[16px] py-[12px]',
         portfolio.isMain ? 'bg-primary/5' : 'bg-muted/50'
       )}>
-      <Pressable className="flex-1" onPress={handleSelect}>
+      <Pressable className="flex-1" onPress={() => onSelect(portfolio.portfolioId)}>
         <View className="flex-1 gap-y-[4px]">
           <View className="flex-row items-center justify-between">
             <View>
@@ -52,7 +43,9 @@ export const PortfolioListItem = ({ portfolio, onSelect, onSetMain }: PortfolioL
               )}
             </View>
 
-            <Pressable onPress={handleSetMain} hitSlop={8}>
+            <Pressable
+              onPress={() => onSetMain(portfolio.portfolioId, portfolio.isMain)}
+              hitSlop={8}>
               <Icon
                 as={Star}
                 size={20}

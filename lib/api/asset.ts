@@ -206,34 +206,6 @@ export const getAsset = async ({ assetId }: { assetId: string }): Promise<AssetD
   };
 };
 
-type DbPrefetchAssetRowTypes = {
-  market: string;
-  ticker: string;
-  website_domain: string | null;
-  image_url: string | null;
-};
-
-export type PrefetchAssetImageTypes = string | string[];
-
-// 로고 이미지가 있는(image_url 또는 website_domain 매핑된) 국장 종목의 이미지 URL 목록.
-// image_url만 있고 website_domain은 없는 종목(parqet CDN)까지 포함해야 누락 없이 커버된다.
-// 설치 화면에서 expo-image로 미리 캐시 워밍하는 데 사용.
-export const getPrefetchAssetImages = async (): Promise<PrefetchAssetImageTypes[]> => {
-  const { data, error } = await supabase
-    .from('assets')
-    .select('market, ticker, website_domain, image_url')
-    .eq('market', 'KR')
-    .or('image_url.not.is.null,website_domain.not.is.null')
-    .limit(5000)
-    .returns<DbPrefetchAssetRowTypes[]>();
-
-  if (error) throw error;
-
-  return (data ?? [])
-    .map((row) => resolveAssetImageUrl(row.market, row.ticker, row.website_domain, row.image_url))
-    .filter((url) => (Array.isArray(url) ? url.length > 0 : url !== ''));
-};
-
 type DbPricePointTypes = { t: string; o: number; h: number; l: number; c: number; v: number };
 
 type DbAssetPricesRowTypes = {
