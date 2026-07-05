@@ -3,7 +3,7 @@ import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { SectorTag } from '@/components/portfolio/sector-tag';
 import { SECTOR_OPTIONS, SECTOR_KO_MAP } from '@/lib/constant/variables';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { MarketTypes, AssetTypeTypes } from '@/lib/api/asset';
 import {
   useCustomPortfolioStore,
@@ -114,8 +114,9 @@ export const FilterDrawerContent = ({ navigation }: FilterDrawerContentPropsType
               <ToggleChip
                 key={m}
                 label={m}
+                value={m}
                 isSelected={localFilters.market === m}
-                onPress={() => handleToggleMarket(m)}
+                onSelect={handleToggleMarket}
               />
             ))}
           </View>
@@ -129,8 +130,9 @@ export const FilterDrawerContent = ({ navigation }: FilterDrawerContentPropsType
               <ToggleChip
                 key={t}
                 label={t}
+                value={t}
                 isSelected={localFilters.type === t}
-                onPress={() => handleToggleType(t)}
+                onSelect={handleToggleType}
               />
             ))}
           </View>
@@ -146,7 +148,7 @@ export const FilterDrawerContent = ({ navigation }: FilterDrawerContentPropsType
                 sectorType={sector}
                 label={SECTOR_KO_MAP[sector]}
                 isSelected={localFilters.sectors.includes(sector)}
-                onPress={() => handleToggleSector(sector)}
+                onPress={handleToggleSector}
               />
             ))}
           </View>
@@ -160,8 +162,9 @@ export const FilterDrawerContent = ({ navigation }: FilterDrawerContentPropsType
               <ToggleChip
                 key={level}
                 label={`${level}`}
+                value={level}
                 isSelected={localFilters.riskLevels.includes(level)}
-                onPress={() => handleToggleRisk(level)}
+                onSelect={handleToggleRisk}
               />
             ))}
           </View>
@@ -184,8 +187,9 @@ export const FilterDrawerContent = ({ navigation }: FilterDrawerContentPropsType
                 <ToggleChip
                   key={key}
                   label={`${label}${dirLabel}`}
+                  value={key}
                   isSelected={isActive}
-                  onPress={() => handleToggleSort(key)}
+                  onSelect={handleToggleSort}
                 />
               );
             })}
@@ -207,16 +211,21 @@ export const FilterDrawerContent = ({ navigation }: FilterDrawerContentPropsType
   );
 };
 
-interface ToggleChipPropsTypes {
+interface ToggleChipPropsTypes<T> {
   label: string;
+  value: T;
   isSelected: boolean;
-  onPress: () => void;
+  onSelect: (value: T) => void;
 }
 
-const ToggleChip = ({ label, isSelected, onPress }: ToggleChipPropsTypes) => {
+const ToggleChip = <T,>({ label, value, isSelected, onSelect }: ToggleChipPropsTypes<T>) => {
+  const handlePress = useCallback(() => {
+    onSelect(value);
+  }, [onSelect, value]);
+
   return (
     <Pressable
-      onPress={onPress}
+      onPress={handlePress}
       className={`border-primary rounded-full border px-3 py-1 ${isSelected ? 'bg-primary' : ''}`}>
       <Text className={`text-sm ${isSelected ? 'text-primary-foreground font-bold' : ''}`}>
         {label}

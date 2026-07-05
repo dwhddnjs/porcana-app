@@ -45,10 +45,7 @@ export default function Arena() {
   const { data: recommendedAssets, refetch, isLoading, isPending } = useRecommendArenaCardsQuery();
 
   // 추천된 assets (3장) - useMemo로 불필요한 재생성 방지
-  const currentAssets: AssetTypes[] = useMemo(
-    () => recommendedAssets ?? [],
-    [recommendedAssets]
-  );
+  const currentAssets: AssetTypes[] = useMemo(() => recommendedAssets ?? [], [recommendedAssets]);
 
   // 타이머 정리 함수
   const clearAllTimers = useCallback(() => {
@@ -128,7 +125,8 @@ export default function Arena() {
   // 새 라운드 카드 데이터 도착 감지: recommendedAssets 참조가 바뀔 때 반응
   // length 기반이 아닌 참조 기반으로 감지 → prefetch 캐시 히트(3→3) 상황도 정확히 처리
   useEffect(() => {
-    if (!waitingForNewCardsRef.current || !recommendedAssets || recommendedAssets.length === 0) return;
+    if (!waitingForNewCardsRef.current || !recommendedAssets || recommendedAssets.length === 0)
+      return;
     waitingForNewCardsRef.current = false;
     setRound((prev) => prev + 1);
     setShowCards(true);
@@ -153,12 +151,18 @@ export default function Arena() {
       if (picked && round < MAX_ROUNDS) {
         const nextExcludeIds = [...shownAssetIds, selectedAsset.assetId];
         queryClient.prefetchQuery({
-          queryKey: ['arena-recommend', picked.riskProfile, picked.sectors, selectedCards.length + 1],
-          queryFn: () => recommendArenaCards({
-            riskProfile: picked.riskProfile,
-            sectors: picked.sectors,
-            excludeIds: nextExcludeIds,
-          }),
+          queryKey: [
+            'arena-recommend',
+            picked.riskProfile,
+            picked.sectors,
+            selectedCards.length + 1,
+          ],
+          queryFn: () =>
+            recommendArenaCards({
+              riskProfile: picked.riskProfile,
+              sectors: picked.sectors,
+              excludeIds: nextExcludeIds,
+            }),
           staleTime: Infinity,
         });
       }
@@ -175,11 +179,9 @@ export default function Arena() {
           if (round >= MAX_ROUNDS) {
             addCard(selectedAsset);
             clearAllTimers();
-            ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).then(
-              () => {
-                router.replace('/(arena)/complete');
-              }
-            );
+            ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).then(() => {
+              router.replace('/(arena)/complete');
+            });
             return;
           }
 
@@ -217,7 +219,7 @@ export default function Arena() {
                   index={index}
                   asset={asset}
                   isFlipped={isFlipped}
-                  onSelect={() => handleCardSelect(index)}
+                  onSelect={handleCardSelect}
                   disabled={isTransitioning}
                   isSelected={selectedCardIndex === index}
                   width={cardWidth}

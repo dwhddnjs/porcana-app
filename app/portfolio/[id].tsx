@@ -1,7 +1,5 @@
 import { LargeHeader } from '@/components/ui/large-header';
 import { Text } from '@/components/ui/text';
-import { format, isValid } from 'date-fns';
-import { ko } from 'date-fns/locale';
 import {
   useGetPortfolioChartQuery,
   useGetPortfolioQuery,
@@ -10,51 +8,27 @@ import {
 import { useGetSimulationBaselineQuery } from '@/lib/hooks/query/simulation';
 import { cn } from '@/lib/utils';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ActivityIndicator, Keyboard, Pressable, View, useColorScheme } from 'react-native';
-import { toast } from 'sonner-native';
+import { Pressable, View, useColorScheme } from 'react-native';
 import { DeletePortfolioDialog } from '@/components/portfolio/delete-portfolio-dialog';
 import { InvestmentManagementCard } from '@/components/portfolio/investment-management-card';
 import { StartSimulationCard } from '@/components/portfolio/start-simulation-card';
+import { PortfolioSummaryCard } from '@/components/portfolio/portfolio-summary-card';
+import { ScreenError, ScreenLoading, ScreenMessage } from '@/components/ui/screen-state';
 import { Icon } from '@/components/ui/icon';
-import {
-  Check,
-  ChevronLeft,
-  Split,
-  Star,
-  StarHalf,
-  Trash2,
-  TriangleAlert,
-  TrendingUp,
-  X,
-} from 'lucide-react-native';
-import {
-  DIVERSITY_LEVEL_LABELS,
-  getDiversityLevelColor,
-  getRiskStarColor,
-} from '@/lib/constant/function';
-import RiskDistributionChart from '@/components/portfolio/risk-distribution-chart';
+import { Check, ChevronLeft, Star, Trash2, X } from 'lucide-react-native';
 import HomePortfolioChart from '@/components/portfolio/home-portfolio-chart';
 import { Spacer } from '@/components/ui/spacer';
 import { AssetItem } from '@/components/portfolio/asset-item';
 import {
   useDeletePortfolioMutation,
   useSetMainPortfolioMutation,
-  useUpdatePortfolioWeightsMutation,
 } from '@/lib/hooks/mutation/portfolio';
 import { useResetSimulationMutation } from '@/lib/hooks/mutation/simulation';
+import { usePortfolioWeightEdit } from '@/lib/hooks/use-portfolio-weight-edit';
 import { useCallback, useState } from 'react';
-import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
 import { PortfolioChartPointTypes } from '@/lib/api/portfolio';
 
-const distributeWithRemainder = (rawValues: number[]): string[] => {
-  const rounded = rawValues.map((v) => Math.round(v * 100) / 100);
-  const sum = rounded.reduce((a, b) => a + b, 0);
-  const diff = Math.round((100 - sum) * 100) / 100;
-  if (rounded.length > 0) {
-    rounded[rounded.length - 1] = Math.round((rounded[rounded.length - 1] + diff) * 100) / 100;
-  }
-  return rounded.map(String);
-};
+const CHART_RANGE = '1Y';
 
 export default function PortfolioDetailScreen() {
   const colorScheme = useColorScheme() ?? 'light';
@@ -62,91 +36,24 @@ export default function PortfolioDetailScreen() {
   const router = useRouter();
   const { data, isLoading, isError, error } = useGetPortfolioQuery(id);
   const { mutate: setMainPortfolio } = useSetMainPortfolioMutation();
-  const { mutate: updateWeights } = useUpdatePortfolioWeightsMutation();
   const { mutate: deletePortfolio, isPending: isDeleting } = useDeletePortfolioMutation();
   const { mutate: resetSimulation } = useResetSimulationMutation();
   const { data: holdingData, isLoading: isHoldingLoading } = useGetSimulationBaselineQuery(id);
-  const [chartRange, setChartRange] = useState<'1M' | '3M' | '1Y'>('1Y');
-  const { data: chartData } = useGetPortfolioChartQuery(id, chartRange);
+  const { data: chartData } = useGetPortfolioChartQuery(id, CHART_RANGE);
   const { data: returnsData } = useGetPortfolioReturnsQuery(id);
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [weightValues, setWeightValues] = useState<Record<string, string>>({});
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  const enterEditMode = useCallback(() => {
-    if (!data?.positions) return;
-    const initial: Record<string, string> = {};
-    data.positions.forEach((p) => {
-      initial[p.assetId] = String(p.weightPct);
-    });
-    setWeightValues(initial);
-    setIsEditMode(true);
-  }, [data?.positions]);
-
-  const cancelEditMode = useCallback(() => {
-    Keyboard.dismiss();
-    setIsEditMode(false);
-    setWeightValues({});
-  }, []);
-
-  const handleSave = useCallback(() => {
-    if (!id) return;
-    Keyboard.dismiss();
-    const weights = Object.entries(weightValues).map(([assetId, value]) => ({
-      assetId,
-      weightPct: Math.round(parseFloat(value || '0') * 100) / 100,
-    }));
-    const total = weights.reduce((sum, w) => sum + w.weightPct, 0);
-    const roundedTotal = Math.round(total * 100) / 100;
-    if (roundedTotal !== 100) {
-      toast.error('비중 합계 오류', {
-        description: `합계가 100%여야 합니다. (현재: ${roundedTotal}%)`,
-      });
-      return;
-    }
-
-    updateWeights(
-      { portfolioId: id, weights },
-      {
-        onSuccess: () => {
-          setIsEditMode(false);
-          setWeightValues({});
-          toast.success('비중이 수정되었습니다');
-        },
-      }
-    );
-  }, [id, weightValues, updateWeights]);
-
-  const handleWeightChange = useCallback((assetId: string, value: string) => {
-    setWeightValues((prev) => ({ ...prev, [assetId]: value }));
-  }, []);
-
-  const handleEqualDistribute = useCallback(() => {
-    if (!data?.positions || data.positions.length === 0) return;
-    const ids = data.positions.map((p) => p.assetId);
-    const each = 100 / ids.length;
-    const distributed = distributeWithRemainder(ids.map(() => each));
-    const next: Record<string, string> = {};
-    ids.forEach((assetId, i) => {
-      next[assetId] = distributed[i];
-    });
-    setWeightValues(next);
-  }, [data?.positions]);
-
-  const handleNormalize = useCallback(() => {
-    if (!data?.positions || data.positions.length === 0) return;
-    const ids = data.positions.map((p) => p.assetId);
-    const raws = ids.map((assetId) => parseFloat(weightValues[assetId] ?? '0') || 0);
-    const total = raws.reduce((a, b) => a + b, 0);
-    if (total <= 0) return;
-    const scaled = raws.map((v) => (v * 100) / total);
-    const distributed = distributeWithRemainder(scaled);
-    const next: Record<string, string> = {};
-    ids.forEach((assetId, i) => {
-      next[assetId] = distributed[i];
-    });
-    setWeightValues(next);
-  }, [data?.positions, weightValues]);
+  const {
+    isEditMode,
+    weightValues,
+    totalWeight,
+    enterEditMode,
+    cancelEditMode,
+    handleWeightChange,
+    handleEqualDistribute,
+    handleNormalize,
+    handleSave,
+  } = usePortfolioWeightEdit({ portfolioId: id, positions: data?.positions });
 
   const handleDeletePress = useCallback(() => {
     setIsDeleteDialogOpen(true);
@@ -183,62 +90,41 @@ export default function PortfolioDetailScreen() {
     router.push(`/portfolio/deposit/${id}`);
   }, [id, router]);
 
-  const handleSetChartRange = useCallback((range: '1M' | '3M' | '1Y') => {
-    setChartRange(range);
-  }, []);
+  const handleAssetPress = useCallback(
+    (assetId: string) => {
+      router.push(`/asset/${assetId}`);
+    },
+    [router]
+  );
 
-  const goBack = () => {
+  const goBack = useCallback(() => {
     if (isEditMode) return;
     if (router.canGoBack()) {
       router.back();
     } else {
       router.replace('/(tabs)/(portfolio)/(main)');
     }
-  };
-
-  const totalWeight = Object.values(weightValues).reduce((sum, v) => sum + (parseFloat(v) || 0), 0);
+  }, [isEditMode, router]);
 
   if (!id) {
-    return (
-      <View className="bg-background flex-1 items-center justify-center">
-        <Text className="text-muted-foreground">포트폴리오 ID가 없습니다.</Text>
-      </View>
-    );
+    return <ScreenMessage message="포트폴리오 ID가 없습니다." />;
   }
 
   if (isLoading) {
-    return (
-      <View className="bg-background flex-1 items-center justify-center">
-        <ActivityIndicator size="large" />
-      </View>
-    );
+    return <ScreenLoading />;
   }
 
   if (isError || !data) {
     return (
-      <View className="bg-background flex-1 items-center justify-center px-4">
-        <Text className="text-destructive mb-2 text-center">포트폴리오를 불러오지 못했습니다.</Text>
-        <Text className="text-muted-foreground mb-4 text-center text-sm">
-          {error?.message ?? '잠시 후 다시 시도해 주세요.'}
-        </Text>
-        <Pressable onPress={goBack} className="bg-primary rounded-lg px-4 py-2">
-          <Text className="text-primary-foreground font-medium">돌아가기</Text>
-        </Pressable>
-      </View>
+      <ScreenError
+        title="포트폴리오를 불러오지 못했습니다."
+        description={error?.message}
+        onRetry={goBack}
+      />
     );
   }
 
-  const isPositive = data.totalReturnPct >= 0;
-  const createdAtDate = new Date(data.createdAt ?? '');
-  const formattedCreatedAt = isValid(createdAtDate)
-    ? format(createdAtDate, 'yyyy년 M월 d일', { locale: ko })
-    : '-';
-
   const riskLevel = data.averageRiskLevel || 0;
-
-  // 별 개수 계산 (전체 별 + 반개 별)
-  const fullStars = Math.floor(riskLevel);
-  const hasHalfStar = riskLevel % 1 >= 0.5;
 
   return (
     <LargeHeader
@@ -276,122 +162,17 @@ export default function PortfolioDetailScreen() {
         )
       }>
       <View className="px-[12px]">
-        {/* 수익률 요약 카드 */}
-
-        <View className="py-[18px]">
-          <View className="gap-y-[24px] px-[8px]">
-            <View>
-              <View className="flex-row items-center gap-2">
-                <Icon as={TrendingUp} size={20} className="text-primary" />
-                <Text className="text-lg font-semibold">수익률</Text>
-              </View>
-              <Text
-                className={cn(
-                  'text-3xl font-bold',
-                  isPositive ? 'text-stock-up' : 'text-stock-down'
-                )}>
-                {isPositive ? '+' : ''}
-                {data.totalReturnPct.toFixed(2)}%
-              </Text>
-            </View>
-            <View className="flex-row justify-between">
-              <View className="flex-1 justify-between">
-                <View className="flex-row items-center gap-2">
-                  <Icon as={TriangleAlert} size={16} className="text-primary" />
-                  <Text className="font-semibold">평균 위험도</Text>
-                  <Text className="text-muted-foreground text-md">{riskLevel}</Text>
-                </View>
-                <View className="flex-row items-center gap-1">
-                  {Array.from({ length: fullStars }).map((_, index) => (
-                    <Icon
-                      key={`full-${index}`}
-                      as={Star}
-                      size={16}
-                      strokeWidth={0}
-                      fill={getRiskStarColor(riskLevel, colorScheme)}
-                    />
-                  ))}
-                  {hasHalfStar && (
-                    <Icon
-                      key="half"
-                      as={StarHalf}
-                      size={16}
-                      strokeWidth={0}
-                      fill={getRiskStarColor(riskLevel, colorScheme)}
-                    />
-                  )}
-                </View>
-              </View>
-              <View className="flex-1 justify-between">
-                <View className="flex-row items-center gap-2">
-                  <Icon as={Split} size={16} className="text-primary" />
-                  <Text className="font-semibold">분산도</Text>
-                </View>
-                <Text className={getDiversityLevelColor(data?.diversityLevel)}>
-                  {DIVERSITY_LEVEL_LABELS[data?.diversityLevel ?? 'LOW']}
-                </Text>
-              </View>
-            </View>
-            <RiskDistributionChart data={data.riskDistribution} />
-            {returnsData &&
-              [
-                returnsData.return1D,
-                returnsData.return1W,
-                returnsData.return1M,
-                returnsData.return1Y,
-              ].some((v) => v !== null) && (
-                <View className="flex-row justify-between">
-                  {(
-                    [
-                      { label: '1일', value: returnsData.return1D },
-                      { label: '1주', value: returnsData.return1W },
-                      { label: '1개월', value: returnsData.return1M },
-                      { label: '1년', value: returnsData.return1Y },
-                    ] as { label: string; value: number | null }[]
-                  ).map((item) => (
-                    <View key={item.label} className="items-center gap-[2px]">
-                      <Text className="text-muted-foreground text-xs">{item.label}</Text>
-                      <Text
-                        className={cn(
-                          'text-sm font-semibold',
-                          item.value === null
-                            ? 'text-muted-foreground'
-                            : item.value >= 0
-                              ? 'text-stock-up'
-                              : 'text-stock-down'
-                        )}>
-                        {item.value === null
-                          ? '-'
-                          : `${item.value >= 0 ? '+' : ''}${item.value.toFixed(2)}%`}
-                      </Text>
-                    </View>
-                  ))}
-                </View>
-              )}
-          </View>
-        </View>
+        <PortfolioSummaryCard
+          totalReturnPct={data.totalReturnPct}
+          riskLevel={riskLevel}
+          diversityLevel={data.diversityLevel}
+          riskDistribution={data.riskDistribution}
+          returnsData={returnsData}
+          colorScheme={colorScheme}
+        />
         {/* 차트 */}
         {(chartData ?? []).length >= 2 && (
           <View>
-            {/* <View className="flex-row justify-end gap-[4px] px-[8px] pb-[8px]">
-              {(['1M', '3M', '1Y'] as const).map((r) => (
-                <Pressable
-                  key={r}
-                  onPress={() => handleSetChartRange(r)}
-                  className={cn(
-                    'rounded-full px-[10px] py-[4px]',
-                    chartRange === r ? 'bg-primary' : 'bg-muted'
-                  )}>
-                  <Text
-                    className={cn(
-                      'text-xs font-semibold',
-                      chartRange === r ? 'text-primary-foreground' : 'text-muted-foreground'
-                    )}>
-                    {r}
-                  </Text>
-                </Pressable>
-              ))}
-            </View> */}
             <HomePortfolioChart
               data={chartData as PortfolioChartPointTypes[]}
               totalReturnPct={data.totalReturnPct}
@@ -458,14 +239,8 @@ export default function PortfolioDetailScreen() {
               isEditMode={isEditMode}
               showContribution={(chartData ?? []).length >= 2}
               weightValue={weightValues[item.assetId]}
-              onWeightChange={(value) => handleWeightChange(item.assetId, value)}
-              onPress={
-                isEditMode
-                  ? undefined
-                  : () => {
-                      router.push(`/asset/${item.assetId}`);
-                    }
-              }
+              onWeightChange={handleWeightChange}
+              onPress={isEditMode ? undefined : handleAssetPress}
             />
           ))}
         </View>
