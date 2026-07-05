@@ -67,6 +67,7 @@ export default function RootLayout() {
           <ThemeProvider value={NAV_THEME[theme ?? 'light']}>
             <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
             <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="index" options={{ headerShown: false, animation: 'fade' }} />
               <Stack.Screen
                 name="install"
                 options={{ headerShown: false, gestureEnabled: false, animation: 'fade' }}
@@ -76,6 +77,7 @@ export default function RootLayout() {
                 options={{
                   headerShown: false,
                   gestureEnabled: false,
+                  animation: 'fade',
                 }}
               />
 

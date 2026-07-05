@@ -9,7 +9,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { Text } from '@/components/ui/text';
-import { memo, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import { AssetTypes } from '@/lib/hooks/zustand/use-arena-store';
 import { Icon } from '@/components/ui/icon';
 import { Image } from '@/components/ui/image';
@@ -23,7 +23,7 @@ const logoWhite = require('@/assets/images/logo-white.png');
 
 interface FlipCardProps {
   index: number;
-  onSelect: () => void;
+  onSelect: (index: number) => void;
   isFlipped: boolean;
   asset: AssetTypes;
   disabled?: boolean;
@@ -82,6 +82,10 @@ export const FlipCard = memo(function FlipCard({
     }
   }, [isSelected, isPressed]);
 
+  const handleSelect = useCallback(() => {
+    onSelect(index);
+  }, [onSelect, index]);
+
   const handlePressIn = () => {
     if (!disabled && isFlipped && !isSelected) {
       setIsPressed(true);
@@ -110,7 +114,7 @@ export const FlipCard = memo(function FlipCard({
 
   return (
     <AnimatedPressable
-      onPress={onSelect}
+      onPress={handleSelect}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       disabled={disabled || !isFlipped}
@@ -124,6 +128,8 @@ export const FlipCard = memo(function FlipCard({
             source={colorScheme === 'dark' ? logoWhite : logoBlack}
             className="h-12 w-12"
             contentFit="contain"
+            placeholder={null}
+            transition={0}
           />
           <View className="border-primary absolute top-2 right-2 bottom-2 left-2 rounded-lg border opacity-30" />
         </View>
