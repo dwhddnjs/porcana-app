@@ -1,12 +1,11 @@
 import { Keyboard, View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Label } from '@/components/ui/label';
-import { Controller, useForm } from 'react-hook-form';
+import { useController, useForm } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { KeyboardStickyButton } from '@/components/ui/keyboard-sticky-button';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
-import { z } from 'zod';
 import { useRouter } from 'expo-router';
 import { useSignupStore } from '@/lib/hooks/zustand/use-signup-store';
 import Container from '@/components/ui/container';
@@ -24,7 +23,6 @@ export default function EnterEmailScreen() {
     handleSubmit,
     setError,
     clearErrors,
-    watch,
     formState: { errors },
   } = useForm<EmailFormDataTypes>({
     resolver: zodResolver(emailSchema),
@@ -33,13 +31,18 @@ export default function EnterEmailScreen() {
     },
   });
 
-  const emailValue = watch('email');
+  const {
+    field: { onChange, onBlur, value },
+  } = useController({ control, name: 'email' });
 
   const handleShouldSetResponder = () => true;
   const handleResponderRelease = () => Keyboard.dismiss();
+  const handleEmailChange = (text: string) => {
+    onChange(text);
+    clearErrors('email');
+  };
 
   const onSubmit = async (data: EmailFormDataTypes) => {
-    clearErrors('email');
     try {
       const { available } = await checkEmail({ email: data.email });
       if (!available) {
@@ -67,24 +70,18 @@ export default function EnterEmailScreen() {
               이메일을 입력해주세요
             </Label>
             <View className="gap-y-[12px]">
-              <Controller
-                control={control}
-                name="email"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <Input
-                    id="email"
-                    placeholder="m@example.com"
-                    keyboardType="email-address"
-                    autoComplete="email"
-                    autoCapitalize="none"
-                    onSubmitEditing={handleSubmit(onSubmit)}
-                    returnKeyType="next"
-                    submitBehavior="submit"
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                  />
-                )}
+              <Input
+                id="email"
+                placeholder="m@example.com"
+                keyboardType="email-address"
+                autoComplete="email"
+                autoCapitalize="none"
+                onSubmitEditing={handleSubmit(onSubmit)}
+                returnKeyType="next"
+                submitBehavior="submit"
+                value={value}
+                onChangeText={handleEmailChange}
+                onBlur={onBlur}
               />
               {errors.email && (
                 <Text className="text-destructive text-sm">{errors.email.message}</Text>
@@ -96,7 +93,7 @@ export default function EnterEmailScreen() {
       <KeyboardStickyButton
         onPress={handleSubmit(onSubmit)}
         size="lg"
-        disabled={!emailValue.trim()}>
+        disabled={!value.trim()}>
         <Text>다음</Text>
       </KeyboardStickyButton>
     </Container>

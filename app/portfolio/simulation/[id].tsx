@@ -13,26 +13,22 @@ import {
   type Option,
 } from '@/components/ui/select';
 import { BaselineItem } from '@/components/portfolio/baseline-item';
+import { AmountPreviewButton } from '@/components/portfolio/amount-preview-button';
 import {
   useSimulationPreviewMutation,
   useStartSimulationMutation,
 } from '@/lib/hooks/mutation/simulation';
 import { useKeyboardVisible } from '@/lib/hooks/use-keyboard-visible';
+import { useFadeInSequence } from '@/lib/hooks/use-fade-in-sequence';
+import { sanitizeDigits } from '@/lib/constant/function';
 import { type SimulationBaselineItemTypes } from '@/lib/api/simulation';
 import { FlashList } from '@shopify/flash-list';
 import { CheckIcon } from 'lucide-react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Keyboard, Pressable, View } from 'react-native';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { toast } from 'sonner-native';
-import Animated, {
-  FadeInDown,
-  LinearTransition,
-  useAnimatedStyle,
-  useSharedValue,
-  withDelay,
-  withTiming,
-} from 'react-native-reanimated';
+import Animated, { FadeInDown, LinearTransition } from 'react-native-reanimated';
 
 export default function SimulationScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -53,16 +49,7 @@ export default function SimulationScreen() {
   } = useSimulationPreviewMutation();
   const { mutate: confirmSeed, isPending: isConfirming } = useStartSimulationMutation();
 
-  const titleOpacity = useSharedValue(0);
-  const inputOpacity = useSharedValue(0);
-
-  useEffect(() => {
-    titleOpacity.value = withTiming(1, { duration: 400 });
-    inputOpacity.value = withDelay(200, withTiming(1, { duration: 400 }));
-  }, []);
-
-  const titleAnimatedStyle = useAnimatedStyle(() => ({ opacity: titleOpacity.value }));
-  const inputAnimatedStyle = useAnimatedStyle(() => ({ opacity: inputOpacity.value }));
+  const { titleAnimatedStyle, inputAnimatedStyle } = useFadeInSequence();
 
   const isUsd = baseCurrency?.value === 'USD';
   const currencyUnit = isUsd ? '$' : '원';
@@ -76,8 +63,7 @@ export default function SimulationScreen() {
 
   const handleSeedMoneyChange = useCallback(
     (text: string) => {
-      const cleaned = text.replace(/[^0-9]/g, '');
-      setSeedMoney(cleaned);
+      setSeedMoney(sanitizeDigits(text));
       collapsePreview();
     },
     [collapsePreview]
@@ -207,13 +193,9 @@ export default function SimulationScreen() {
               </View>
             </AmountInput>
 
-            <Pressable
-              onPress={handleSetSeed}
-              disabled={isPending}
-              className="bg-primary items-center rounded-full py-[12px]"
-              style={({ pressed }) => ({ opacity: pressed || isPending ? 0.7 : 1 })}>
-              <Text className="text-primary-foreground text-lg font-semibold">미리보기</Text>
-            </Pressable>
+            {!hasExpanded && (
+              <AmountPreviewButton label="미리보기" onPress={handleSetSeed} isPending={isPending} />
+            )}
           </Animated.View>
         </Animated.View>
 

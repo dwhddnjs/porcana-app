@@ -4,14 +4,16 @@ import { useGetAssetChartQuery, useGetAssetQuery } from '@/lib/hooks/query/asset
 import { useLoadingStore } from '@/lib/hooks/zustand/use-loading-store';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AssetImage } from '@/components/portfolio/asset-image';
 import { Spacer } from '@/components/ui/spacer';
 import { ChartRangeTypes } from '@/lib/api/asset';
-import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { SECTOR_KO_MAP } from '@/lib/constant/variables';
+import { GrabberHandle } from '@/components/ui/grabber-handle';
+import { ChartRangeSelector } from '@/components/portfolio/chart-range-selector';
+import { ScreenError, ScreenLoading, ScreenMessage } from '@/components/ui/screen-state';
 
 export default function AssetDetailScreen() {
   const { assetId } = useLocalSearchParams<{ assetId: string }>();
@@ -20,12 +22,7 @@ export default function AssetDetailScreen() {
   const { show, hide } = useLoadingStore();
   const { data, isLoading, isError, error } = useGetAssetQuery(assetId);
   const [chartRange, setChartRange] = useState<ChartRangeTypes>('1M');
-  const {
-    data: chartData,
-    isLoading: isChartLoading,
-    isError: isChartError,
-    error: chartError,
-  } = useGetAssetChartQuery(assetId, chartRange);
+  const { data: chartData, isLoading: isChartLoading } = useGetAssetChartQuery(assetId, chartRange);
 
   useEffect(() => {
     if (isLoading) {
@@ -35,59 +32,37 @@ export default function AssetDetailScreen() {
     }
   }, [isLoading, show, hide]);
 
-  const goBack = () => {
+  const goBack = useCallback(() => {
     router.back();
-  };
-
-  const handleSelectRange1M = useCallback(() => setChartRange('1M'), []);
-  const handleSelectRange3M = useCallback(() => setChartRange('3M'), []);
-  const handleSelectRange1Y = useCallback(() => setChartRange('1Y'), []);
+  }, [router]);
 
   if (!assetId) {
-    return (
-      <View className="bg-background flex-1 items-center justify-center">
-        <Text className="text-muted-foreground">자산 ID가 없습니다.</Text>
-      </View>
-    );
+    return <ScreenMessage message="자산 ID가 없습니다." />;
   }
 
   if (isLoading || !data) {
-    return (
-      <View className="bg-background flex-1 items-center justify-center">
-        <ActivityIndicator size="large" />
-      </View>
-    );
+    return <ScreenLoading />;
   }
 
   if (isError) {
     return (
-      <View className="bg-background flex-1 items-center justify-center px-4">
-        <Text className="text-destructive mb-2 text-center">자산을 불러오지 못했습니다.</Text>
-        <Text className="text-muted-foreground mb-4 text-center text-sm">
-          {error?.message ?? '잠시 후 다시 시도해 주세요.'}
-        </Text>
-        <Pressable onPress={goBack} className="bg-primary rounded-lg px-4 py-2">
-          <Text className="text-primary-foreground font-medium">돌아가기</Text>
-        </Pressable>
-      </View>
+      <ScreenError
+        title="자산을 불러오지 못했습니다."
+        description={error?.message}
+        onRetry={goBack}
+      />
     );
   }
 
   return (
     <View className="bg-background flex-1" style={{ paddingBottom: insets.bottom }}>
       {/* 커스텀 그리퍼 핸들 */}
-      <View className="items-center py-3">
-        <View className="bg-muted-foreground/40 h-1 w-10 rounded-full" />
-      </View>
+      <GrabberHandle />
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 24 }}>
         <View>
           <View className="gap-y-[12px] px-[20px]">
             <View className="flex-row items-center gap-3">
-              <AssetImage
-                imageUrl={data.imageUrl}
-                name={data.name}
-                size={48}
-              />
+              <AssetImage imageUrl={data.imageUrl} name={data.name} size={48} />
               <View className="flex-1">
                 <View className="flex-row items-center justify-between gap-2">
                   <Text
@@ -127,50 +102,7 @@ export default function AssetDetailScreen() {
 
           <View className="flex-row items-center justify-between px-[20px]">
             <Text className="text-lg font-semibold">가격 차트</Text>
-            <View className="flex-row items-center gap-3">
-              <Pressable
-                className={cn(
-                  'h-8 w-9 items-center justify-center rounded-md',
-                  chartRange === '1M' && 'bg-primary/10'
-                )}
-                onPress={handleSelectRange1M}>
-                <Text
-                  className={cn(
-                    'text-muted-foreground text-sm',
-                    chartRange === '1M' && 'text-primary font-semibold'
-                  )}>
-                  1M
-                </Text>
-              </Pressable>
-              <Pressable
-                className={cn(
-                  'h-8 w-9 items-center justify-center rounded-md bg-none',
-                  chartRange === '3M' && 'bg-primary/10'
-                )}
-                onPress={handleSelectRange3M}>
-                <Text
-                  className={cn(
-                    'text-muted-foreground text-sm',
-                    chartRange === '3M' && 'text-primary font-semibold'
-                  )}>
-                  3M
-                </Text>
-              </Pressable>
-              <Pressable
-                className={cn(
-                  'h-8 w-9 items-center justify-center rounded-md bg-none',
-                  chartRange === '1Y' && 'bg-primary/10'
-                )}
-                onPress={handleSelectRange1Y}>
-                <Text
-                  className={cn(
-                    'text-muted-foreground text-sm',
-                    chartRange === '1Y' && 'text-primary font-semibold'
-                  )}>
-                  1Y
-                </Text>
-              </Pressable>
-            </View>
+            <ChartRangeSelector value={chartRange} onSelect={setChartRange} />
           </View>
           <AssetCandlestickChart
             points={chartData?.points}
