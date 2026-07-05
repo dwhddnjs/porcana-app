@@ -7,9 +7,12 @@ import Container from '@/components/ui/container';
 import { Text } from '@/components/ui/text';
 import { useInstallPrefetch } from '@/lib/hooks/query/use-install-prefetch';
 import { useUserStore } from '@/lib/hooks/zustand/use-user-store';
+import { Spacer } from '@/components/ui/spacer';
 
-const LOGO_LIGHT = require('@/assets/images/logo/splash-icon-light.png');
-const LOGO_DARK = require('@/assets/images/logo/splash-icon-dark.png');
+const LOGO_LIGHT = require('@/assets/images/logo-black.png');
+const LOGO_DARK = require('@/assets/images/logo-white.png');
+// const LOGO_LIGHT = require('@/assets/images/logo/splash-icon-light.png');
+// const LOGO_DARK = require('@/assets/images/logo/splash-icon-dark.png');
 
 export default function InstallScreen() {
   const router = useRouter();
@@ -29,18 +32,14 @@ export default function InstallScreen() {
 
   return (
     <Container>
-      <View className="flex-1 items-center justify-center gap-y-[32px] px-[40px]">
-        <ExpoImage
-          source={logoSource}
-          contentFit="contain"
-          style={{ width: 160, height: 160 }}
-        />
+      <View className="flex-1 items-center justify-center gap-y-[20px]">
+        <ExpoImage source={logoSource} contentFit="contain" style={{ width: 100, height: 100 }} />
 
-        <View className="w-full max-w-[240px] items-center gap-y-[12px]">
+        <View className="w-full max-w-[240px] gap-y-[8px]">
+          <Text className="text-muted-foreground self-end text-sm">{percent}%</Text>
           <View className="bg-muted h-[6px] w-full overflow-hidden rounded-full">
             <View className="bg-primary h-full rounded-full" style={{ width: `${percent}%` }} />
           </View>
-          <Text className="text-muted-foreground text-sm">{percent}%</Text>
         </View>
       </View>
     </Container>

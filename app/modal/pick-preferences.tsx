@@ -5,17 +5,63 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 import { Icon } from '@/components/ui/icon';
-import { HandFistIcon, ShieldIcon, ScaleIcon } from 'lucide-react-native';
+import { HandFistIcon, ShieldIcon, ScaleIcon, type LucideIcon } from 'lucide-react-native';
 import { SectorTag } from '@/components/portfolio/sector-tag';
+import { GrabberHandle } from '@/components/ui/grabber-handle';
 import { SECTOR_OPTIONS, SECTOR_OPTIONS_KO } from '@/lib/constant/variables';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useArenaStore } from '@/lib/hooks/zustand/use-arena-store';
 import * as ScreenOrientation from 'expo-screen-orientation';
+import { cn } from '@/lib/utils';
 
 import Container from '@/components/ui/container';
 import { Spacer } from '@/components/ui/spacer';
 
 export type RiskProfileTypes = 'AGGRESSIVE' | 'BALANCED' | 'SAFE' | null;
+
+const RISK_PROFILES: { profile: NonNullable<RiskProfileTypes>; icon: LucideIcon; label: string }[] =
+  [
+    { profile: 'AGGRESSIVE', icon: HandFistIcon, label: '공격형' },
+    { profile: 'BALANCED', icon: ScaleIcon, label: '중립형' },
+    { profile: 'SAFE', icon: ShieldIcon, label: '수비형' },
+  ];
+
+type RiskProfileButtonProps = {
+  profile: NonNullable<RiskProfileTypes>;
+  icon: LucideIcon;
+  label: string;
+  isSelected: boolean;
+  onSelect: (profile: NonNullable<RiskProfileTypes>) => void;
+};
+
+const RiskProfileButton = ({
+  profile,
+  icon,
+  label,
+  isSelected,
+  onSelect,
+}: RiskProfileButtonProps) => {
+  const handlePress = useCallback(() => {
+    onSelect(profile);
+  }, [onSelect, profile]);
+
+  return (
+    <Pressable
+      onPress={handlePress}
+      className={cn(
+        'border-primary h-[72px] w-[72px] items-center justify-center gap-y-[2px] rounded-full border-2',
+        isSelected && 'bg-primary'
+      )}>
+      <Icon
+        as={icon}
+        className={cn('size-8', isSelected ? 'text-primary-foreground' : 'text-primary')}
+      />
+      <Text className={cn('text-xs font-semibold', isSelected && 'text-primary-foreground')}>
+        {label}
+      </Text>
+    </Pressable>
+  );
+};
 
 export default function PickPreferences() {
   const [portfolioName, setPortfolioName] = useState('');
@@ -24,19 +70,19 @@ export default function PickPreferences() {
 
   const { resetArena, setName, setPicked } = useArenaStore((state) => state);
 
-  const handleRiskProfileSelect = (profile: RiskProfileTypes) => {
+  const handleRiskProfileSelect = useCallback((profile: RiskProfileTypes) => {
     setSelectedRiskProfile((prev) => (prev === profile ? null : profile));
-  };
+  }, []);
 
   const isSectorMaxed = selectedSector.length >= 3;
 
-  const handleSectorSelect = (sector: string) => {
+  const handleSectorSelect = useCallback((sector: string) => {
     setSelectedSector((prev) => {
       if (prev.includes(sector)) return prev.filter((s) => s !== sector);
       if (prev.length >= 3) return prev;
       return [...prev, sector];
     });
-  };
+  }, []);
 
   const handleNameChange = (text: string) => {
     setPortfolioName(text);
@@ -68,9 +114,7 @@ export default function PickPreferences() {
   return (
     <Container edges={['bottom']}>
       <Pressable onPress={handleDismissKeyboard}>
-        <View className="items-center py-3">
-          <View className="bg-muted-foreground/40 h-1 w-10 rounded-full" />
-        </View>
+        <GrabberHandle />
       </Pressable>
       <ScrollView
         contentContainerClassName="px-[20px] pt-[40px] pb-[20px]"
@@ -90,42 +134,16 @@ export default function PickPreferences() {
           <View className="gap-y-[20px]">
             <Text className="text-center text-2xl font-bold">당신은 리스크 프로필은 ?</Text>
             <View className="flex-row justify-center gap-x-[24px]">
-              <Pressable
-                onPress={() => handleRiskProfileSelect('AGGRESSIVE')}
-                className={`border-primary h-[72px] w-[72px] items-center justify-center gap-y-[2px] rounded-full border-2 ${selectedRiskProfile === 'AGGRESSIVE' ? 'bg-primary' : ''}`}>
-                <Icon
-                  as={HandFistIcon}
-                  className={`size-8 ${selectedRiskProfile === 'AGGRESSIVE' ? 'text-primary-foreground' : 'text-primary'}`}
+              {RISK_PROFILES.map(({ profile, icon, label }) => (
+                <RiskProfileButton
+                  key={profile}
+                  profile={profile}
+                  icon={icon}
+                  label={label}
+                  isSelected={selectedRiskProfile === profile}
+                  onSelect={handleRiskProfileSelect}
                 />
-                <Text
-                  className={`text-xs font-semibold ${selectedRiskProfile === 'AGGRESSIVE' ? 'text-primary-foreground' : ''}`}>
-                  공격형
-                </Text>
-              </Pressable>
-              <Pressable
-                onPress={() => handleRiskProfileSelect('BALANCED')}
-                className={`border-primary h-[72px] w-[72px] items-center justify-center gap-y-[2px] rounded-full border-2 ${selectedRiskProfile === 'BALANCED' ? 'bg-primary' : ''}`}>
-                <Icon
-                  as={ScaleIcon}
-                  className={`size-8 ${selectedRiskProfile === 'BALANCED' ? 'text-primary-foreground' : 'text-primary'}`}
-                />
-                <Text
-                  className={`text-xs font-semibold ${selectedRiskProfile === 'BALANCED' ? 'text-primary-foreground' : ''}`}>
-                  중립형
-                </Text>
-              </Pressable>
-              <Pressable
-                onPress={() => handleRiskProfileSelect('SAFE')}
-                className={`border-primary h-[72px] w-[72px] items-center justify-center gap-y-[2px] rounded-full border-2 ${selectedRiskProfile === 'SAFE' ? 'bg-primary' : ''}`}>
-                <Icon
-                  as={ShieldIcon}
-                  className={`size-8 ${selectedRiskProfile === 'SAFE' ? 'text-primary-foreground' : 'text-primary'}`}
-                />
-                <Text
-                  className={`text-xs font-semibold ${selectedRiskProfile === 'SAFE' ? 'text-primary-foreground' : ''}`}>
-                  수비형
-                </Text>
-              </Pressable>
+              ))}
             </View>
           </View>
           <View className="gap-y-[20px]">
@@ -140,7 +158,7 @@ export default function PickPreferences() {
                     label={sectorKo}
                     isSelected={selectedSector.includes(sectorType)}
                     disabled={isSectorMaxed && !selectedSector.includes(sectorType)}
-                    onPress={() => handleSectorSelect(sectorType)}
+                    onPress={handleSectorSelect}
                   />
                 );
               })}
