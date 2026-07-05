@@ -15,6 +15,7 @@ import {
 } from 'lucide-react-native';
 import { Icon } from '../ui/icon';
 import { cn } from '@/lib/utils';
+import { useCallback } from 'react';
 
 const SECTOR_ICON = {
   MATERIALS: BrickWall,
@@ -35,7 +36,7 @@ interface SectorTagPropsTypes {
   label: string;
   isSelected: boolean;
   disabled?: boolean;
-  onPress: () => void;
+  onPress: (sectorType: string) => void;
 }
 
 export const SectorTag = ({
@@ -45,9 +46,13 @@ export const SectorTag = ({
   disabled,
   onPress,
 }: SectorTagPropsTypes) => {
+  const handlePress = useCallback(() => {
+    onPress(sectorType);
+  }, [onPress, sectorType]);
+
   return (
     <Pressable
-      onPress={onPress}
+      onPress={handlePress}
       disabled={disabled}
       className={cn(
         'border-primary flex-row items-center justify-center gap-x-[6px] rounded-full border-2 px-[12px] py-[4px]',

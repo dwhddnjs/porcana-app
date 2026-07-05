@@ -18,6 +18,7 @@ import { Toaster } from 'sonner-native';
 import { useUniwind } from 'uniwind';
 import { useThemeSync } from '@/lib/hooks/use-theme-sync';
 import { useSession } from '@/lib/hooks/query/use-session';
+import { useUserStoreHydrated } from '@/lib/hooks/use-store-hydration';
 import { supabase } from '@/lib/supabase/client';
 
 export {
@@ -51,13 +52,13 @@ export default function RootLayout() {
     });
   }, [isSessionLoading]);
 
+  // 세션 로딩 + persist 리하이드레이션 완료 시 네이티브 splash 숨김
+  // → index가 곧바로 목적 화면으로 분기할 수 있어 빈 프레임 깜빡임을 방지
+  const isHydrated = useUserStoreHydrated();
   useEffect(() => {
-    const timer = setTimeout(() => {
-      SplashScreen.hideAsync();
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, []);
+    if (isSessionLoading || !isHydrated) return;
+    SplashScreen.hideAsync();
+  }, [isSessionLoading, isHydrated]);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -66,11 +67,17 @@ export default function RootLayout() {
           <ThemeProvider value={NAV_THEME[theme ?? 'light']}>
             <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
             <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="index" options={{ headerShown: false, animation: 'fade' }} />
+              <Stack.Screen
+                name="install"
+                options={{ headerShown: false, gestureEnabled: false, animation: 'fade' }}
+              />
               <Stack.Screen
                 name="(tabs)"
                 options={{
                   headerShown: false,
                   gestureEnabled: false,
+                  animation: 'fade',
                 }}
               />
 

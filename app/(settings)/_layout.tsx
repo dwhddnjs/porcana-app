@@ -5,6 +5,8 @@ export default function SettingsLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="color-mode" />
       <Stack.Screen name="edit-profile" />
+      <Stack.Screen name="terms" />
+      <Stack.Screen name="privacy" />
       <Stack.Screen name="withdraw" options={{ animation: 'slide_from_bottom' }} />
     </Stack>
   );
